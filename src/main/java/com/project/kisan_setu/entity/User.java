@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity // table creation
 @Table(name = "users") //table name
 @Getter
@@ -34,7 +36,4 @@ public class User {
 
     @Column(nullable = false)
     private String userAddress;
-
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY,orphanRemoval = true)
-    private List<UserRole> userRole;
 }
