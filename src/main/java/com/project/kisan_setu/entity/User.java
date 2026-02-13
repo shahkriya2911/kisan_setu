@@ -36,4 +36,7 @@ public class User {
 
     @Column(nullable = false)
     private String userAddress;
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY,orphanRemoval = true)
+    private List<UserRole> userRoles;
 }
