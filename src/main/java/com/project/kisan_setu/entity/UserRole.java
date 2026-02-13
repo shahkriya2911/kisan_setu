@@ -20,6 +20,7 @@ public class UserRole {
 
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private UserRoles userRoles;
 
     @ManyToOne(fetch = FetchType.LAZY)
