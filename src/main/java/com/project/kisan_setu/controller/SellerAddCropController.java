@@ -2,6 +2,7 @@ package com.project.kisan_setu.controller;
 
 import com.project.kisan_setu.entity.SellerAddCrop;
 import com.project.kisan_setu.service.SellerAddCropService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,7 +37,8 @@ public class SellerAddCropController {
     @PutMapping("/{id}")
     public SellerAddCrop updateCrop(@PathVariable Long id,
                                     @RequestBody SellerAddCrop crop) {
-        return service.updateCrop(id, crop);
+        SellerAddCrop updated = service.updateCrop(id, crop);
+        return ResponseEntity.ok(updated).getBody();
     }
     @DeleteMapping("/{id}")
     public String deleteCrop(@PathVariable Long id) {

@@ -15,40 +15,37 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SellerAddCropServiceImpl implements SellerAddCropService {
 
-    private final SellerAddCropRepository repository;
-    private final UserRepository userRepository;
+    private final SellerAddCropRepository sellerAddCropRepository;
+    private final UserRepository repository;
 
     @Override
     public SellerAddCrop saveCrop(SellerAddCrop crop) {
+        // Make sure user exists
         if (crop.getUser() == null || crop.getUser().getUserId() == null) {
-            throw new RuntimeException("User ID must not be null");
+            throw new RuntimeException("User ID is required to save a crop");
         }
-        Long userId = crop.getUser().getUserId();
-
-        User existingUser = userRepository.findById(userId)
+        // Fetch user from DB
+        User user = repository.findById(crop.getUser().getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        crop.setUser(existingUser);
-
-        crop.setCreatedAt(LocalDateTime.now());
-        return repository.save(crop);
+        crop.setUser(user); // attach the full user entity
+        return sellerAddCropRepository.save(crop);
     }
 
     @Override
     public List<SellerAddCrop> getAllCrops() {
-        return repository.findAll();
+        return sellerAddCropRepository.findAll();
     }
 
     @Override
     public SellerAddCrop getCropById(Long id) {
-        return repository.findById(id)
+        return sellerAddCropRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Crop not found with id: " + id));
     }
 
     @Override
     public SellerAddCrop updateCrop(Long id, SellerAddCrop crop) {
 
-        SellerAddCrop existing = repository.findById(id)
+        SellerAddCrop existing =sellerAddCropRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Crop not found"));
 
         existing.setCropName(crop.getCropName());
@@ -61,13 +58,13 @@ public class SellerAddCropServiceImpl implements SellerAddCropService {
         existing.setState(crop.getState());
         existing.setStatus(crop.getStatus());
 
-        return repository.save(existing);
+        return sellerAddCropRepository.save(existing);
     }
 
 
 
     @Override
     public void deleteCrop(Long id) {
-        repository.deleteById(id);
+        sellerAddCropRepository.deleteById(id);
     }
 }
