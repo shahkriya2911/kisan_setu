@@ -1,10 +1,7 @@
 package com.project.kisan_setu.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-<<<<<<< Updated upstream
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-=======
->>>>>>> Stashed changes
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -41,11 +38,4 @@ public class User {
 
     @Column(nullable = false)
     private String userAddress;
-<<<<<<< Updated upstream
-=======
-
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY,orphanRemoval = true)
-    @JsonIgnore
-    private List<UserRole> userRoles;
->>>>>>> Stashed changes
 }
