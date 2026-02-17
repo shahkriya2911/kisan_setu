@@ -9,6 +9,8 @@ import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -24,32 +26,26 @@ public class Listing {
     // 🔹 Product Info
     private String cropName;
     private String variety;
-    private String description;
+    private String grade;
+    private String harvestDate;
 
     // 🔹 Quantity & Pricing
     private Integer quantity;
-    private Double pricePerUnit;
-    private Double totalPrice;
-
+    private String unit;
+    private Double basePrice;
+    private String purchaseType;
+    private Double minimumBidIncrement;
     @Enumerated(EnumType.STRING)
     private SaleType saleType;  // FIXED or AUCTION
-
-    // 🔹 Auction Timing (nullable if FIXED)
-    private LocalDateTime biddingStartTime;
-    private LocalDateTime biddingEndTime;
+    private LocalDateTime auctionEndDate;
 
     // 🔹 Quality & Location
-    private String grade;
-    private String storageCondition;
-    private String location;
-
-    // 🔹 Status Management
-    private Boolean isDraft;
-    private Boolean isPublished;
-    private Boolean isActive;
-
-    private LocalDateTime createdAt;
-
+    private String moisture;
+    private String state;
+    private String packagingType;
+    private String district;
+    private String storageType;
+    private String pickupMethod;
     // 🔹 Seller
     @ManyToOne
     @JoinColumn(name = "seller_id")

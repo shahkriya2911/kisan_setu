@@ -1,7 +1,5 @@
 package com.project.kisan_setu.mapper;
 
-import com.project.kisan_setu.dto.SellerAddCropRequestDto;
-import com.project.kisan_setu.dto.SellerAddCropResponseDto;
 import com.project.kisan_setu.entity.Listing;
 import org.springframework.stereotype.Component;
 
