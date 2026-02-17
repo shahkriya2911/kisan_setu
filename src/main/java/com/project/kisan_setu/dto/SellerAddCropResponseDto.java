@@ -1,24 +1,17 @@
-package com.project.kisan_setu.entity;
+package com.project.kisan_setu.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "addcrops")
-public class SellerAddCrop{
+@Getter
+@Setter
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class SellerAddCropResponseDto {
     private Long id;
     private String cropName;
     private Double quantity;
@@ -30,11 +23,6 @@ public class SellerAddCrop{
     private String state;
     private String status;
     private LocalDateTime createdAt;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id", nullable = false)
-    private User seller;
-
-
-
+    private Long sellerId;
+    private String sellerName;
 }
