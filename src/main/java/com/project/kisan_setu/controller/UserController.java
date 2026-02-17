@@ -1,5 +1,8 @@
 package com.project.kisan_setu.controller;
 
+import com.project.kisan_setu.dto.CreateUserRequestDto;
+import com.project.kisan_setu.dto.UpdateUserRequestDto;
+import com.project.kisan_setu.dto.UserResponseDto;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.service.UserService;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +21,8 @@ public class UserController {
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user){
-        return userService.createUser(user);
+    public UserResponseDto createUser(@RequestBody CreateUserRequestDto createUserRequestDto){
+        return userService.createUser(createUserRequestDto);
     }
 
     @GetMapping
@@ -33,8 +36,8 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public User updateUserById(@PathVariable Long userId,@RequestBody User user){
-        return userService.updateUserById(userId,user);
+    public UserResponseDto updateUserById(@PathVariable Long userId,@RequestBody UpdateUserRequestDto updateUserRequestDto){
+        return userService.updateUserById(userId,updateUserRequestDto);
     }
 
     @DeleteMapping("/{userId}")

@@ -1,6 +1,11 @@
 package com.project.kisan_setu.service.impl;
 
+import com.project.kisan_setu.dto.CreateUserRequestDto;
+import com.project.kisan_setu.dto.UpdateUserRequestDto;
+import com.project.kisan_setu.dto.UserResponseDto;
 import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.exception.UserException;
+import com.project.kisan_setu.mapper.UserMapper;
 import com.project.kisan_setu.repository.UserRepository;
 import com.project.kisan_setu.service.UserService;
 import org.springframework.stereotype.Service;
@@ -16,13 +21,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(User user) {
-        return userRepository.save(user);
+    public UserResponseDto createUser(CreateUserRequestDto createUserRequestDto)
+    {
+        User user = UserMapper.toEntity(createUserRequestDto);
+        User savedUser = userRepository.save(user);
+        return UserMapper.toResponse(savedUser);
     }
 
     @Override
         public User getUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(()->new RuntimeException("User not found"));
+        return userRepository.findById(userId).orElseThrow(()->new UserException("User not found"));
     }
 
     @Override
@@ -31,13 +39,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUserById(Long userId, User user){
-        User updateUser = userRepository.findById(userId).orElseThrow(()->new RuntimeException("User not found"));
-        updateUser.setUserFullName(user.getUserFullName());
-        updateUser.setUserEmail(user.getUserEmail());
-        updateUser.setUserPhoneNumber(user.getUserPhoneNumber());
-        updateUser.setUserAddress(user.getUserAddress());
-        return userRepository.save(updateUser);
+    public UserResponseDto updateUserById(Long userId, UpdateUserRequestDto updateUserRequestDto){
+        User user = userRepository.findById(userId).orElseThrow(()->new RuntimeException("User not found"));
+        UserMapper.updateEntity(user,updateUserRequestDto);
+        User updateUser = userRepository.save(user);
+        return UserMapper.toResponse(updateUser);
     }
 
     @Override
