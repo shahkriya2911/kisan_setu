@@ -6,6 +6,8 @@ import com.project.kisan_setu.dto.UserResponseDto;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.UserMapper;
+import com.project.kisan_setu.repository.BuyingRequirementRepository;
+import com.project.kisan_setu.repository.SellerAddCropRepository;
 import com.project.kisan_setu.repository.UserRepository;
 import com.project.kisan_setu.service.UserService;
 import org.springframework.stereotype.Service;
@@ -15,9 +17,13 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final SellerAddCropRepository sellerAddCropRepository;
+    private final BuyingRequirementRepository buyingRequirementRepository;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, SellerAddCropRepository sellerAddCropRepository, BuyingRequirementRepository buyingRequirementRepository) {
         this.userRepository = userRepository;
+        this.sellerAddCropRepository = sellerAddCropRepository;
+        this.buyingRequirementRepository = buyingRequirementRepository;
     }
 
     @Override
@@ -49,5 +55,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUserById(Long userId){
         userRepository.deleteById(userId);
+    }
+
+    public String getUserRole(Long userId) {
+
+        // Optional: Check user exists
+        userRepository.findById(userId)
+                .orElseThrow(() -> new UserException("User not found"));
+
+        boolean isSeller = sellerAddCropRepository.existsBySellerUserId(userId);
+        boolean isBuyer = buyingRequirementRepository.existsByBuyerUserId(userId);
+
+        if (isSeller && isBuyer) return "SELLER & BUYER";
+        if (isSeller) return "SELLER";
+        if (isBuyer) return "BUYER";
+
+        return "NEW_USER";
     }
 }

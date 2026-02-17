@@ -2,10 +2,6 @@ package com.project.kisan_setu.mapper;
 
 import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.User;
-import com.project.kisan_setu.entity.UserRole;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class UserMapper {
 
@@ -18,21 +14,6 @@ public class UserMapper {
         user.setUserPassword(createUserRequestDto.getUserPassword());
         user.setUserCreatedAt(createUserRequestDto.getUserCreatedAt());
         user.setUserAddress(createUserRequestDto.getUserAddress());
-        if (createUserRequestDto.getRoles() != null && !createUserRequestDto.getRoles().isEmpty()) {
-
-            List<UserRole> userRoleList = createUserRequestDto.getRoles()
-                    .stream()
-                    .map(roleEnum -> {
-                        UserRole userRole = new UserRole();
-                        userRole.setUserRoles(roleEnum);
-                        userRole.setUser(user);   // IMPORTANT 🔥
-                        return userRole;
-                    })
-                    .collect(Collectors.toList());
-
-            user.setUserRoles(userRoleList);
-        }
-
         return user;
     }
 

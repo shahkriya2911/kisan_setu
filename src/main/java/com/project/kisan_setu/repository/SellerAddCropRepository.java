@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SellerAddCropRepository extends JpaRepository<SellerAddCrop, Long> {
+    boolean existsBySellerUserId(Long userId);
 }

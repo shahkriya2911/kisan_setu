@@ -4,4 +4,5 @@ import com.project.kisan_setu.entity.BuyingRequirement;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BuyingRequirementRepository extends JpaRepository<BuyingRequirement,Long> {
+    boolean existsByBuyerUserId(Long userId);
 }

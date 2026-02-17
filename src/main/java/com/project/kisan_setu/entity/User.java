@@ -38,8 +38,4 @@ public class User {
 
     @Column(nullable = false)
     private String userAddress;
-
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.EAGER,orphanRemoval = true)
-    @JsonIgnore
-    private List<UserRole> userRoles;
 }
