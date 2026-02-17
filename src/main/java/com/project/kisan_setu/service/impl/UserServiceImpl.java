@@ -7,7 +7,7 @@ import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.UserMapper;
 import com.project.kisan_setu.repository.BuyingRequirementRepository;
-import com.project.kisan_setu.repository.SellerAddCropRepository;
+import com.project.kisan_setu.repository.ListingRepository;
 import com.project.kisan_setu.repository.UserRepository;
 import com.project.kisan_setu.service.UserService;
 import org.springframework.stereotype.Service;
@@ -17,10 +17,10 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final SellerAddCropRepository sellerAddCropRepository;
+    private final ListingRepository sellerAddCropRepository;
     private final BuyingRequirementRepository buyingRequirementRepository;
 
-    public UserServiceImpl(UserRepository userRepository, SellerAddCropRepository sellerAddCropRepository, BuyingRequirementRepository buyingRequirementRepository) {
+    public UserServiceImpl(UserRepository userRepository, ListingRepository sellerAddCropRepository, BuyingRequirementRepository buyingRequirementRepository) {
         this.userRepository = userRepository;
         this.sellerAddCropRepository = sellerAddCropRepository;
         this.buyingRequirementRepository = buyingRequirementRepository;

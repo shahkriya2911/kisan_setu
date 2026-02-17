@@ -2,14 +2,14 @@ package com.project.kisan_setu.mapper;
 
 import com.project.kisan_setu.dto.SellerAddCropRequestDto;
 import com.project.kisan_setu.dto.SellerAddCropResponseDto;
-import com.project.kisan_setu.entity.SellerAddCrop;
+import com.project.kisan_setu.entity.Listing;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SellerAddCropMapper {
-    public SellerAddCrop toEntity(SellerAddCropRequestDto dto)
+    public Listing toEntity(SellerAddCropRequestDto dto)
     {
-        SellerAddCrop crop = new SellerAddCrop();
+        Listing crop = new Listing();
         crop.setCropName(dto.getCropName());
         crop.setQuantity(dto.getQuantity());
         crop.setBasePrice(dto.getBasePrice());
@@ -23,7 +23,7 @@ public class SellerAddCropMapper {
         return crop;
     }
 
-    public SellerAddCropResponseDto toDto(SellerAddCrop entity) {
+    public SellerAddCropResponseDto toDto(Listing entity) {
         SellerAddCropResponseDto dto = new SellerAddCropResponseDto();
         dto.setId(entity.getId());
         dto.setCropName(entity.getCropName());
