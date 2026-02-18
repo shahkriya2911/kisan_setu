@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 @Setter
 public class ProductImageListingDto {
+    private Long listingId;
     private MultipartFile file;
     private Boolean isPrimary;
 }

@@ -14,13 +14,14 @@ public class ListingMapper {
 
         Listing listing = new Listing();
 
-        // 🔹 Product Info
+        //  Product Info
+
         listing.setCropName(productDto.getCropName());
         listing.setVariety(productDto.getVariety());
         listing.setGrade(productDto.getGrade());
         listing.setHarvestDate(productDto.getHarvestDate());
 
-        // 🔹 Quantity & Pricing
+        //  Quantity & Pricing
         listing.setQuantity(pricingDto.getQuantity());
         listing.setUnit(pricingDto.getUnit());
         listing.setBasePrice(pricingDto.getBasePrice());
@@ -29,13 +30,14 @@ public class ListingMapper {
         listing.setSaleType(pricingDto.getSaleType());
         listing.setAuctionEndDate(pricingDto.getAuctionEndDate());
 
-        // 🔹 Quality & Location
+        //  Quality & Location
         listing.setMoisture(locationDto.getMoisture());
         listing.setState(locationDto.getState());
         listing.setPackagingType(locationDto.getPackagingType());
         listing.setDistrict(locationDto.getDistrict());
         listing.setStorageType(locationDto.getStorageType());
         listing.setPickupMethod(locationDto.getPickupMethod());
+
 
         return listing;
     }

@@ -23,6 +23,7 @@ public class QualityCertificate {
     private String certificateName;
     private LocalDate issuedDate;
     private String fileName;
+    private String filePath;
     private String fileType;
 
     @OneToOne

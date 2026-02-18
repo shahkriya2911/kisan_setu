@@ -9,6 +9,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class QualityCertificateListingDto {
+    private Long listingId;
     private String certificateName;
     private LocalDate issuedDate;
     private MultipartFile file;

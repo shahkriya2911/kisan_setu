@@ -5,7 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "listing_images")
@@ -13,15 +14,15 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ListingImage {
+public class ProductImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long imageId;
-
     private String fileName;
     private String filePath;
     private String fileType;
+    private LocalDate issuedDate;
     private Boolean isPrimary; // for cover image
 
     @ManyToOne
