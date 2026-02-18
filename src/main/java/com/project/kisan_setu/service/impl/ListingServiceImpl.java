@@ -1,5 +1,6 @@
 package com.project.kisan_setu.service.impl;
 
+import com.project.kisan_setu.dto.ListingResponseDto;
 import com.project.kisan_setu.dto.ProductListingDto;
 import com.project.kisan_setu.dto.QualityLocationListingDto;
 import com.project.kisan_setu.dto.QualityPricingListingDto;
@@ -16,49 +17,71 @@ import java.util.List;
 
 @Service
 public class ListingServiceImpl implements ListingService {
+
     private final ListingRepository listingRepository;
-    private final String uploadDir = "uploads/";
-    private final ProductImageRepository productImageRepository;
-    private final QualityCertificateRepository qualityCertificateRepository;
 
-
-    public ListingServiceImpl(ListingRepository listingRepository, ProductImageRepository productImageRepository, QualityCertificateRepository qualityCertificateRepository) {
+    public ListingServiceImpl(ListingRepository listingRepository) {
         this.listingRepository = listingRepository;
-        this.productImageRepository = productImageRepository;
-        this.qualityCertificateRepository = qualityCertificateRepository;
     }
 
     @Override
-    public Listing createListing(ProductListingDto productDto, QualityPricingListingDto pricingDto, QualityLocationListingDto locationDto) {
+    public ListingResponseDto createListing(
+            ProductListingDto productDto,
+            QualityPricingListingDto pricingDto,
+            QualityLocationListingDto locationDto) {
 
-        Listing listing = ListingMapper.toEntity(productDto, pricingDto, locationDto);
+        Listing listing = ListingMapper.toEntity(
+                productDto,
+                pricingDto,
+                locationDto
+        );
 
-        return listingRepository.save(listing);
+        Listing saved = listingRepository.save(listing);
+
+        return ListingMapper.toResponse(saved);
     }
 
     @Override
-    public List<Listing> getAllListings() {
-        return listingRepository.findAll();
+    public List<ListingResponseDto> getAllListings() {
+
+        return listingRepository.findAll()
+                .stream()
+                .map(ListingMapper::toResponse)
+                .toList();
     }
 
     @Override
-    public Listing getListingById(Long id) {
-        return listingRepository.findById(id).orElseThrow(()-> new UserException("Listing not Found with id: " +id));
+    public ListingResponseDto getListingById(Long id) {
+
+        Listing listing = listingRepository.findById(id)
+                .orElseThrow(() ->
+                        new UserException("Listing not found with id: " + id));
+
+        return ListingMapper.toResponse(listing);
     }
 
-    public void deleteListing(Long id){
-        Listing listing=getListingById(id);
+    @Override
+    public void deleteListing(Long id) {
+
+        Listing listing = listingRepository.findById(id)
+                .orElseThrow(() ->
+                        new UserException("Listing not found with id: " + id));
+
         listingRepository.delete(listing);
     }
 
     @Override
-    public Listing previewListing(ProductListingDto productDto, QualityPricingListingDto pricingDto, QualityLocationListingDto locationDto) {
-        // Just convert DTO → Entity
-        // DO NOT save to DB
-        return ListingMapper.toEntity(productDto,pricingDto,locationDto);
+    public ListingResponseDto previewListing(
+            ProductListingDto productDto,
+            QualityPricingListingDto pricingDto,
+            QualityLocationListingDto locationDto) {
+
+        Listing preview = ListingMapper.toEntity(
+                productDto,
+                pricingDto,
+                locationDto
+        );
+
+        return ListingMapper.toResponse(preview);
     }
-
-
-
-
 }

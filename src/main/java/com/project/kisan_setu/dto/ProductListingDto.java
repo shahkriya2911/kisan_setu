@@ -3,6 +3,7 @@ package com.project.kisan_setu.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -13,6 +14,6 @@ public class ProductListingDto {
     private String cropName;
     private String variety;
     private String grade;
-    private String harvestDate;
+    private LocalDate harvestDate;
 }
 

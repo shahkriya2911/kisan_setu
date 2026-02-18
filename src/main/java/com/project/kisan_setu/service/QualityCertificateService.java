@@ -7,5 +7,5 @@ import java.io.IOException;
 
 public interface QualityCertificateService {
     public QualityCertificate uploadCertificate(QualityCertificateListingDto dto)throws IOException;
-    public void deleteImage(Long imageId);
+    void deleteCertificate(Long certificateId);
 }

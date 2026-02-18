@@ -6,6 +6,7 @@ import jakarta.persistence.Enumerated;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -18,5 +19,5 @@ public class QualityPricingListingDto {
     private Double minimumBidIncrement;
     @Enumerated(EnumType.STRING)
     private SaleType saleType;  // FIXED or AUCTION
-    private LocalDateTime auctionEndDate;
+    private LocalDate auctionEndDate;
 }

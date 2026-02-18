@@ -55,9 +55,9 @@ public class QualityCertificateServiceImpl implements QualityCertificateService 
         return qualityCertificateRepository.save(qualityCertificate);
 
     }
-    public void deleteImage(Long imageId){
-        QualityCertificate certificate=qualityCertificateRepository.findById(imageId)
-                .orElseThrow(()-> new UserException("Image not Found with id:"+imageId));
+    public void deleteCertificate(Long certificateId){
+        QualityCertificate certificate=qualityCertificateRepository.findById(certificateId)
+                .orElseThrow(()-> new UserException("Image not Found with id:"+certificateId));
 
         File file = new File(certificate.getFilePath());
         if(file.exists())file.delete();

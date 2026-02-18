@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class Listing {
     private String cropName;
     private String variety;
     private String grade;
-    private String harvestDate;
+    private LocalDate harvestDate;
 
     //  Quantity & Pricing
     private Integer quantity;
@@ -36,7 +37,7 @@ public class Listing {
     private Double minimumBidIncrement;
     @Enumerated(EnumType.STRING)
     private SaleType saleType;  // FIXED or AUCTION
-    private LocalDateTime auctionEndDate;
+    private LocalDate auctionEndDate;
 
     //  Quality & Location
     private String moisture;

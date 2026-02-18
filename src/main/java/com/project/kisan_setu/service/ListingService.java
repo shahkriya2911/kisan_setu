@@ -1,5 +1,6 @@
 package com.project.kisan_setu.service;
 
+import com.project.kisan_setu.dto.ListingResponseDto;
 import com.project.kisan_setu.dto.ProductListingDto;
 import com.project.kisan_setu.dto.QualityLocationListingDto;
 import com.project.kisan_setu.dto.QualityPricingListingDto;
@@ -9,20 +10,19 @@ import java.util.List;
 
 public interface ListingService {
 
-    Listing createListing(
+    ListingResponseDto createListing(
             ProductListingDto productDto,
             QualityPricingListingDto pricingDto,
             QualityLocationListingDto locationDto);
 
-    public List<Listing> getAllListings();
-    public Listing getListingById(Long id);
-    public void deleteListing(Long id);
-    public Listing previewListing(
+    List<ListingResponseDto> getAllListings();
+
+    ListingResponseDto getListingById(Long id);
+
+    void deleteListing(Long id);
+
+    ListingResponseDto previewListing(
             ProductListingDto productDto,
             QualityPricingListingDto pricingDto,
             QualityLocationListingDto locationDto);
-
-
-
-
 }
