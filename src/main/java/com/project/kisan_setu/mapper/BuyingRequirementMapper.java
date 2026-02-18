@@ -34,7 +34,7 @@ public class BuyingRequirementMapper {
         dto.setUpdatedAt(br.getUpdatedAt());
         if (br.getBuyer() != null) {
             dto.setBuyerId(br.getBuyer().getUserId());
-            dto.setBuyerName(br.getBuyer().getUserFullName()); // assuming User has getName()
+            dto.setBuyerName(br.getBuyer().getFullName()); // assuming User has getName()
         }
         return dto;
     }

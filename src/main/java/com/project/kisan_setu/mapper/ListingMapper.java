@@ -38,7 +38,7 @@ public class ListingMapper {
         dto.setStorageType(listing.getStorageType());
         dto.setPickupMethod(listing.getPickupMethod());
 
-        // 🔥 Images (Primary First)
+        //  Images (Primary First)
         if (listing.getImages() != null) {
 
             List<ProductImageResponseDto> imageDtos =
@@ -65,7 +65,7 @@ public class ListingMapper {
             dto.setImages(imageDtos);
         }
 
-        // 🔥 Certificate
+        //  Certificate
         if (listing.getCertificate() != null) {
 
             QualityCertificate cert = listing.getCertificate();

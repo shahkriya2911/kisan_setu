@@ -1,14 +1,13 @@
 package com.project.kisan_setu.controller;
 
-import com.project.kisan_setu.dto.CreateUserRequestDto;
-import com.project.kisan_setu.dto.UpdateUserRequestDto;
-import com.project.kisan_setu.dto.UserResponseDto;
+import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.service.UserService;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -20,10 +19,25 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping
-    public UserResponseDto createUser(@RequestBody CreateUserRequestDto createUserRequestDto){
-        return userService.createUser(createUserRequestDto);
+    @PostMapping("/signup")
+    public ResponseEntity<String> register(
+            @Valid @RequestBody CreateUserRequestDto dto) {
+
+        return ResponseEntity.ok(userService.signup(dto));
     }
+    @PostMapping("/login")
+    public LoginResponseDto login(
+            @RequestBody LoginRequestDto dto) {
+
+        String token = userService.login(dto);
+
+        return new LoginResponseDto(
+                token,
+                dto.getEmail(),
+                "Login Successful"
+        );
+    }
+
 
     @GetMapping
     public List<User> getAllUsers(){

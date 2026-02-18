@@ -7,9 +7,9 @@ import lombok.Setter;
 @Setter
 public class UserResponseDto {
     private Long userId;
-    private String userFullName;
-    private String userEmail;
-    private String userPhoneNumber;
+    private String fullName;
+    private String email;
+    private String mobileNumber;
     private String userCreatedAt;
-    private String userAddress;
+
 }
