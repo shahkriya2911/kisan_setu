@@ -1,16 +1,18 @@
 package com.project.kisan_setu.service;
 
+import com.project.kisan_setu.dto.SchemeRequestDto;
+import com.project.kisan_setu.dto.SchemeResponseDto;
 import com.project.kisan_setu.entity.Scheme;
 
 import java.util.List;
 
 public interface SchemeService {
-    Scheme createScheme(Scheme scheme);
-    Scheme getSchemeById(Long schemeId);
+     SchemeResponseDto createScheme(SchemeRequestDto dto);
+     SchemeResponseDto getSchemeById(Long schemeId);
 
-    List<Scheme> getAllSchemes();
+     List<SchemeResponseDto> getAllSchemes();
 
-    Scheme updateSchemeById(Long schemeId, Scheme updatedScheme);
+    public SchemeResponseDto updateSchemeById(Long schemeId, SchemeRequestDto dto);
 
-    void deleteSchemeById(Long schemeId);
+    public void deleteScheme(Long id);
 }

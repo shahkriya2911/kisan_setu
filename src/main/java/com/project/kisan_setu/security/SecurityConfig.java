@@ -19,9 +19,10 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> {})
+//                .cors(cors -> {})
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/users/signup","/users/login")
+                        .requestMatchers("/users/signup","/users/login",
+                                "/schemes/**")
                         .permitAll()   // allow these endpoints
                         .anyRequest().authenticated()
                 )

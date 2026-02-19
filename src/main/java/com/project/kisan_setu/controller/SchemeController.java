@@ -1,8 +1,13 @@
 package com.project.kisan_setu.controller;
 
+import com.project.kisan_setu.dto.SchemeRequestDto;
+import com.project.kisan_setu.dto.SchemeResponseDto;
 import com.project.kisan_setu.entity.Scheme;
 import com.project.kisan_setu.service.SchemeService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,29 +19,40 @@ import java.util.List;
 public class SchemeController {
 
     private final SchemeService schemeService;
+    private static final Logger logger= LoggerFactory.getLogger(SchemeController.class);
 
     @PostMapping
-    public Scheme create(@RequestBody Scheme scheme) {
-        return schemeService.createScheme(scheme);
+    public ResponseEntity<SchemeResponseDto> create(@RequestBody SchemeRequestDto dto) {
+        logger.info("Creating new scheme with title: {}", dto.getSchemeTitle());
+        SchemeResponseDto response = schemeService.createScheme(dto);
+        logger.info("Scheme created successfully with ID: {}", response.getSchemeId());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public Scheme getById(@PathVariable Long id) {
-        return schemeService.getSchemeById(id);
+    public ResponseEntity<SchemeResponseDto> getById(@PathVariable Long id) {
+        logger.info("Fetching scheme with ID: {}", id);
+        return ResponseEntity.ok(schemeService.getSchemeById(id));
     }
 
     @GetMapping
-    public List<Scheme> getAll() {
-        return schemeService.getAllSchemes();
+    public ResponseEntity<List<SchemeResponseDto>> getAll() {
+        logger.info("Fetching all schemes");
+        return ResponseEntity.ok(schemeService.getAllSchemes());
     }
-    
+
     @DeleteMapping("/{schemeId}")
-    public void deleteSchemeById(@PathVariable Long schemeId){
-        schemeService.deleteSchemeById(schemeId);
+    public ResponseEntity<String> deleteScheme(@PathVariable Long schemeId)
+    {
+        logger.warn("Deleting scheme with ID: {}", schemeId);
+        schemeService.deleteScheme(schemeId);
+        logger.info("Scheme deleted successfully");
+        return ResponseEntity.ok("Scheme deleted successfully");
     }
     
     @PutMapping("/{schemeId}")
-    public Scheme updateSchemeById(@PathVariable Long schemeId,@RequestBody Scheme scheme){
-        return schemeService.updateSchemeById(schemeId,scheme);
+    public ResponseEntity<SchemeResponseDto> updateSchemeById(@PathVariable Long schemeId,@RequestBody SchemeRequestDto dto){
+        logger.info("Updating scheme with ID: {}", schemeId);
+        return ResponseEntity.ok(schemeService.updateSchemeById(schemeId, dto));
     }
 }

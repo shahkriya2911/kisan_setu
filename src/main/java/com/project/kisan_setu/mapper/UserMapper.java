@@ -1,6 +1,7 @@
 package com.project.kisan_setu.mapper;
 
 import com.project.kisan_setu.dto.*;
+import com.project.kisan_setu.entity.Scheme;
 import com.project.kisan_setu.entity.User;
 
 import java.time.LocalDateTime;
@@ -50,4 +51,6 @@ public class UserMapper {
 
         return userResponseDto;
     }
+
+
 }
