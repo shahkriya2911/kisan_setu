@@ -11,11 +11,11 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApiErrorResponsedto {
+public class ApiErrorResponseDto {
 
-    private LocalDateTime localDateTime;
     private int status;
-    private String error;
-    private String message;
+    private Object data;
     private String path;
+    private LocalDateTime timestamp;
+    private String error;
 }
