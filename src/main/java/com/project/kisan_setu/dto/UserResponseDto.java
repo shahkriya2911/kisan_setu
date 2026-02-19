@@ -16,7 +16,7 @@ public class UserResponseDto {
     private String fullName;
     private String email;
     private String mobileNumber;
-    private String userCreatedAt; // ISO_LOCAL_DATE_TIME format
+    private String userCreatedAt;
 
     public UserResponseDto(User user) {
         this.id = user.getUserId();

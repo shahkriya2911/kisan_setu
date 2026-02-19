@@ -11,8 +11,8 @@ public class ApiResponseDto<T> {
 
     private int status;
     private String message;
-    private String accessToken;  // token at top-level
-    private T data;              // user info or other response
+    private String accessToken;
+    private T data;
 }
 
 

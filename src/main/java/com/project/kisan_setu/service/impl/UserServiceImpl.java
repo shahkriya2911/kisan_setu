@@ -64,20 +64,20 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    // ================= GET USER BY ID =================
+
     @Override
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserException("User not found"));
     }
 
-    // ================= GET ALL USERS =================
+
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    // ================= UPDATE USER =================
+
     @Override
     public UserResponseDto updateUserById(Long userId, UpdateUserRequestDto dto) {
 
@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toResponse(updatedUser);
     }
 
-    // ================= DELETE USER =================
+
     @Override
     public void deleteUserById(Long userId) {
 
