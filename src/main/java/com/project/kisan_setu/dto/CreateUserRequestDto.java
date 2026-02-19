@@ -22,7 +22,6 @@ public class CreateUserRequestDto {
     private String fullName;
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
-    @Column(nullable = false,unique = true)
 
     private String email;
     @NotBlank(message = "Mobile number is required")
@@ -42,6 +41,6 @@ public class CreateUserRequestDto {
     @NotBlank(message = "Confirm password is required")
 
     private String confirmPassword;
-    private String userCreatedAt;
+    private String userCreatedAt; // ISO_LOCAL_DATE_TIME format
 
 }

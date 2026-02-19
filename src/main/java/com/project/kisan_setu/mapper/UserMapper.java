@@ -1,56 +1,43 @@
 package com.project.kisan_setu.mapper;
 
-import com.project.kisan_setu.dto.*;
-import com.project.kisan_setu.entity.Scheme;
+import com.project.kisan_setu.dto.UpdateUserRequestDto;
+import com.project.kisan_setu.dto.UserResponseDto;
+import com.project.kisan_setu.dto.CreateUserRequestDto;
 import com.project.kisan_setu.entity.User;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class UserMapper {
 
-    public static User toEntity(CreateUserRequestDto createUserRequestDto) {
-
+    // CREATE ENTITY FROM DTO
+    public static User toEntity(CreateUserRequestDto dto) {
         User user = new User();
-        user.setFullName(createUserRequestDto.getFullName());
-        user.setEmail(createUserRequestDto.getEmail());
-        user.setMobileNumber(createUserRequestDto.getMobileNumber());
-        user.setPassword(createUserRequestDto.getPassword());
-        user.setCreatedAt(LocalDateTime.now());
-
+        user.setFullName(dto.getFullName());
+        user.setEmail(dto.getEmail());
+        user.setMobileNumber(dto.getMobileNumber());
+        user.setPassword(dto.getPassword()); // encoding happens in service
         return user;
     }
 
-    public static void updateEntity(User user, UpdateUserRequestDto updateUserRequestDto) {
-
-        if (updateUserRequestDto.getUserFullName() != null)
-            user.setFullName(updateUserRequestDto.getUserFullName());
-
-        if (updateUserRequestDto.getEmail() != null)
-            user.setEmail(updateUserRequestDto.getEmail());
-
-        if (updateUserRequestDto.getUserPhoneNumber() != null)
-            user.setMobileNumber(updateUserRequestDto.getUserPhoneNumber());
-
-        if (updateUserRequestDto.getUserPassword() != null)
-            user.setPassword(updateUserRequestDto.getUserPassword());
-
-
-
-
+    // UPDATE ENTITY FROM DTO
+    public static void updateEntity(User user, UpdateUserRequestDto dto, PasswordEncoder passwordEncoder) {
+        if (dto.getUserFullName() != null) user.setFullName(dto.getUserFullName());
+        if (dto.getEmail() != null) user.setEmail(dto.getEmail());
+        if (dto.getUserPhoneNumber() != null) user.setMobileNumber(dto.getUserPhoneNumber());
+        if (dto.getUserPassword() != null) user.setPassword(passwordEncoder.encode(dto.getUserPassword()));
     }
 
+    // MAP ENTITY TO USER RESPONSE DTO
     public static UserResponseDto toResponse(User user) {
-
-        UserResponseDto userResponseDto = new UserResponseDto();
-        userResponseDto.setUserId(user.getUserId());
-        userResponseDto.setFullName(user.getFullName());
-        userResponseDto.setEmail(user.getEmail());
-        userResponseDto.setMobileNumber(user.getMobileNumber());
-        userResponseDto.setUserCreatedAt(String.valueOf(user.getCreatedAt()));
-
-
-        return userResponseDto;
+        UserResponseDto dto = new UserResponseDto();
+        dto.setId(user.getUserId());
+        dto.setFullName(user.getFullName());
+        dto.setEmail(user.getEmail());
+        dto.setMobileNumber(user.getMobileNumber());
+        if (user.getCreatedAt() != null) {
+            dto.setUserCreatedAt(user.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        }
+        return dto;
     }
-
-
 }

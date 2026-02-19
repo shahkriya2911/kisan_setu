@@ -1,17 +1,13 @@
 package com.project.kisan_setu.service.impl;
 
-import com.project.kisan_setu.dto.CreateUserRequestDto;
-import com.project.kisan_setu.dto.LoginRequestDto;
-import com.project.kisan_setu.dto.UpdateUserRequestDto;
-import com.project.kisan_setu.dto.UserResponseDto;
+import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.UserMapper;
-import com.project.kisan_setu.repository.BuyingRequirementRepository;
-import com.project.kisan_setu.repository.ListingRepository;
 import com.project.kisan_setu.repository.UserRepository;
 import com.project.kisan_setu.security.JwtUtil;
 import com.project.kisan_setu.service.UserService;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,92 +16,90 @@ import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-
-    public UserServiceImpl(UserRepository userRepository, ListingRepository sellerAddCropRepository, BuyingRequirementRepository buyingRequirementRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public UserServiceImpl(UserRepository userRepository,
+                           PasswordEncoder passwordEncoder,
+                           JwtUtil jwtUtil) {
         this.userRepository = userRepository;
-
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
 
-
     @Override
-    public String signup(CreateUserRequestDto dto) {
+    public UserResponseDto signup(CreateUserRequestDto dto) {
         if (!dto.getPassword().equals(dto.getConfirmPassword())) {
-            throw new RuntimeException("Passwords do not match");
+            throw new UserException("Passwords do not match");
         }
 
         if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new RuntimeException("Email already registered");
+            throw new UserException("Email already registered");
         }
 
         if (userRepository.existsByMobileNumber(dto.getMobileNumber())) {
-            throw new RuntimeException("Mobile number already registered");
+            throw new UserException("Mobile number already registered");
         }
 
         User user = UserMapper.toEntity(dto);
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
-
         user.setCreatedAt(LocalDateTime.now());
         userRepository.save(user);
 
-        return "Registration successful";
+        return UserMapper.toResponse(user);
     }
 
     @Override
-    public String login(LoginRequestDto dto) {
+    public UserResponseDto login(LoginRequestDto dto) {
         User user = userRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserException("User not found"));
 
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid password");
+            throw new BadCredentialsException("Invalid credentials");
         }
-        String token = jwtUtil.generateToken(user.getEmail());
 
-        return token;
+        return UserMapper.toResponse(user);
     }
 
 
+    // ================= GET USER BY ID =================
     @Override
-        public User getUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(()->new UserException("User not found"));
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserException("User not found"));
     }
 
+    // ================= GET ALL USERS =================
     @Override
-    public List<User> getAllUsers(){
+    public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
+    // ================= UPDATE USER =================
     @Override
-    public UserResponseDto updateUserById(Long userId, UpdateUserRequestDto updateUserRequestDto){
-        User user = userRepository.findById(userId).orElseThrow(()->new RuntimeException("User not found"));
-        UserMapper.updateEntity(user,updateUserRequestDto);
-        User updateUser = userRepository.save(user);
-        return UserMapper.toResponse(updateUser);
+    public UserResponseDto updateUserById(Long userId, UpdateUserRequestDto dto) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException("User not found"));
+
+        UserMapper.updateEntity(user, dto,passwordEncoder);
+
+        User updatedUser = userRepository.save(user);
+
+        return UserMapper.toResponse(updatedUser);
     }
 
+    // ================= DELETE USER =================
     @Override
-    public void deleteUserById(Long userId){
+    public void deleteUserById(Long userId) {
+
+        if (!userRepository.existsById(userId)) {
+            throw new UserException("User not found");
+        }
+
         userRepository.deleteById(userId);
     }
-
-//    public String getUserRole(Long userId) {
-//
-//        // Optional: Check user exists
-//        userRepository.findById(userId)
-//                .orElseThrow(() -> new UserException("User not found"));
-//
-//        boolean isSeller = sellerAddCropRepository.existsBySellerUserId(userId);
-//        boolean isBuyer = buyingRequirementRepository.existsByBuyerUserId(userId);
-//
-//        if (isSeller && isBuyer) return "SELLER & BUYER";
-//        if (isSeller) return "SELLER";
-//        if (isBuyer) return "BUYER";
-//
-//        return "NEW_USER";
-//    }
 }
+

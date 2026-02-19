@@ -38,9 +38,6 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Transient
-    private String confirmPassword;
-
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
