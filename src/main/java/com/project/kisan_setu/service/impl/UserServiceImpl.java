@@ -54,10 +54,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto login(LoginRequestDto dto) {
         User user = userRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new UserException("User not found"));
+                .orElseThrow(() -> new UserException("Email not registered"));
 
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new BadCredentialsException("Invalid credentials");
+            throw new BadCredentialsException("Invalid Password");
         }
 
         return UserMapper.toResponse(user);

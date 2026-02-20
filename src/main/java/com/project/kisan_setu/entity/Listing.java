@@ -37,7 +37,7 @@ public class Listing {
     private Double minimumBidIncrement;
     @Enumerated(EnumType.STRING)
     private SaleType saleType;  // FIXED or AUCTION
-    private LocalDate auctionEndDate;
+    private LocalDateTime auctionEndTime;
 
     //  Quality & Location
     private String moisture;

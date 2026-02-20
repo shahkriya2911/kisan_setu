@@ -1,36 +1,38 @@
 package com.project.kisan_setu.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "buyingrequirements")
-@AllArgsConstructor
-@NoArgsConstructor
+@Table(name = "buying_requirements")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class BuyingRequirement {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long requirementId;
+
     private String cropType;
-    private String quantity;
+    private Double quantityRequired;
     private Double minPrice;
     private Double maxPrice;
     private String qualityGrade;
-    private String delieveryLocation;
-    private LocalDateTime deadline;
-    private LocalDateTime createdAt = LocalDateTime.now();
-    private LocalDateTime updatedAt;
+    private String deliveryLocation;
+    private LocalDate deadline;
+    private String additionalNotes;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buyer_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "buyer_id")
     private User buyer;
 
+    private LocalDateTime createdAt;
 }

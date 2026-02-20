@@ -26,7 +26,7 @@ public class ListingResponseDto {
     private String purchaseType;
     private Double minimumBidIncrement;
     private String saleType;
-    private LocalDate auctionEndDate;
+    private LocalDateTime auctionEndTime;
 
     // Location
     private String moisture;

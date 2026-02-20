@@ -19,5 +19,5 @@ public class QualityPricingListingDto {
     private Double minimumBidIncrement;
     @Enumerated(EnumType.STRING)
     private SaleType saleType;  // FIXED or AUCTION
-    private LocalDate auctionEndDate;
+    private LocalDateTime auctionEndTime;
 }

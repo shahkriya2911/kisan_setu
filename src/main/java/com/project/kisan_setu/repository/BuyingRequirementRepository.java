@@ -2,7 +2,13 @@ package com.project.kisan_setu.repository;
 
 import com.project.kisan_setu.entity.BuyingRequirement;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface BuyingRequirementRepository extends JpaRepository<BuyingRequirement,Long> {
-    boolean existsByBuyerUserId(Long userId);
+import java.util.List;
+
+@Repository
+public interface BuyingRequirementRepository
+        extends JpaRepository<BuyingRequirement, Long> {
+
+    List<BuyingRequirement> findByBuyerUserId(Long buyerId);
 }

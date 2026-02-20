@@ -29,7 +29,7 @@ public class ListingMapper {
         dto.setPurchaseType(listing.getPurchaseType());
         dto.setMinimumBidIncrement(listing.getMinimumBidIncrement());
         dto.setSaleType(listing.getSaleType().name());
-        dto.setAuctionEndDate(listing.getAuctionEndDate());
+        dto.setAuctionEndTime(listing.getAuctionEndTime());
 
         dto.setMoisture(listing.getMoisture());
         dto.setState(listing.getState());
@@ -106,7 +106,7 @@ public class ListingMapper {
         listing.setPurchaseType(pricingDto.getPurchaseType());
         listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
         listing.setSaleType(pricingDto.getSaleType());
-        listing.setAuctionEndDate(pricingDto.getAuctionEndDate());
+        listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
 
         // Location Details
         listing.setMoisture(locationDto.getMoisture());

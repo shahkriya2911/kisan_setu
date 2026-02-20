@@ -3,39 +3,37 @@ package com.project.kisan_setu.mapper;
 import com.project.kisan_setu.dto.BuyingRequirementRequestDto;
 import com.project.kisan_setu.dto.BuyingRequirementResponseDto;
 import com.project.kisan_setu.entity.BuyingRequirement;
-import org.springframework.stereotype.Component;
+import com.project.kisan_setu.entity.User;
 
-@Component
+import java.time.LocalDateTime;
+
 public class BuyingRequirementMapper {
 
-    public BuyingRequirement toEntity(BuyingRequirementRequestDto dto) {
+    public static BuyingRequirement toEntity(
+            BuyingRequirementRequestDto dto, User buyer) {
+
         BuyingRequirement br = new BuyingRequirement();
         br.setCropType(dto.getCropType());
-        br.setQuantity(dto.getQuantity());
+        br.setQuantityRequired(dto.getQuantityRequired());
         br.setMinPrice(dto.getMinPrice());
         br.setMaxPrice(dto.getMaxPrice());
         br.setQualityGrade(dto.getQualityGrade());
-        br.setDelieveryLocation(dto.getDelieveryLocation());
+        br.setDeliveryLocation(dto.getDeliveryLocation());
         br.setDeadline(dto.getDeadline());
+        br.setAdditionalNotes(dto.getAdditionalNotes());
+        br.setBuyer(buyer);
+        br.setCreatedAt(LocalDateTime.now());
+
         return br;
     }
 
-    public BuyingRequirementResponseDto toDto(BuyingRequirement br) {
-        BuyingRequirementResponseDto dto = new BuyingRequirementResponseDto();
-        dto.setId(br.getId());
-        dto.setCropType(br.getCropType());
-        dto.setQuantity(br.getQuantity());
-        dto.setMinPrice(br.getMinPrice());
-        dto.setMaxPrice(br.getMaxPrice());
-        dto.setQualityGrade(br.getQualityGrade());
-        dto.setDelieveryLocation(br.getDelieveryLocation());
-        dto.setDeadline(br.getDeadline());
-        dto.setCreatedAt(br.getCreatedAt());
-        dto.setUpdatedAt(br.getUpdatedAt());
-        if (br.getBuyer() != null) {
-            dto.setBuyerId(br.getBuyer().getUserId());
-            dto.setBuyerName(br.getBuyer().getFullName()); // assuming User has getName()
-        }
-        return dto;
+    public static BuyingRequirementResponseDto toDto(BuyingRequirement br) {
+        return new BuyingRequirementResponseDto(
+                br.getRequirementId(),
+                br.getCropType(),
+                br.getQuantityRequired(),
+                br.getDeliveryLocation(),
+                br.getDeadline()
+        );
     }
 }
