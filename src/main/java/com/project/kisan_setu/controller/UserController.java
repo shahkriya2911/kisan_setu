@@ -60,7 +60,7 @@ public class UserController {
 
 
 
-    // ================= GET ALL USERS =================
+
     @GetMapping
     public ResponseEntity<ApiResponseDto<List<UserResponseDto>>> getAllUsers() {
 
@@ -79,7 +79,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    // ================= GET USER BY ID =================
+
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponseDto<UserResponseDto>> getUserById(
             @PathVariable Long userId) {
@@ -96,7 +96,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    // ================= UPDATE USER =================
+
     @PutMapping("/{userId}")
     public ResponseEntity<ApiResponseDto<UserResponseDto>> updateUser(
             @PathVariable Long userId,
@@ -114,7 +114,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    // ================= DELETE USER =================
+
     @DeleteMapping("/{userId}")
     public ResponseEntity<ApiResponseDto<Void>> deleteUser(
             @PathVariable Long userId) {
