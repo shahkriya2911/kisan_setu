@@ -25,7 +25,8 @@ public class ListingMapper {
 
         dto.setQuantity(listing.getQuantity());
         dto.setUnit(listing.getUnit());
-        dto.setBasePrice(listing.getBasePrice());
+        dto.setPricePerKg(listing.getPricePerKg());
+        dto.setTotalBasePrice(listing.getTotalBasePrice());
         dto.setPurchaseType(listing.getPurchaseType());
         dto.setMinimumBidIncrement(listing.getMinimumBidIncrement());
         dto.setSaleType(listing.getSaleType().name());
@@ -102,9 +103,10 @@ public class ListingMapper {
         // Pricing Details
         listing.setQuantity(pricingDto.getQuantity());
         listing.setUnit(pricingDto.getUnit());
-        listing.setBasePrice(pricingDto.getBasePrice());
+        listing.setPricePerKg(pricingDto.getPricePerKg());
         listing.setPurchaseType(pricingDto.getPurchaseType());
         listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
+        listing.setTotalBasePrice(pricingDto.getTotalBasePrice());
         listing.setSaleType(pricingDto.getSaleType());
         listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
 

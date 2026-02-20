@@ -15,6 +15,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import java.util.List;
 
 @Configuration
+
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
@@ -29,19 +30,21 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // ================= SECURITY FILTER CHAIN =================
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))  // use the existing bean
+//                .cors(cors -> {})
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/users/signup", "/users/login", "/schemes/**")
-                        .permitAll()
+                        .requestMatchers("/users/signup","/users/login",
+                                "/schemes/**",
+                                "/listings/**")
+                        .permitAll()   // allow these endpoints
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtFilter,
+                        UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(form -> form.disable());
 

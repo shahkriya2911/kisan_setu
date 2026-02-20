@@ -1,5 +1,6 @@
 package com.project.kisan_setu.entity;
 
+import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.SaleType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -32,9 +33,10 @@ public class Listing {
     //  Quantity & Pricing
     private Integer quantity;
     private String unit;
-    private Double basePrice;
+    private Double pricePerKg;
     private String purchaseType;
     private Double minimumBidIncrement;
+    private Double totalBasePrice;
     @Enumerated(EnumType.STRING)
     private SaleType saleType;  // FIXED or AUCTION
     private LocalDateTime auctionEndTime;
@@ -58,4 +60,11 @@ public class Listing {
 
     @OneToOne(mappedBy = "listing", cascade = CascadeType.ALL)
     private QualityCertificate certificate;
+
+    @Enumerated(EnumType.STRING)
+    private AuctionStatus status;
+
+//    @ManyToOne
+//    @JoinColumn(name = "winner_id")
+//    private User winner;
 }

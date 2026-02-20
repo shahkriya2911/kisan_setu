@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 public class QualityPricingListingDto {
     private Integer quantity;
     private String unit;
-    private Double basePrice;
+    private Double pricePerKg;
+    private Double totalBasePrice;
     private String purchaseType;
     private Double minimumBidIncrement;
     @Enumerated(EnumType.STRING)

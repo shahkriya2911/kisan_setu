@@ -65,13 +65,13 @@ public class BuyerServiceImpl implements BuyerService {
                             .findTopByListingListingIdOrderByBidAmountDesc(
                                     listing.getListingId())
                             .map(Bid::getBidAmount)
-                            .orElse(listing.getBasePrice());
+                            .orElse(listing.getPricePerKg());
 
                     return new BuyerListingResponseDto(
                             listing.getListingId(),
                             listing.getCropName(),
                             listing.getGrade(),
-                            listing.getBasePrice(),
+                            listing.getPricePerKg(),
                             currentHighest,
                             listing.getDistrict(),
                             listing.getAuctionEndTime()
@@ -97,7 +97,7 @@ public class BuyerServiceImpl implements BuyerService {
         Double currentHighest = bidRepository
                 .findTopByListingListingIdOrderByBidAmountDesc(listingId)
                 .map(Bid::getBidAmount)
-                .orElse(listing.getBasePrice());
+                .orElse(listing.getPricePerKg());
 
         if (dto.getBidAmount() <= currentHighest) {
             throw new RuntimeException("Bid must be higher than current bid");

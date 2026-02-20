@@ -4,7 +4,7 @@ import com.project.kisan_setu.dto.ListingResponseDto;
 import com.project.kisan_setu.dto.ProductListingDto;
 import com.project.kisan_setu.dto.QualityLocationListingDto;
 import com.project.kisan_setu.dto.QualityPricingListingDto;
-import com.project.kisan_setu.entity.Listing;
+import com.project.kisan_setu.entity.BidHistory;
 
 import java.util.List;
 
@@ -25,4 +25,6 @@ public interface ListingService {
             ProductListingDto productDto,
             QualityPricingListingDto pricingDto,
             QualityLocationListingDto locationDto);
+    BidHistory placeBid(Long listingId, Double bidAmount, Long userId);
+
 }

@@ -22,7 +22,8 @@ public class ListingResponseDto {
     // Pricing
     private Integer quantity;
     private String unit;
-    private Double basePrice;
+    private Double pricePerKg;
+    private Double totalBasePrice;
     private String purchaseType;
     private Double minimumBidIncrement;
     private String saleType;
