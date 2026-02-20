@@ -97,10 +97,23 @@ public class BuyerServiceImpl implements BuyerService {
         Double currentHighest = bidRepository
                 .findTopByListingListingIdOrderByBidAmountDesc(listingId)
                 .map(Bid::getBidAmount)
-                .orElse(listing.getPricePerKg());
+                .orElse(null);
 
-        if (dto.getBidAmount() <= currentHighest) {
-            throw new RuntimeException("Bid must be higher than current bid");
+        if (currentHighest == null) {
+            if (dto.getBidAmount() < listing.getTotalBasePrice()) {
+                throw new RuntimeException(
+                        "First bid must be at least ₹" + listing.getTotalBasePrice()
+                );
+            }
+        } else {
+            double minimumNextBid = currentHighest + listing.getMinimumBidIncrement();
+            if (dto.getBidAmount() < minimumNextBid) {
+                throw new RuntimeException(
+                        "Bid too low! Last bid was ₹" + currentHighest +
+                                ". Minimum next bid is ₹" + minimumNextBid +
+                                " (increment fixed at ₹" + listing.getMinimumBidIncrement() + ")"
+                );
+            }
         }
 
         User buyer = userRepository.findById(buyerId)
@@ -121,20 +134,23 @@ public class BuyerServiceImpl implements BuyerService {
                 bid.getBidTime()
         );
     }
-
-    // Bid History
-    @Override
-    public List<BidResponseDto> getBidHistory(Long listingId) {
-
-        return bidRepository
-                .findByListingListingIdOrderByBidAmountDesc(listingId)
-                .stream()
-                .map(bid -> new BidResponseDto(
-                        bid.getBidId(),
-                        bid.getBidAmount(),
-                        bid.getBuyer().getFullName(),
-                        bid.getBidTime()
-                ))
-                .toList();
-    }
 }
+
+
+
+//    // Bid History
+//    @Override
+//    public List<BidResponseDto> getBidHistory(Long listingId) {
+//
+//        return bidRepository
+//                .findByListingListingIdOrderByBidAmountDesc(listingId)
+//                .stream()
+//                .map(bid -> new BidResponseDto(
+//                        bid.getBidId(),
+//                        bid.getBidAmount(),
+//                        bid.getBuyer().getFullName(),
+//                        bid.getBidTime()
+//                ))
+//                .toList();
+//
+//    }

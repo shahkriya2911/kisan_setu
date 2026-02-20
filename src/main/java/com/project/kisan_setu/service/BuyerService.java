@@ -17,5 +17,5 @@ public interface BuyerService {
             Long listingId,
             PlaceBidRequestDto dto);
 
-    List<BidResponseDto> getBidHistory(Long listingId);
+//    List<BidResponseDto> getBidHistory(Long listingId);
 }

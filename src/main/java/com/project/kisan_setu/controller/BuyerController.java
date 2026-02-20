@@ -45,12 +45,12 @@ public class BuyerController {
         );
     }
 
-    @GetMapping("/auctions/{listingId}/bids")
-    public ResponseEntity<?> getBidHistory(
-            @PathVariable Long listingId) {
-
-        return ResponseEntity.ok(
-                buyerService.getBidHistory(listingId)
-        );
-    }
+//    @GetMapping("/auctions/{listingId}/bids")
+//    public ResponseEntity<?> getBidHistory(
+//            @PathVariable Long listingId) {
+//
+//        return ResponseEntity.ok(
+//                buyerService.getBidHistory(listingId)
+//        );
+//    }
 }
