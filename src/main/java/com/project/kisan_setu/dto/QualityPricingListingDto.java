@@ -24,11 +24,16 @@ public class QualityPricingListingDto {
     private Integer quantity;
     @NotNull(message = "unit is required")
     private String unit;
+<<<<<<< Updated upstream
     @NotNull(message = "price per kg is required")
     private Double pricePerKg;
     @NotNull(message = "total base price is required")
     private Double totalBasePrice;
     @NotBlank(message = "purchase type is required")
+=======
+    private Double pricePerKg;
+    private Double totalBasePrice;
+>>>>>>> Stashed changes
     private String purchaseType;
     @NotNull(message = "minimum bid increment is required")
     private Double minimumBidIncrement;

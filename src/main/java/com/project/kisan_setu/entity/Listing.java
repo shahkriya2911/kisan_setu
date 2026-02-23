@@ -63,6 +63,7 @@ public class Listing {
     @OneToOne(mappedBy = "listing", cascade = CascadeType.ALL)
     private QualityCertificate certificate;
 
+<<<<<<< Updated upstream
     //relationship with bid
     @OneToMany(mappedBy = "listing",cascade = CascadeType.ALL)
     private List<Bid> bids = new ArrayList<>();
@@ -71,6 +72,8 @@ public class Listing {
     @OneToMany(mappedBy = "listing",cascade = CascadeType.ALL)
     private List<BuyingRequirement> buyingRequirements = new ArrayList<>();
 
+=======
+>>>>>>> Stashed changes
     @Enumerated(EnumType.STRING)
     private AuctionStatus status;
 
