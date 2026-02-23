@@ -11,6 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor //needed by jackson
 @AllArgsConstructor //constructor
 public class LoginResponseDto {
+    private int status;
+    private String message;
     private String accessToken;
-    private UserResponseDto userResponseDto;
+    private UserResponseDto data;
 }

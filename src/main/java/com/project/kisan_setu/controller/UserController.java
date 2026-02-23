@@ -30,42 +30,26 @@ public class UserController {
 
     //signup
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponseDto<UserResponseDto>> signup(
+    public ResponseEntity<SignupResponseDto> signup(
             @Valid @RequestBody CreateUserRequestDto dto) { //json data
         logger.debug("Signup request for user with email : {}",dto.getEmail());
-        UserResponseDto userDto = userService.signup(dto); //signup method will be called and response will be stored
-        String token = jwtUtil.generateToken(userDto.getEmail()); //token will be generated for a particular email
-
-        //inserting value in api response
-        ApiResponseDto<UserResponseDto> response = new ApiResponseDto<>(
-                201,
-                "Registration successful",
-                userDto
-        );
+        SignupResponseDto userDto = userService.signup(dto); //signup method will be called and response will be stored
 
         logger.info("Signup successful for user with email : {}",dto.getEmail());
         //response send to frontend
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return ResponseEntity.ok(userDto);
     }
 
     //login
     @PostMapping("/login")
-    public ResponseEntity<ApiResponseDto<UserResponseDto>> login(
+    public ResponseEntity<LoginResponseDto> login(
             @Valid @RequestBody LoginRequestDto dto) { //json from user
         logger.debug("Login request for user with email : {}",dto.getEmail());
-        UserResponseDto userDto = userService.login(dto); //login method will be called and response will be stored
-        String token = jwtUtil.generateToken(dto.getEmail()); //token will be generated for that particular email
-
-        //inserting values in api response
-        ApiResponseDto<UserResponseDto> response = new ApiResponseDto<>(
-                200,
-                "Login successful",
-                userDto
-        );
+        LoginResponseDto userDto = userService.login(dto); //login method will be called and response will be stored
 
         logger.info("Login successful for user with email : {}",dto.getEmail());
         //response send to frontend
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userDto);
     }
 
     //get all users

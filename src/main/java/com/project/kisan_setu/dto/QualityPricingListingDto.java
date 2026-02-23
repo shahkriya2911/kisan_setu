@@ -32,6 +32,10 @@ public class QualityPricingListingDto {
     @NotNull(message = "minimum bid increment is required")
     private Double minimumBidIncrement;
     @NotNull(message = "sale type is required")
+    @NotNull(message = "minimum order quantity is required")
+    private Integer minimumOrderQuantity;
+    @NotNull(message = "moq price per kg is required")
+    private Double moqPricePerKg;
     @Enumerated(EnumType.STRING)
     private SaleType saleType;  // FIXED or AUCTION
     @NotNull

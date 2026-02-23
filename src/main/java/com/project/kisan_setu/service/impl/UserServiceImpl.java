@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDto signup(CreateUserRequestDto dto) {
+    public SignupResponseDto signup(CreateUserRequestDto dto) {
         if (!dto.getPassword().equals(dto.getConfirmPassword())) {
             throw new UserException("Passwords do not match");
         }
@@ -48,11 +48,18 @@ public class UserServiceImpl implements UserService {
         user.setCreatedAt(LocalDateTime.now());
         userRepository.save(user);
 
-        return UserMapper.toResponse(user);
+        String token = jwtUtil.generateToken(user.getEmail());
+        UserResponseDto userResponseDto = UserMapper.toResponse(user);
+        return new SignupResponseDto(
+                201,
+                "Registration successful",
+                token,
+                userResponseDto
+        );
     }
 
     @Override
-    public UserResponseDto login(LoginRequestDto dto) {
+    public LoginResponseDto login(LoginRequestDto dto) {
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new UserException("Email not registered"));
 
@@ -60,7 +67,14 @@ public class UserServiceImpl implements UserService {
             throw new BadCredentialsException("Invalid Password");
         }
 
-        return UserMapper.toResponse(user);
+        String token = jwtUtil.generateToken(user.getEmail());
+        UserResponseDto userResponseDto = UserMapper.toResponse(user);
+        return new LoginResponseDto(
+                200,
+                "Login successful",
+                token,
+                userResponseDto
+        );
     }
 
 
