@@ -8,9 +8,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter //getters
-@Setter //setters
-@NoArgsConstructor //needed by jackson
+@Getter
+@Setter
+@NoArgsConstructor
 public class ListingResponseDto {
 
     private Long listingId;
@@ -22,23 +22,18 @@ public class ListingResponseDto {
     private LocalDate harvestDate;
     private Integer quantity;
     private String unit;
-<<<<<<< Updated upstream
-    // Whole Lot Only / Partial Orders Allowed
-=======
+
+    // Pricing & Purchase Type
     private Double pricePerKg;
     private Double totalBasePrice;
->>>>>>> Stashed changes
     private String purchaseType;
     private String saleType;
-
 
     // Partial Orders fields
     private Integer minimumOrderQuantity;
     private Double moqPricePerKg;
 
-    //Auction
-    private Double pricePerKg;
-    private Double totalBasePrice;
+    // Auction fields
     private Double minimumBidIncrement;
     private LocalDateTime auctionEndTime;
 
@@ -54,4 +49,3 @@ public class ListingResponseDto {
     private List<ProductImageResponseDto> images;
     private QualityCertificateResponseDto certificate;
 }
-

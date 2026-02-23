@@ -13,19 +13,19 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter //getters
-@Setter //setters
-@AllArgsConstructor //constructor
-@NoArgsConstructor //needed by JPA
-@Entity //table creation
-@Table(name = "listings") //table name
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(name = "listings")
 public class Listing {
 
-    @Id //primary key
-    @GeneratedValue(strategy = GenerationType.IDENTITY) //auto-increment
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long listingId;
 
-    //  Product Info
+    // Product Info
     private String cropName;
     private String variety;
     private String grade;
@@ -34,35 +34,22 @@ public class Listing {
     // Quantity
     private Integer quantity;
     private String unit;
-<<<<<<< Updated upstream
 
-    // Purchase Type
-=======
-    private Double pricePerKg;
->>>>>>> Stashed changes
-    private String purchaseType;
-    // Whole Lot Only / Partial Orders Allowed
-
-    // AUCTION (Whole Lot)
+    // Pricing & Purchase Type
     private Double pricePerKg;
     private Double totalBasePrice;
-    private Double minimumBidIncrement;
-<<<<<<< Updated upstream
+    private String purchaseType; // Whole Lot Only / Partial Orders Allowed
+    private Double minimumBidIncrement; // For auction
     private LocalDateTime auctionEndTime;
 
-=======
-    private Double totalBasePrice;
->>>>>>> Stashed changes
     @Enumerated(EnumType.STRING)
     private SaleType saleType;
 
-    // PARTIAL ORDER (Fixed)
+    // Partial order
     private Integer minimumOrderQuantity;
     private Double moqPricePerKg;
 
-
-
-    //  Quality & Location
+    // Quality & Location
     private String moisture;
     private String state;
     private String packagingType;
@@ -70,37 +57,33 @@ public class Listing {
     private String storageType;
     private String pickupMethod;
 
-    //relationship with user
+    // Relationship with user
     @ManyToOne
     @JoinColumn(name = "seller_id")
     private User seller;
 
-    //relationship with images
+    // Relationship with images
     @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL)
     private List<ProductImage> images = new ArrayList<>();
 
-    //relationship with quality certificate
+    // Relationship with quality certificate
     @OneToOne(mappedBy = "listing", cascade = CascadeType.ALL)
     private QualityCertificate certificate;
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    //relationship with bid
-    @OneToMany(mappedBy = "listing",cascade = CascadeType.ALL)
+    // Relationship with bids
+    @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL)
     private List<Bid> bids = new ArrayList<>();
 
-    //relationship with buying requirement
-    @OneToMany(mappedBy = "listing",cascade = CascadeType.ALL)
+    // Relationship with buying requirements
+    @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL)
     private List<BuyingRequirement> buyingRequirements = new ArrayList<>();
 
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+    // Auction status
     @Enumerated(EnumType.STRING)
     private AuctionStatus status;
 
-//    @ManyToOne
-//    @JoinColumn(name = "winner_id")
-//    private User winner;
+    // Optional winner
+    // @ManyToOne
+    // @JoinColumn(name = "winner_id")
+    // private User winner;
 }

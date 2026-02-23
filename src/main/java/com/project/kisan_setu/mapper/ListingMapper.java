@@ -5,7 +5,6 @@ import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.entity.ProductImage;
 import com.project.kisan_setu.entity.QualityCertificate;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,72 +24,55 @@ public class ListingMapper {
         dto.setHarvestDate(listing.getHarvestDate());
         dto.setQuantity(listing.getQuantity());
         dto.setUnit(listing.getUnit());
-<<<<<<< Updated upstream
-=======
-        dto.setPricePerKg(listing.getPricePerKg());
-        dto.setTotalBasePrice(listing.getTotalBasePrice());
->>>>>>> Stashed changes
-        dto.setPurchaseType(listing.getPurchaseType());
 
-        dto.setSaleType(listing.getSaleType().name());
-        // FIXED PRICE
-        dto.setMinimumOrderQuantity(listing.getMinimumOrderQuantity());
-        dto.setMoqPricePerKg(listing.getMoqPricePerKg());
-        //Auction
+        // Pricing
         dto.setPricePerKg(listing.getPricePerKg());
         dto.setTotalBasePrice(listing.getTotalBasePrice());
         dto.setMinimumBidIncrement(listing.getMinimumBidIncrement());
+        dto.setPurchaseType(listing.getPurchaseType());
+        dto.setSaleType(listing.getSaleType() != null ? listing.getSaleType().name() : null);
         dto.setAuctionEndTime(listing.getAuctionEndTime());
 
+        // Partial Order (Fixed)
+        dto.setMinimumOrderQuantity(listing.getMinimumOrderQuantity());
+        dto.setMoqPricePerKg(listing.getMoqPricePerKg());
+
+        // Location & Quality
         dto.setMoisture(listing.getMoisture());
         dto.setState(listing.getState());
-        dto.setPackagingType(listing.getPackagingType());
         dto.setDistrict(listing.getDistrict());
+        dto.setPackagingType(listing.getPackagingType());
         dto.setStorageType(listing.getStorageType());
         dto.setPickupMethod(listing.getPickupMethod());
 
-        //  Images (Primary First)
+        // Images (primary first)
         if (listing.getImages() != null) {
-
-            List<ProductImageResponseDto> imageDtos =
-                    listing.getImages()
-                            .stream()
-                            .sorted(Comparator.comparing(
-                                    ProductImage::getIsPrimary,
-                                    Comparator.nullsLast(Comparator.reverseOrder())
-                            ))
-                            .map(image -> {
-                                ProductImageResponseDto imageDto =
-                                        new ProductImageResponseDto();
-
-                                imageDto.setImageId(image.getImageId());
-                                imageDto.setIsPrimary(image.getIsPrimary());
-                                imageDto.setImageUrl(
-                                        BASE_URL + "productimage/" + image.getFileName()
-                                );
-
-                                return imageDto;
-                            })
-                            .collect(Collectors.toList());
+            List<ProductImageResponseDto> imageDtos = listing.getImages()
+                    .stream()
+                    .sorted(Comparator.comparing(
+                            ProductImage::getIsPrimary,
+                            Comparator.nullsLast(Comparator.reverseOrder())
+                    ))
+                    .map(image -> {
+                        ProductImageResponseDto imageDto = new ProductImageResponseDto();
+                        imageDto.setImageId(image.getImageId());
+                        imageDto.setIsPrimary(image.getIsPrimary());
+                        imageDto.setImageUrl(BASE_URL + "productimage/" + image.getFileName());
+                        return imageDto;
+                    })
+                    .collect(Collectors.toList());
 
             dto.setImages(imageDtos);
         }
 
-        //  Certificate
+        // Certificate
         if (listing.getCertificate() != null) {
-
             QualityCertificate cert = listing.getCertificate();
-
-            QualityCertificateResponseDto certDto =
-                    new QualityCertificateResponseDto();
-
+            QualityCertificateResponseDto certDto = new QualityCertificateResponseDto();
             certDto.setCertificateId(cert.getCertificateId());
             certDto.setCertificateName(cert.getCertificateName());
             certDto.setIssuedDate(cert.getIssuedDate());
-            certDto.setCertificateUrl(
-                    BASE_URL + "certificates/" + cert.getFileName()
-            );
-
+            certDto.setCertificateUrl(BASE_URL + "certificates/" + cert.getFileName());
             dto.setCertificate(certDto);
         }
 
@@ -104,41 +86,27 @@ public class ListingMapper {
 
         Listing listing = new Listing();
 
-        // Product Details
+        // Product details
         listing.setCropName(productDto.getCropName());
         listing.setVariety(productDto.getVariety());
         listing.setGrade(productDto.getGrade());
         listing.setHarvestDate(productDto.getHarvestDate());
 
-        //Quality
+        // Pricing & auction
         listing.setQuantity(pricingDto.getQuantity());
         listing.setUnit(pricingDto.getUnit());
-<<<<<<< Updated upstream
-        listing.setPurchaseType(pricingDto.getPurchaseType());
-        listing.setTotalBasePrice(pricingDto.getTotalBasePrice());
-=======
         listing.setPricePerKg(pricingDto.getPricePerKg());
+        listing.setTotalBasePrice(pricingDto.getTotalBasePrice());
         listing.setPurchaseType(pricingDto.getPurchaseType());
         listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
-        listing.setTotalBasePrice(pricingDto.getTotalBasePrice());
         listing.setSaleType(pricingDto.getSaleType());
-        listing.setAuctionEndDate(pricingDto.getAuctionEndDate());
->>>>>>> Stashed changes
-
-        // Auction
-        listing.setPricePerKg(pricingDto.getPricePerKg());
-        listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
         listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
-        listing.setSaleType(pricingDto.getSaleType());
 
-        // MOQ
-        listing.setMinimumOrderQuantity(
-                pricingDto.getMinimumOrderQuantity());
+        // Partial order
+        listing.setMinimumOrderQuantity(pricingDto.getMinimumOrderQuantity());
+        listing.setMoqPricePerKg(pricingDto.getMoqPricePerKg());
 
-        listing.setMoqPricePerKg(
-                pricingDto.getMoqPricePerKg());
-
-        // Location
+        // Location & quality
         listing.setMoisture(locationDto.getMoisture());
         listing.setState(locationDto.getState());
         listing.setDistrict(locationDto.getDistrict());
@@ -146,9 +114,6 @@ public class ListingMapper {
         listing.setStorageType(locationDto.getStorageType());
         listing.setPickupMethod(locationDto.getPickupMethod());
 
-
-
         return listing;
     }
-
 }
