@@ -19,7 +19,6 @@ public class CreateUserRequestDto {
 
     //user creation through signup or custom addition by admin
     //user info
-    @Column(nullable = false)
     @NotBlank(message = "Full name is required")
     @Size(min = 5, max = 20, message = "Full name must be between 5 and 20 characters")
     @Pattern(
