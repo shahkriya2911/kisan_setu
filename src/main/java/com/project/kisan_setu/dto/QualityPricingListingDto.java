@@ -1,6 +1,10 @@
 package com.project.kisan_setu.dto;
 
 import com.project.kisan_setu.enums.SaleType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,18 +17,23 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class QualityPricingListingDto {
-    private Integer quantity;
-    private String unit;
-    // Whole Lot Only / Partial Orders Allowed
-    private String purchaseType;
-    // FIXED PRICE Fields
-    private Integer minimumOrderQuantity;
-    private Double moqPricePerKg;
-    // AUCTION Fields
-    private Double pricePerKg;
-    private Double totalBasePrice;
-    private Double minimumBidIncrement;
-    private SaleType saleType;  // FIXED or AUCTION
-    private LocalDateTime auctionEndTime;
 
+    //quality and pricing info
+    @NotNull(message = "quantity is required")
+    private Integer quantity;
+    @NotNull(message = "unit is required")
+    private String unit;
+    @NotNull(message = "price per kg is required")
+    private Double pricePerKg;
+    @NotNull(message = "total base price is required")
+    private Double totalBasePrice;
+    @NotBlank(message = "purchase type is required")
+    private String purchaseType;
+    @NotNull(message = "minimum bid increment is required")
+    private Double minimumBidIncrement;
+    @NotNull(message = "sale type is required")
+    @Enumerated(EnumType.STRING)
+    private SaleType saleType;  // FIXED or AUCTION
+    @NotNull
+    private LocalDateTime auctionEndTime;
 }
