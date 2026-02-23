@@ -1,5 +1,7 @@
 package com.project.kisan_setu.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,16 +10,26 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Getter //getters
+@Setter //setters
+@NoArgsConstructor //needed by jackson
+@AllArgsConstructor //constructor
 public class BuyingRequirementRequestDto {
 
+    //buying requirement info
+    @NotBlank(message = "crop type is required")
     private String cropType;
+    @NotNull(message = "required quantity is needed")
     private Double quantityRequired;
+    @NotNull(message = "minimum price is required")
     private Double minPrice;
+    @NotNull(message = "maximum price is required")
     private Double maxPrice;
+    @NotBlank(message = "quality grade is required")
     private String qualityGrade;
+    @NotBlank(message = "delivery location is required")
     private String deliveryLocation;
+    @NotBlank(message = "deadline is required")
     private LocalDate deadline;
     private String additionalNotes;
 }

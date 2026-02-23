@@ -1,14 +1,24 @@
 package com.project.kisan_setu.service.impl;
 
+<<<<<<< Updated upstream
 import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.Bid;
+=======
+import com.project.kisan_setu.dto.ListingResponseDto;
+import com.project.kisan_setu.dto.ProductListingDto;
+import com.project.kisan_setu.dto.QualityLocationListingDto;
+import com.project.kisan_setu.dto.QualityPricingListingDto;
+>>>>>>> Stashed changes
 import com.project.kisan_setu.entity.BidHistory;
 import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.enums.SaleType;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.ListingMapper;
 import com.project.kisan_setu.repository.BidHistoryRepository;
+<<<<<<< Updated upstream
 import com.project.kisan_setu.repository.BidRepository;
+=======
+>>>>>>> Stashed changes
 import com.project.kisan_setu.repository.ListingRepository;
 import com.project.kisan_setu.service.ListingService;
 import org.slf4j.Logger;
@@ -26,6 +36,7 @@ public class ListingServiceImpl implements ListingService {
 
     private final ListingRepository listingRepository;
     private final BidHistoryRepository bidHistoryRepository;
+<<<<<<< Updated upstream
     private final BidRepository bidRepository;
     private static final Logger logger = LoggerFactory.getLogger(ListingServiceImpl.class);
 
@@ -33,12 +44,20 @@ public class ListingServiceImpl implements ListingService {
         this.listingRepository = listingRepository;
         this.bidHistoryRepository = bidHistoryRepository;
         this.bidRepository = bidRepository;
+=======
+    private static final Logger logger = LoggerFactory.getLogger(ListingServiceImpl.class);
+
+    public ListingServiceImpl(ListingRepository listingRepository, BidHistoryRepository bidHistoryRepository) {
+        this.listingRepository = listingRepository;
+        this.bidHistoryRepository = bidHistoryRepository;
+>>>>>>> Stashed changes
     }
     @Override
     public ListingResponseDto createListing(
             ProductListingDto productDto,
             QualityPricingListingDto pricingDto,
             QualityLocationListingDto locationDto) {
+<<<<<<< Updated upstream
 
         logger.info("Creating new listing for product: {}",
                 productDto.getCropName());
@@ -141,6 +160,24 @@ public class ListingServiceImpl implements ListingService {
 
         logger.info("Listing created successfully with ID: {}",
                 saved.getListingId());
+=======
+        logger.info("Creating new listing for product: {}", productDto.getCropName());
+        // Calculate total base price
+        double totalBasePrice = pricingDto.getQuantity() * pricingDto.getPricePerKg();
+        pricingDto.setTotalBasePrice(totalBasePrice);
+
+        if (pricingDto.getMinimumBidIncrement() == null || pricingDto.getMinimumBidIncrement() <= 0) {
+            throw new UserException("Minimum bid increment is required and must be greater than 0");
+        }
+
+        logger.info("Total Base Price: {}, Min Bid Increment: {}", totalBasePrice,pricingDto.getMinimumBidIncrement());
+
+        Listing listing = ListingMapper.toEntity(productDto, pricingDto, locationDto);
+        Listing saved = listingRepository.save(listing);
+
+
+        logger.info("Listing created successfully with ID: {}", saved.getListingId());
+>>>>>>> Stashed changes
 
 
         return ListingMapper.toResponse(saved);
@@ -245,6 +282,7 @@ public class ListingServiceImpl implements ListingService {
 
 
         }
+<<<<<<< Updated upstream
 
     @Override
     public SellerListingDto getListingTop5BidDetail(Long listingId) {
@@ -288,6 +326,9 @@ public class ListingServiceImpl implements ListingService {
 
     }
 }
+=======
+    }
+>>>>>>> Stashed changes
 
 
 

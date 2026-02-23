@@ -5,6 +5,8 @@ import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.security.JwtUtil;
 import com.project.kisan_setu.service.UserService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,122 +14,137 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestController
-@RequestMapping("/users")
+@RestController //handling of rest apis
+@RequestMapping("/users") //api starts with /users
 public class UserController {
 
+    //constructor dependency injection
     private final UserService userService;
     private final JwtUtil jwtUtil;
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     public UserController(UserService userService, JwtUtil jwtUtil) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
     }
 
+    //signup
     @PostMapping("/signup")
     public ResponseEntity<ApiResponseDto<UserResponseDto>> signup(
-            @Valid @RequestBody CreateUserRequestDto dto) {
+            @Valid @RequestBody CreateUserRequestDto dto) { //json data
+        logger.debug("Signup request for user with email : {}",dto.getEmail());
+        UserResponseDto userDto = userService.signup(dto); //signup method will be called and response will be stored
+        String token = jwtUtil.generateToken(userDto.getEmail()); //token will be generated for a particular email
 
-        UserResponseDto userDto = userService.signup(dto);
-        String token = jwtUtil.generateToken(userDto.getEmail());
-
+        //inserting value in api response
         ApiResponseDto<UserResponseDto> response = new ApiResponseDto<>(
                 201,
                 "Registration successful",
-                token,
                 userDto
         );
 
+        logger.info("Signup successful for user with email : {}",dto.getEmail());
+        //response send to frontend
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    //login
     @PostMapping("/login")
     public ResponseEntity<ApiResponseDto<UserResponseDto>> login(
-            @Valid @RequestBody LoginRequestDto dto) {
+            @Valid @RequestBody LoginRequestDto dto) { //json from user
+        logger.debug("Login request for user with email : {}",dto.getEmail());
+        UserResponseDto userDto = userService.login(dto); //login method will be called and response will be stored
+        String token = jwtUtil.generateToken(dto.getEmail()); //token will be generated for that particular email
 
-        UserResponseDto userDto = userService.login(dto);
-        String token = jwtUtil.generateToken(dto.getEmail());
-
+        //inserting values in api response
         ApiResponseDto<UserResponseDto> response = new ApiResponseDto<>(
                 200,
                 "Login successful",
-                token,
                 userDto
         );
 
+        logger.info("Login successful for user with email : {}",dto.getEmail());
+        //response send to frontend
         return ResponseEntity.ok(response);
     }
 
-
-
-
+    //get all users
     @GetMapping
     public ResponseEntity<ApiResponseDto<List<UserResponseDto>>> getAllUsers() {
-
-        List<UserResponseDto> users = userService.getAllUsers()
+        logger.info("Get all users request");
+        List<UserResponseDto> users = userService.getAllUsers()//call get all users method and convert it into list
                 .stream()
                 .map(UserResponseDto::new)
                 .collect(Collectors.toList());
 
+        //inserting values in api response
         ApiResponseDto<List<UserResponseDto>> response = new ApiResponseDto<>(
                 HttpStatus.OK.value(),
                 "Users fetched successfully",
-                null,
                 users
         );
 
+        logger.info("All users fetched successfully");
+        //response send to frontend
         return ResponseEntity.ok(response);
     }
 
 
+    //get user by id
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponseDto<UserResponseDto>> getUserById(
             @PathVariable Long userId) {
+        logger.debug("Get user by id request for user with id : {}",userId);
+        User user = userService.getUserById(userId); //get user by id method call
 
-        User user = userService.getUserById(userId);
-
+        //inserting values in api response
         ApiResponseDto<UserResponseDto> response = new ApiResponseDto<>(
                 HttpStatus.OK.value(),
                 "User fetched successfully",
-                null,
                 new UserResponseDto(user)
         );
 
+        //response send to frontend
+        logger.info("User with id :{} fetched successfully",userId);
         return ResponseEntity.ok(response);
     }
 
-
+    //update user by id
     @PutMapping("/{userId}")
     public ResponseEntity<ApiResponseDto<UserResponseDto>> updateUser(
             @PathVariable Long userId,
-            @Valid @RequestBody UpdateUserRequestDto dto) {
+            @Valid @RequestBody UpdateUserRequestDto dto) { //json from user
+        logger.debug("Update user by id request for user with id : {}",userId);
 
-        UserResponseDto updatedUser = userService.updateUserById(userId, dto);
+        UserResponseDto updatedUser = userService.updateUserById(userId, dto); //update method call
 
+        //inserting values in api response
         ApiResponseDto<UserResponseDto> response = new ApiResponseDto<>(
                 HttpStatus.OK.value(),
                 "User updated successfully",
-                null,
                 updatedUser
         );
 
+        logger.info("User updated successfully");
+        //response send to frontend
         return ResponseEntity.ok(response);
     }
 
-
+    //delete by user id
     @DeleteMapping("/{userId}")
     public ResponseEntity<ApiResponseDto<Void>> deleteUser(
             @PathVariable Long userId) {
+        logger.debug("Delete user with id request for user with id : {}",userId);
+        userService.deleteUserById(userId);//delete method call
 
-        userService.deleteUserById(userId);
-
+        //inserting values in api response
         ApiResponseDto<Void> response = new ApiResponseDto<>(
                 HttpStatus.OK.value(),
                 "User deleted successfully",
-                null,
                 null
         );
-
+        logger.info("User deleted successfully");
+        //response send to frontend
         return ResponseEntity.ok(response);
     }
 }

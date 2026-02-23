@@ -1,5 +1,6 @@
 package com.project.kisan_setu.dto;
 
+import com.project.kisan_setu.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,11 +9,8 @@ import lombok.Setter;
 @Getter //getters
 @Setter //setters
 @NoArgsConstructor //needed by jackson
-@AllArgsConstructor
-public class ProductImageResponseDto {
-    //image response info
-    private Long imageId;
-    private String imageUrl;
-    private Boolean isPrimary;
+@AllArgsConstructor //constructor
+public class LoginResponseDto {
+    private String accessToken;
+    private UserResponseDto userResponseDto;
 }
-

@@ -9,23 +9,26 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "quality_certificates")
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
+@Entity //table creation
+@Table(name = "quality_certificates") //table name
+@AllArgsConstructor //constructor
+@NoArgsConstructor //needed by JPA
+@Getter //getters
+@Setter //setters
 public class QualityCertificate {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id //primary key
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //auto-increment
     private Long certificateId;
+
+    //quality certificate info
     private String certificateName;
     private LocalDate issuedDate;
     private String fileName;
     private String filePath;
     private String fileType;
 
+    //relationship with listing
     @OneToOne
     @JoinColumn(name = "listing_id")
     private Listing listing;

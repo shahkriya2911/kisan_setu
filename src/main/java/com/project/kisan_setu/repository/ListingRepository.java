@@ -8,9 +8,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Collection;
 import java.util.List;
 
-@Repository
+@Repository //interface that talks with DB
 public interface ListingRepository extends JpaRepository<Listing, Long> {
-    boolean existsBySellerUserId(Long userId);
-
-    List<Listing> findBySaleType(SaleType saleType);
+    boolean existsBySellerUserId(Long userId); //checks if that particular user (seller) exists
+    List<Listing> findBySaleType(SaleType saleType); //type of listing (fixed or auction)
 }

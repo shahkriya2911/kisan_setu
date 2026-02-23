@@ -8,11 +8,8 @@ import lombok.Setter;
 @Getter //getters
 @Setter //setters
 @NoArgsConstructor //needed by jackson
-@AllArgsConstructor
-public class ProductImageResponseDto {
-    //image response info
-    private Long imageId;
-    private String imageUrl;
-    private Boolean isPrimary;
+@AllArgsConstructor //constructor
+public class SignupResponseDto {
+    private String accessToken;
+    private UserResponseDto userResponseDto;
 }
-

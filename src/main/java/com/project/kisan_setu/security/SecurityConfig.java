@@ -38,8 +38,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/users/signup","/users/login",
                                 "/schemes/**",
+<<<<<<< Updated upstream
                                 "/listings/**",
                                 "users/**")
+=======
+                                "/listings/**")
+>>>>>>> Stashed changes
                         .permitAll()   // allow these endpoints
                         .anyRequest().authenticated()
                 )

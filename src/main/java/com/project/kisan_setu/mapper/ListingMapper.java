@@ -25,6 +25,11 @@ public class ListingMapper {
         dto.setHarvestDate(listing.getHarvestDate());
         dto.setQuantity(listing.getQuantity());
         dto.setUnit(listing.getUnit());
+<<<<<<< Updated upstream
+=======
+        dto.setPricePerKg(listing.getPricePerKg());
+        dto.setTotalBasePrice(listing.getTotalBasePrice());
+>>>>>>> Stashed changes
         dto.setPurchaseType(listing.getPurchaseType());
 
         dto.setSaleType(listing.getSaleType().name());
@@ -108,8 +113,17 @@ public class ListingMapper {
         //Quality
         listing.setQuantity(pricingDto.getQuantity());
         listing.setUnit(pricingDto.getUnit());
+<<<<<<< Updated upstream
         listing.setPurchaseType(pricingDto.getPurchaseType());
         listing.setTotalBasePrice(pricingDto.getTotalBasePrice());
+=======
+        listing.setPricePerKg(pricingDto.getPricePerKg());
+        listing.setPurchaseType(pricingDto.getPurchaseType());
+        listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
+        listing.setTotalBasePrice(pricingDto.getTotalBasePrice());
+        listing.setSaleType(pricingDto.getSaleType());
+        listing.setAuctionEndDate(pricingDto.getAuctionEndDate());
+>>>>>>> Stashed changes
 
         // Auction
         listing.setPricePerKg(pricingDto.getPricePerKg());

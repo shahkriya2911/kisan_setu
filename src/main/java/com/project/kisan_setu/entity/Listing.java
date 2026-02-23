@@ -10,18 +10,19 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Entity
-@Table(name = "listings")
+@Getter //getters
+@Setter //setters
+@AllArgsConstructor //constructor
+@NoArgsConstructor //needed by JPA
+@Entity //table creation
+@Table(name = "listings") //table name
 public class Listing {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id //primary key
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //auto-increment
     private Long listingId;
 
     //  Product Info
@@ -33,8 +34,12 @@ public class Listing {
     // Quantity
     private Integer quantity;
     private String unit;
+<<<<<<< Updated upstream
 
     // Purchase Type
+=======
+    private Double pricePerKg;
+>>>>>>> Stashed changes
     private String purchaseType;
     // Whole Lot Only / Partial Orders Allowed
 
@@ -42,8 +47,12 @@ public class Listing {
     private Double pricePerKg;
     private Double totalBasePrice;
     private Double minimumBidIncrement;
+<<<<<<< Updated upstream
     private LocalDateTime auctionEndTime;
 
+=======
+    private Double totalBasePrice;
+>>>>>>> Stashed changes
     @Enumerated(EnumType.STRING)
     private SaleType saleType;
 
@@ -61,18 +70,33 @@ public class Listing {
     private String storageType;
     private String pickupMethod;
 
+    //relationship with user
     @ManyToOne
     @JoinColumn(name = "seller_id")
     private User seller;
 
-
+    //relationship with images
     @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL)
-    private List<ProductImage> images;
+    private List<ProductImage> images = new ArrayList<>();
 
-
+    //relationship with quality certificate
     @OneToOne(mappedBy = "listing", cascade = CascadeType.ALL)
     private QualityCertificate certificate;
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+    //relationship with bid
+    @OneToMany(mappedBy = "listing",cascade = CascadeType.ALL)
+    private List<Bid> bids = new ArrayList<>();
+
+    //relationship with buying requirement
+    @OneToMany(mappedBy = "listing",cascade = CascadeType.ALL)
+    private List<BuyingRequirement> buyingRequirements = new ArrayList<>();
+
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
     @Enumerated(EnumType.STRING)
     private AuctionStatus status;
 

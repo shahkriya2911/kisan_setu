@@ -1,14 +1,16 @@
 package com.project.kisan_setu.dto;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
-@Setter
+@Getter //getters
+@Setter //setters
+@NoArgsConstructor //needed by jackson
 public class ListingResponseDto {
 
     private Long listingId;
@@ -20,7 +22,12 @@ public class ListingResponseDto {
     private LocalDate harvestDate;
     private Integer quantity;
     private String unit;
+<<<<<<< Updated upstream
     // Whole Lot Only / Partial Orders Allowed
+=======
+    private Double pricePerKg;
+    private Double totalBasePrice;
+>>>>>>> Stashed changes
     private String purchaseType;
     private String saleType;
 

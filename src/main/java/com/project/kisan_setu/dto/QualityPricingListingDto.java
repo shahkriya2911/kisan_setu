@@ -14,7 +14,12 @@ import java.time.LocalDateTime;
 public class QualityPricingListingDto {
     private Integer quantity;
     private String unit;
+<<<<<<< Updated upstream
     // Whole Lot Only / Partial Orders Allowed
+=======
+    private Double pricePerKg;
+    private Double totalBasePrice;
+>>>>>>> Stashed changes
     private String purchaseType;
     // FIXED PRICE Fields
     private Integer minimumOrderQuantity;

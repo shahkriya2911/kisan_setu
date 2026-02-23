@@ -9,18 +9,19 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "buying_requirements")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Entity //table creation
+@Table(name = "buying_requirements") //table name
+@Getter //getters
+@Setter //setters
+@NoArgsConstructor //needed by JPA
+@AllArgsConstructor //constructor
 public class BuyingRequirement {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id //primary key
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //auto-increment
     private Long requirementId;
 
+    //buying requirement info
     private String cropType;
     private Double quantityRequired;
     private Double minPrice;
@@ -29,10 +30,15 @@ public class BuyingRequirement {
     private String deliveryLocation;
     private LocalDate deadline;
     private String additionalNotes;
+    private LocalDateTime createdAt;
 
+    //relationship with listing
+    @ManyToOne
+    @JoinColumn(name = "listing_id")
+    private Listing listing;
+
+    //relationship with user
     @ManyToOne
     @JoinColumn(name = "buyer_id")
     private User buyer;
-
-    private LocalDateTime createdAt;
 }

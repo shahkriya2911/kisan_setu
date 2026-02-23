@@ -134,6 +134,11 @@ public class BuyerServiceImpl implements BuyerService {
                 bid.getBidTime()
         );
     }
+
+    @Override
+    public Object getBidHistory(Long listingId) {
+        return null;
+    }
 }
 
 

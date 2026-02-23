@@ -6,12 +6,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter //getters
+@Setter //setters
+@AllArgsConstructor //constructor
+@NoArgsConstructor //required by jackson
 public class UserResponseDto {
 
+    //user response info
     private Long id;
     private String fullName;
     private String email;

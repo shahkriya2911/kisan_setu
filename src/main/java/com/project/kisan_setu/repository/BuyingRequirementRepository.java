@@ -6,9 +6,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
+@Repository //interface which talks with DB
 public interface BuyingRequirementRepository
         extends JpaRepository<BuyingRequirement, Long> {
 
-    List<BuyingRequirement> findByBuyerUserId(Long buyerId);
+    List<BuyingRequirement> findByBuyerUserId(Long buyerId); //find a particular buyer (user)
 }
