@@ -6,12 +6,19 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Getter //getters
+@Setter //setters
+@NoArgsConstructor //needed by jackson
+@AllArgsConstructor //constructor
 public class CreateUserRequestDto {
+
+    //user creation through signup or custom addition by admin
+    //user info
     @Column(nullable = false)
     @NotBlank(message = "Full name is required")
     @Size(min = 5, max = 20, message = "Full name must be between 5 and 20 characters")
@@ -22,14 +29,12 @@ public class CreateUserRequestDto {
     private String fullName;
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
-
     private String email;
     @NotBlank(message = "Mobile number is required")
     @Pattern(
             regexp = "^[6-9][0-9]{9}$",
             message = "Mobile number must start with 6-9 and contain 10 digits"
     )
-
     private String mobileNumber;
     @NotBlank(message = "Password is required")
     @Size(min = 6, message = "Password must be at least 6 characters")
@@ -39,8 +44,6 @@ public class CreateUserRequestDto {
     )
     private String password;
     @NotBlank(message = "Confirm password is required")
-
     private String confirmPassword;
     private String userCreatedAt; // ISO_LOCAL_DATE_TIME format
-
 }

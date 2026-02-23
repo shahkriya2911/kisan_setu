@@ -12,16 +12,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Entity
-@Table(name = "listings")
+@Getter //getters
+@Setter //setters
+@AllArgsConstructor //constructor
+@NoArgsConstructor //needed by JPA
+@Entity //table creation
+@Table(name = "listings") //table name
 public class Listing {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id //primary key
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //auto-increment
     private Long listingId;
 
     //  Product Info
@@ -49,17 +49,26 @@ public class Listing {
     private String storageType;
     private String pickupMethod;
 
+    //relationship with user
     @ManyToOne
     @JoinColumn(name = "seller_id")
     private User seller;
 
-
+    //relationship with images
     @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL)
     private List<ProductImage> images;
 
-
+    //relationship with quality certificate
     @OneToOne(mappedBy = "listing", cascade = CascadeType.ALL)
     private QualityCertificate certificate;
+
+    //relationship with bid
+    @OneToMany(mappedBy = "listing",cascade = CascadeType.ALL)
+    private List<Bid> bids;
+
+    //relationship with buying requirement
+    @OneToOne(mappedBy = "listing",cascade = CascadeType.ALL)
+    private List<BuyingRequirement> buyingRequirements;
 
     @Enumerated(EnumType.STRING)
     private AuctionStatus status;

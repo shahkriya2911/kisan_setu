@@ -8,24 +8,27 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "listing_images")
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
+@Entity //table creation
+@Table(name = "listing_images") //table name
+@AllArgsConstructor //constructor
+@NoArgsConstructor //needed by JPA
+@Getter //getters
+@Setter //setters
 public class ProductImage {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id //primary key
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //auto-increment
+
+    //image info
     private Long imageId;
     private String fileName;
     private String filePath;
     private String fileType;
     private LocalDate issuedDate;
-    private Boolean isPrimary; // for cover image
 
     @ManyToOne
     @JoinColumn(name = "listing_id")
     private Listing listing;
+    private Boolean isPrimary; // for cover image
+
 }

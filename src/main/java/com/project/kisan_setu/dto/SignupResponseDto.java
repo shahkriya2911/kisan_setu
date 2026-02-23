@@ -5,13 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor //constructor
-@NoArgsConstructor //needed by jackson
 @Getter //getters
 @Setter //setters
-public class LoginRequestDto {
-
-    //login info
-    private String email;
-    private String password;
+@NoArgsConstructor //needed by jackson
+@AllArgsConstructor //constructor
+public class SignupResponseDto {
+    private String accessToken;
+    private UserResponseDto userResponseDto;
 }

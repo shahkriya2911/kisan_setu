@@ -14,32 +14,32 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity // table creation
+@Entity //table creation
 @Table(name = "users") //table name
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter //getters
+@Setter //setters
+@NoArgsConstructor //needed by JPA
+@AllArgsConstructor //constructor
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id //primary key
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //auto-increment
     private Long userId;
 
-
+    //user details
     private String fullName;
-
     private String email;
-
-
     @Column(nullable = false,unique = true)
     private String mobileNumber;
-
-
     @Column(nullable = false)
     private String password;
-
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    //relationship with listings (as a seller)
+    @OneToMany(mappedBy = "seller")
+    private List<Listing> listings;
 
+    //relationship with buying requirement (as a buyer)
+    @OneToMany(mappedBy = "buyer")
+    private List<BuyingRequirement> buyingRequirements;
 }

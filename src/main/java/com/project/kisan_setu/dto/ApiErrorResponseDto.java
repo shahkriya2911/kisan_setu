@@ -7,12 +7,13 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter //getters
+@Setter //setters
+@AllArgsConstructor //constructor
+@NoArgsConstructor //needed by jackson
 public class ApiErrorResponseDto {
 
+    //common error api response
     private int status;
     private Object data;
     private String path;

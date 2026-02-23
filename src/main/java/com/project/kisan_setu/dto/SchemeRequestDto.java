@@ -8,11 +8,13 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
+@AllArgsConstructor //constructor
+@NoArgsConstructor //needed by jackson
+@Getter //getters
+@Setter //setters
 public class SchemeRequestDto {
+
+    //scheme info
     private String schemeTitle;
     private String schemeFullName;
     private String schemeCategory;

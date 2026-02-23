@@ -8,10 +8,13 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Getter //getters
+@Setter //setters
+@NoArgsConstructor //needed by jackson
+@AllArgsConstructor //constructor
 public class BuyingRequirementRequestDto {
 
+    //buying requirement info
     private String cropType;
     private Double quantityRequired;
     private Double minPrice;
