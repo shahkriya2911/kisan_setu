@@ -2,6 +2,7 @@ package com.project.kisan_setu.controller;
 
 import com.project.kisan_setu.dto.CreateListingRequest;
 import com.project.kisan_setu.dto.ListingResponseDto;
+import com.project.kisan_setu.dto.SellerListingDto;
 import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.impl.ListingServiceImpl;
@@ -76,6 +77,12 @@ public class ListingController {
         logger.info("Preview generated successfully");
 
         return ResponseEntity.ok(preview);
+    }
+
+    @GetMapping("/{listingId}/top-5")
+    public ResponseEntity<SellerListingDto> getListingDetail(
+            @PathVariable Long listingId) {
+        return ResponseEntity.ok(listingService.getListingTop5BidDetail(listingId));
     }
 
 

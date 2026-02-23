@@ -18,15 +18,21 @@ public class ListingResponseDto {
     private String variety;
     private String grade;
     private LocalDate harvestDate;
-
-    // Pricing
     private Integer quantity;
     private String unit;
+    // Whole Lot Only / Partial Orders Allowed
+    private String purchaseType;
+    private String saleType;
+
+
+    // Partial Orders fields
+    private Integer minimumOrderQuantity;
+    private Double moqPricePerKg;
+
+    //Auction
     private Double pricePerKg;
     private Double totalBasePrice;
-    private String purchaseType;
     private Double minimumBidIncrement;
-    private String saleType;
     private LocalDateTime auctionEndTime;
 
     // Location

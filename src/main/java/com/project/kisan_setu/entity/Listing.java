@@ -30,16 +30,28 @@ public class Listing {
     private String grade;
     private LocalDate harvestDate;
 
-    //  Quantity & Pricing
+    // Quantity
     private Integer quantity;
     private String unit;
-    private Double pricePerKg;
+
+    // Purchase Type
     private String purchaseType;
-    private Double minimumBidIncrement;
+    // Whole Lot Only / Partial Orders Allowed
+
+    // AUCTION (Whole Lot)
+    private Double pricePerKg;
     private Double totalBasePrice;
-    @Enumerated(EnumType.STRING)
-    private SaleType saleType;  // FIXED or AUCTION
+    private Double minimumBidIncrement;
     private LocalDateTime auctionEndTime;
+
+    @Enumerated(EnumType.STRING)
+    private SaleType saleType;
+
+    // PARTIAL ORDER (Fixed)
+    private Integer minimumOrderQuantity;
+    private Double moqPricePerKg;
+
+
 
     //  Quality & Location
     private String moisture;

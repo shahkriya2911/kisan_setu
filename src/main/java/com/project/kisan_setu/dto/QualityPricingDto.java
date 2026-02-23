@@ -1,17 +1,18 @@
 package com.project.kisan_setu.dto;
 
 import com.project.kisan_setu.enums.SaleType;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-public class QualityPricingListingDto {
+public class QualityPricingDto {
     private Integer quantity;
     private String unit;
     // Whole Lot Only / Partial Orders Allowed
@@ -19,10 +20,11 @@ public class QualityPricingListingDto {
     // FIXED PRICE Fields
     private Integer minimumOrderQuantity;
     private Double moqPricePerKg;
-    private SaleType saleType;  // FIXED or AUCTION
-    // Fixed Price OR Auction Base Price
+    // AUCTION Fields
     private Double pricePerKg;
     private Double totalBasePrice;
     private Double minimumBidIncrement;
+    private SaleType saleType;  // FIXED or AUCTION
     private LocalDateTime auctionEndTime;
+
 }

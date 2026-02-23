@@ -24,7 +24,6 @@ public class SecurityConfig {
         this.jwtFilter = jwtFilter;
     }
 
-    // ================= PASSWORD ENCODER =================
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -39,7 +38,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/users/signup","/users/login",
                                 "/schemes/**",
-                                "/listings/**")
+                                "/listings/**",
+                                "users/**")
                         .permitAll()   // allow these endpoints
                         .anyRequest().authenticated()
                 )

@@ -5,6 +5,7 @@ import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.entity.ProductImage;
 import com.project.kisan_setu.entity.QualityCertificate;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,14 +23,18 @@ public class ListingMapper {
         dto.setVariety(listing.getVariety());
         dto.setGrade(listing.getGrade());
         dto.setHarvestDate(listing.getHarvestDate());
-
         dto.setQuantity(listing.getQuantity());
         dto.setUnit(listing.getUnit());
+        dto.setPurchaseType(listing.getPurchaseType());
+
+        dto.setSaleType(listing.getSaleType().name());
+        // FIXED PRICE
+        dto.setMinimumOrderQuantity(listing.getMinimumOrderQuantity());
+        dto.setMoqPricePerKg(listing.getMoqPricePerKg());
+        //Auction
         dto.setPricePerKg(listing.getPricePerKg());
         dto.setTotalBasePrice(listing.getTotalBasePrice());
-        dto.setPurchaseType(listing.getPurchaseType());
         dto.setMinimumBidIncrement(listing.getMinimumBidIncrement());
-        dto.setSaleType(listing.getSaleType().name());
         dto.setAuctionEndTime(listing.getAuctionEndTime());
 
         dto.setMoisture(listing.getMoisture());
@@ -100,23 +105,34 @@ public class ListingMapper {
         listing.setGrade(productDto.getGrade());
         listing.setHarvestDate(productDto.getHarvestDate());
 
-        // Pricing Details
+        //Quality
         listing.setQuantity(pricingDto.getQuantity());
         listing.setUnit(pricingDto.getUnit());
-        listing.setPricePerKg(pricingDto.getPricePerKg());
         listing.setPurchaseType(pricingDto.getPurchaseType());
-        listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
         listing.setTotalBasePrice(pricingDto.getTotalBasePrice());
-        listing.setSaleType(pricingDto.getSaleType());
-        listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
 
-        // Location Details
+        // Auction
+        listing.setPricePerKg(pricingDto.getPricePerKg());
+        listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
+        listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
+        listing.setSaleType(pricingDto.getSaleType());
+
+        // MOQ
+        listing.setMinimumOrderQuantity(
+                pricingDto.getMinimumOrderQuantity());
+
+        listing.setMoqPricePerKg(
+                pricingDto.getMoqPricePerKg());
+
+        // Location
         listing.setMoisture(locationDto.getMoisture());
         listing.setState(locationDto.getState());
-        listing.setPackagingType(locationDto.getPackagingType());
         listing.setDistrict(locationDto.getDistrict());
+        listing.setPackagingType(locationDto.getPackagingType());
         listing.setStorageType(locationDto.getStorageType());
         listing.setPickupMethod(locationDto.getPickupMethod());
+
+
 
         return listing;
     }
