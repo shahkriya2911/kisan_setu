@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter //getters
@@ -56,7 +57,7 @@ public class Listing {
 
     //relationship with images
     @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL)
-    private List<ProductImage> images;
+    private List<ProductImage> images = new ArrayList<>();
 
     //relationship with quality certificate
     @OneToOne(mappedBy = "listing", cascade = CascadeType.ALL)
@@ -64,11 +65,11 @@ public class Listing {
 
     //relationship with bid
     @OneToMany(mappedBy = "listing",cascade = CascadeType.ALL)
-    private List<Bid> bids;
+    private List<Bid> bids = new ArrayList<>();
 
     //relationship with buying requirement
-    @OneToOne(mappedBy = "listing",cascade = CascadeType.ALL)
-    private List<BuyingRequirement> buyingRequirements;
+    @OneToMany(mappedBy = "listing",cascade = CascadeType.ALL)
+    private List<BuyingRequirement> buyingRequirements = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private AuctionStatus status;

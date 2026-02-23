@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity //table creation
@@ -37,9 +38,9 @@ public class User {
 
     //relationship with listings (as a seller)
     @OneToMany(mappedBy = "seller")
-    private List<Listing> listings;
+    private List<Listing> listings = new ArrayList<>();
 
     //relationship with buying requirement (as a buyer)
     @OneToMany(mappedBy = "buyer")
-    private List<BuyingRequirement> buyingRequirements;
+    private List<BuyingRequirement> buyingRequirements = new ArrayList<>();
 }
