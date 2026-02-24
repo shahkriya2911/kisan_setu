@@ -1,8 +1,12 @@
 package com.project.kisan_setu.controller;
 
 import com.project.kisan_setu.dto.*;
+import com.project.kisan_setu.entity.RefreshToken;
 import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.mapper.UserMapper;
+import com.project.kisan_setu.repository.RefreshTokenRepository;
 import com.project.kisan_setu.security.JwtUtil;
+import com.project.kisan_setu.service.RefreshTokenService;
 import com.project.kisan_setu.service.UserService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -21,11 +25,15 @@ public class UserController {
     //constructor dependency injection
     private final UserService userService;
     private final JwtUtil jwtUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenService refreshTokenService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    public UserController(UserService userService, JwtUtil jwtUtil) {
+    public UserController(UserService userService, JwtUtil jwtUtil, RefreshTokenService refreshTokenService, RefreshTokenRepository refreshTokenRepository, RefreshTokenService refreshTokenService1) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
+        this.refreshTokenRepository = refreshTokenRepository;
+        this.refreshTokenService = refreshTokenService1;
     }
 
     //signup
@@ -50,6 +58,25 @@ public class UserController {
         logger.info("Login successful for user with email : {}",dto.getEmail());
         //response send to frontend
         return ResponseEntity.ok(userDto);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponseDto> refreshToken(
+            @RequestBody RefreshTokenRequestDto request) {
+
+        return ResponseEntity.ok(
+                refreshTokenService.refreshAccessToken(request.getRefreshToken())
+        );
+    }
+
+    // ================= LOGOUT =================
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(
+            @RequestBody RefreshTokenRequestDto request) {
+
+        refreshTokenService.revokeToken(request.getRefreshToken());
+
+        return ResponseEntity.ok("Logged out successfully");
     }
 
     //get all users

@@ -13,5 +13,6 @@ public class SignupResponseDto {
     private int status;
     private String message;
     private String accessToken;
+    private String refreshToken;
     private UserResponseDto data;
 }

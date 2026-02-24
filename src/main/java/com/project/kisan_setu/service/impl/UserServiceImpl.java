@@ -1,11 +1,14 @@
 package com.project.kisan_setu.service.impl;
 
 import com.project.kisan_setu.dto.*;
+import com.project.kisan_setu.entity.RefreshToken;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.UserMapper;
+import com.project.kisan_setu.repository.RefreshTokenRepository;
 import com.project.kisan_setu.repository.UserRepository;
 import com.project.kisan_setu.security.JwtUtil;
+import com.project.kisan_setu.service.RefreshTokenService;
 import com.project.kisan_setu.service.UserService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,13 +23,15 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final RefreshTokenService refreshTokenService;
 
     public UserServiceImpl(UserRepository userRepository,
                            PasswordEncoder passwordEncoder,
-                           JwtUtil jwtUtil) {
+                           JwtUtil jwtUtil, RefreshTokenService refreshTokenService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Override
@@ -48,12 +53,14 @@ public class UserServiceImpl implements UserService {
         user.setCreatedAt(LocalDateTime.now());
         userRepository.save(user);
 
-        String token = jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtil.generateAccessToken(user.getEmail());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
         UserResponseDto userResponseDto = UserMapper.toResponse(user);
         return new SignupResponseDto(
                 201,
                 "Registration successful",
                 token,
+                refreshToken.getRefreshToken(),
                 userResponseDto
         );
     }
@@ -67,12 +74,14 @@ public class UserServiceImpl implements UserService {
             throw new BadCredentialsException("Invalid Password");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtil.generateAccessToken(user.getEmail());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
         UserResponseDto userResponseDto = UserMapper.toResponse(user);
         return new LoginResponseDto(
                 200,
                 "Login successful",
                 token,
+                refreshToken.getRefreshToken(),
                 userResponseDto
         );
     }
