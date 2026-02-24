@@ -4,15 +4,20 @@ import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.Bid;
 import com.project.kisan_setu.entity.BidHistory;
 import com.project.kisan_setu.entity.Listing;
+import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.SaleType;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.ListingMapper;
 import com.project.kisan_setu.repository.BidHistoryRepository;
 import com.project.kisan_setu.repository.BidRepository;
 import com.project.kisan_setu.repository.ListingRepository;
+import com.project.kisan_setu.repository.UserRepository;
 import com.project.kisan_setu.service.ListingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,12 +29,14 @@ public class ListingServiceImpl implements ListingService {
 
     private final ListingRepository listingRepository;
     private final BidHistoryRepository bidHistoryRepository;
+    private final UserRepository userRepository;
     private final BidRepository bidRepository;
     private static final Logger logger = LoggerFactory.getLogger(ListingServiceImpl.class);
 
-    public ListingServiceImpl(ListingRepository listingRepository, BidHistoryRepository bidHistoryRepository, BidRepository bidRepository) {
+    public ListingServiceImpl(ListingRepository listingRepository, BidHistoryRepository bidHistoryRepository, UserRepository userRepository, BidRepository bidRepository) {
         this.listingRepository = listingRepository;
         this.bidHistoryRepository = bidHistoryRepository;
+        this.userRepository = userRepository;
         this.bidRepository = bidRepository;
     }
 
@@ -39,54 +46,117 @@ public class ListingServiceImpl implements ListingService {
             QualityPricingListingDto pricingDto,
             QualityLocationListingDto locationDto) {
 
-        logger.info("Creating new listing for product: {}", productDto.getCropName());
+        logger.info("Creating listing for product: {}",
+                productDto.getCropName());
 
-        if (pricingDto.getQuantity() == null || pricingDto.getQuantity() <= 0) {
-            throw new UserException("Quantity must be greater than 0");
+
+        // Basic Validation
+        if (pricingDto.getQuantity() == null ||
+                pricingDto.getQuantity() <= 0) {
+
+            throw new UserException(
+                    "Quantity must be greater than 0");
         }
 
-        if (pricingDto.getPricePerKg() == null || pricingDto.getPricePerKg() <= 0) {
-            throw new UserException("PricePerKg must be greater than 0");
+        if (pricingDto.getPricePerKg() == null ||
+                pricingDto.getPricePerKg() <= 0) {
+
+            throw new UserException(
+                    "PricePerKg must be greater than 0");
         }
-
-        double totalBasePrice = pricingDto.getQuantity() * pricingDto.getPricePerKg();
-        pricingDto.setTotalBasePrice(totalBasePrice);
-
-        // Purchase Type Logic
-        if ("Partial Orders Allowed".equalsIgnoreCase(pricingDto.getPurchaseType())) {
-            if (pricingDto.getMinimumOrderQuantity() == null || pricingDto.getMoqPricePerKg() == null) {
-                throw new UserException("MOQ and MOQ price required for Partial Orders");
-            }
-            logger.info("Partial Orders Allowed - MOQ: {}, MOQ Price: {}",
-                    pricingDto.getMinimumOrderQuantity(), pricingDto.getMoqPricePerKg());
-        } else {
-            pricingDto.setMinimumOrderQuantity(null);
-            pricingDto.setMoqPricePerKg(null);
-            logger.info("Whole Lot Only Purchase");
-        }
-
-        // Sale Type Logic
+        // SaleTypee
         if (pricingDto.getSaleType() == SaleType.AUCTION) {
-            if (pricingDto.getMinimumBidIncrement() == null || pricingDto.getMinimumBidIncrement() <= 0) {
-                throw new UserException("Minimum bid increment must be greater than 0");
-            }
             if (pricingDto.getAuctionEndTime() == null) {
-                throw new UserException("Auction End Time required");
+                throw new UserException(
+                        "Auction End Time required");
             }
-            logger.info("Auction Listing → BasePrice: {}, Increment: {}, EndTime: {}",
-                    totalBasePrice, pricingDto.getMinimumBidIncrement(), pricingDto.getAuctionEndTime());
-        } else if (pricingDto.getSaleType() == SaleType.FIXED) {
-            pricingDto.setMinimumBidIncrement(null);
-            pricingDto.setAuctionEndTime(null);
-            logger.info("Fixed Price Listing → PricePerKg: {}, TotalPrice: {}",
-                    pricingDto.getPricePerKg(), totalBasePrice);
-        } else {
-            throw new UserException("SaleType must be FIXED or AUCTION");
+            if (pricingDto.getMinimumBidIncrement() == null ||
+                    pricingDto.getMinimumBidIncrement() <= 0) {
+
+                throw new UserException(
+                        "Minimum Bid Increment required");
+            }
+            //Auction timecycle
+            if (pricingDto.getAuctionEndTime()
+                    .isBefore(LocalDateTime.now())) {
+
+                throw new UserException(
+                        "Auction End Time must be future");
+            }
+
+            logger.info("Auction Listing Created");
         }
 
-        Listing listing = ListingMapper.toEntity(productDto, pricingDto, locationDto);
-        Listing saved = listingRepository.save(listing);
-        logger.info("Listing created successfully with ID: {}", saved.getListingId());
+        // FIXED PRICE
+        else if (pricingDto.getSaleType() == SaleType.FIXED) {
+
+            // Remove Auction Fields
+            pricingDto.setAuctionEndTime(null);
+            pricingDto.setMinimumBidIncrement(null);
+            logger.info("Fixed Price Listing Created");
+        }
+        else {
+            throw new UserException(
+                    "SaleType must be AUCTION or FIXED");
+        }
+
+        if ("Partial Orders Allowed"
+                .equalsIgnoreCase(pricingDto.getPurchaseType())) {
+
+            // Partial Order Required Fields
+
+            if (pricingDto.getMinimumOrderQuantity() == null
+                    || pricingDto.getMinimumOrderQuantity() <= 0) {
+
+                throw new UserException(
+                        "Minimum Order Quantity required");
+            }
+            if (pricingDto.getMoqPricePerKg() == null
+                    || pricingDto.getMoqPricePerKg() <= 0) {
+
+                throw new UserException(
+                        "MOQ PricePerKg required");
+            }
+            logger.info("Partial Order Listing");
+
+        }
+        // Whole Lot
+        else {
+
+            pricingDto.setMinimumOrderQuantity(null);
+
+            pricingDto.setMoqPricePerKg(null);
+
+
+            logger.info("Whole Lot Listing");
+
+        }
+
+        Listing listing = ListingMapper.toEntity(
+                productDto,
+                pricingDto,
+                locationDto);
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        String email = authentication.getName();
+        User seller =
+                userRepository.findByEmail(email)
+                        .orElseThrow(() ->
+                                new RuntimeException("User not found"));
+
+        listing.setSeller(seller);
+        // Auction starts when published
+        listing.setStatus(AuctionStatus.ACTIVE);
+
+        Listing saved =
+                listingRepository.save(listing);
+
+        logger.info("Listing Created Successfully ID: {}",
+                saved.getListingId());
 
         return ListingMapper.toResponse(saved);
     }
@@ -220,5 +290,26 @@ public class ListingServiceImpl implements ListingService {
                 activeBidders,
                 top5Bids
         );
+    }
+    @Override
+    public DashboardDto getSellerOverview() {
+        Authentication auth =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String email = auth.getName();
+
+        User seller = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Long sellerId = seller.getUserId();
+
+        Long activeListings = listingRepository.countBySellerUserIdAndStatus(sellerId,AuctionStatus.ACTIVE);
+        Long pendingApprovals = listingRepository.countBySellerUserIdAndStatus(sellerId,AuctionStatus.PENDING);
+        Long totalBidsReceived = bidRepository.countTotalBidsBySellerId(sellerId);
+        Long totalRevenue = bidRepository.sumAmountByListingSellerId(sellerId);
+
+        return new DashboardDto(activeListings, pendingApprovals, totalBidsReceived, totalRevenue);
+
+
     }
 }
