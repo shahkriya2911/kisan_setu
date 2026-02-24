@@ -19,5 +19,11 @@ public interface BidRepository
     List<Bid> findTop5ByListingListingIdOrderByBidAmountDesc(Long listingId);
 
     @Query("SELECT COUNT(DISTINCT b.buyer.id) FROM Bid b WHERE b.listing.listingId = :listingId")
-    long countActiveBidders(@Param("listingId") Long listingId);
+    Long countActiveBidders(@Param("listingId") Long listingId);
+
+    @Query("SELECT COUNT(b) FROM Bid b WHERE b.listing.seller.userId = :sellerId")
+    Long countTotalBidsBySellerId(Long sellerId);
+
+    @Query("SELECT COALESCE(SUM(b.bidAmount), 0) FROM Bid b WHERE b.listing.seller.userId = :sellerId")
+    Long sumAmountByListingSellerId( Long sellerId);
 }

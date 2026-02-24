@@ -38,7 +38,7 @@ public class ListingResponseDto {
     private LocalDateTime auctionEndTime;
 
     // Location
-    private String moisture;
+
     private String state;
     private String packagingType;
     private String district;
@@ -48,4 +48,5 @@ public class ListingResponseDto {
     // Images & Certificate
     private List<ProductImageResponseDto> images;
     private QualityCertificateResponseDto certificate;
+    private String description;
 }

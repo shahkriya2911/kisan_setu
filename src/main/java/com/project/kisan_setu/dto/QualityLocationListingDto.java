@@ -13,8 +13,6 @@ import lombok.Setter;
 public class QualityLocationListingDto {
 
     //quality and location info
-    @NotBlank(message = "moisture is required")
-    private String moisture;
     @NotBlank(message = "state is required")
     private String state;
     @NotBlank(message = "packaging type is required")

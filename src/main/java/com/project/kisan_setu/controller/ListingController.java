@@ -1,9 +1,11 @@
 package com.project.kisan_setu.controller;
 
 import com.project.kisan_setu.dto.CreateListingRequest;
+import com.project.kisan_setu.dto.DashboardDto;
 import com.project.kisan_setu.dto.ListingResponseDto;
 import com.project.kisan_setu.dto.SellerListingDto;
 import com.project.kisan_setu.entity.Listing;
+import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.impl.ListingServiceImpl;
 import org.slf4j.Logger;
@@ -18,7 +20,7 @@ import java.util.List;
 public class ListingController {
 
     private final ListingService listingService;
-    private static final Logger logger= LoggerFactory.getLogger(ListingController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ListingController.class);
 
     public ListingController(ListingService listingService) {
         this.listingService = listingService;
@@ -83,5 +85,10 @@ public class ListingController {
     public ResponseEntity<SellerListingDto> getListingDetail(
             @PathVariable Long listingId) {
         return ResponseEntity.ok(listingService.getListingTop5BidDetail(listingId));
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<DashboardDto> getSellerOverView(){
+        return ResponseEntity.ok(listingService.getSellerOverview());
     }
 }

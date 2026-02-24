@@ -30,6 +30,7 @@ public class Listing {
     private String variety;
     private String grade;
     private LocalDate harvestDate;
+    private String purchaseType; // Whole Lot Only / Partial Orders Allowed
 
     // Quantity
     private Integer quantity;
@@ -38,24 +39,28 @@ public class Listing {
     // Pricing & Purchase Type
     private Double pricePerKg;
     private Double totalBasePrice;
-    private String purchaseType; // Whole Lot Only / Partial Orders Allowed
-    private Double minimumBidIncrement; // For auction
-    private LocalDateTime auctionEndTime;
-
     @Enumerated(EnumType.STRING)
     private SaleType saleType;
+    private Double minimumBidIncrement;
+    private LocalDateTime createdTime;// For auction
+    private LocalDateTime auctionEndTime;
 
     // Partial order
     private Integer minimumOrderQuantity;
     private Double moqPricePerKg;
 
-    // Quality & Location
-    private String moisture;
     private String state;
     private String packagingType;
     private String district;
     private String storageType;
     private String pickupMethod;
+
+    // Auction status
+    @Enumerated(EnumType.STRING)
+    private AuctionStatus status;
+
+    @Column(nullable = true)
+    private String description;
 
     // Relationship with user
     @ManyToOne
@@ -78,9 +83,7 @@ public class Listing {
     @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL)
     private List<BuyingRequirement> buyingRequirements = new ArrayList<>();
 
-    // Auction status
-    @Enumerated(EnumType.STRING)
-    private AuctionStatus status;
+
 
     // Optional winner
     // @ManyToOne

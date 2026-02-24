@@ -38,7 +38,7 @@ public class ListingMapper {
         dto.setMoqPricePerKg(listing.getMoqPricePerKg());
 
         // Location & Quality
-        dto.setMoisture(listing.getMoisture());
+
         dto.setState(listing.getState());
         dto.setDistrict(listing.getDistrict());
         dto.setPackagingType(listing.getPackagingType());
@@ -107,12 +107,12 @@ public class ListingMapper {
         listing.setMoqPricePerKg(pricingDto.getMoqPricePerKg());
 
         // Location & quality
-        listing.setMoisture(locationDto.getMoisture());
         listing.setState(locationDto.getState());
         listing.setDistrict(locationDto.getDistrict());
         listing.setPackagingType(locationDto.getPackagingType());
         listing.setStorageType(locationDto.getStorageType());
         listing.setPickupMethod(locationDto.getPickupMethod());
+
 
         return listing;
     }
