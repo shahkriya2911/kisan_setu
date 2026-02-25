@@ -91,4 +91,20 @@ public class ListingController {
     public ResponseEntity<DashboardDto> getSellerOverView(){
         return ResponseEntity.ok(listingService.getSellerOverview());
     }
+
+    @PutMapping("{listingId}")
+    public ResponseEntity<ListingResponseDto> updateCrop(@PathVariable Long listingId,
+                                                         @RequestBody CreateListingRequest request)
+    {
+        ListingResponseDto response =
+                listingService.updateListing(
+                        listingId,
+                        request.getProduct(),
+                        request.getPricing(),
+                        request.getLocation()
+                );
+        return ResponseEntity.ok(response);
+
+
+    }
 }

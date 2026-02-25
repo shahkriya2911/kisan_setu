@@ -116,4 +116,32 @@ public class ListingMapper {
 
         return listing;
     }
+
+    public static Listing updateEntity(
+            Listing listing,
+            ProductListingDto productDto,
+            QualityPricingListingDto pricingDto,
+            QualityLocationListingDto locationDto) {
+
+        listing.setCropName(productDto.getCropName());
+        listing.setVariety(productDto.getVariety());
+        listing.setGrade(productDto.getGrade());
+        listing.setHarvestDate(productDto.getHarvestDate());
+        listing.setQuantity(pricingDto.getQuantity());
+        listing.setUnit(pricingDto.getUnit());
+        listing.setPurchaseType(pricingDto.getPurchaseType());
+        listing.setMinimumOrderQuantity(pricingDto.getMinimumOrderQuantity());
+        listing.setMoqPricePerKg(pricingDto.getMoqPricePerKg());
+        listing.setPricePerKg(pricingDto.getPricePerKg());
+        listing.setTotalBasePrice(pricingDto.getTotalBasePrice());
+        listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
+        listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
+        listing.setSaleType(pricingDto.getSaleType());
+        listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
+        listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
+
+        return listing;
+
+
+    }
 }

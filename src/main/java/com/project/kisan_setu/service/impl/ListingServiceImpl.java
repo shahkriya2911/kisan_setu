@@ -9,11 +9,9 @@ import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.SaleType;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.ListingMapper;
-import com.project.kisan_setu.repository.BidHistoryRepository;
-import com.project.kisan_setu.repository.BidRepository;
-import com.project.kisan_setu.repository.ListingRepository;
-import com.project.kisan_setu.repository.UserRepository;
+import com.project.kisan_setu.repository.*;
 import com.project.kisan_setu.service.ListingService;
+import com.project.kisan_setu.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -31,13 +29,16 @@ public class ListingServiceImpl implements ListingService {
     private final BidHistoryRepository bidHistoryRepository;
     private final UserRepository userRepository;
     private final BidRepository bidRepository;
+    private final NotificationService notificationService;
     private static final Logger logger = LoggerFactory.getLogger(ListingServiceImpl.class);
 
-    public ListingServiceImpl(ListingRepository listingRepository, BidHistoryRepository bidHistoryRepository, UserRepository userRepository, BidRepository bidRepository) {
+    public ListingServiceImpl(ListingRepository listingRepository, BidHistoryRepository bidHistoryRepository, UserRepository userRepository, BidRepository bidRepository,  NotificationService notificationService) {
         this.listingRepository = listingRepository;
         this.bidHistoryRepository = bidHistoryRepository;
         this.userRepository = userRepository;
         this.bidRepository = bidRepository;
+        this.notificationService = notificationService;
+
     }
 
     @Override
@@ -157,8 +158,10 @@ public class ListingServiceImpl implements ListingService {
 
         logger.info("Listing Created Successfully ID: {}",
                 saved.getListingId());
+        notificationService.createNotification(seller.getUserId(), "Crop Created Successfully");
 
         return ListingMapper.toResponse(saved);
+
     }
 
     @Override
@@ -311,5 +314,13 @@ public class ListingServiceImpl implements ListingService {
         return new DashboardDto(activeListings, pendingApprovals, totalBidsReceived, totalRevenue);
 
 
+    }
+
+    @Override
+    public ListingResponseDto updateListing(Long listingId, ProductListingDto productDto, QualityPricingListingDto pricingDto, QualityLocationListingDto locationDto) {
+        Listing listing=listingRepository.findById(listingId).orElseThrow(()->new UserException("Listing not Found with" +listingId));
+        ListingMapper.updateEntity(listing,productDto,pricingDto,locationDto);
+        Listing saved = listingRepository.save(listing);
+        return ListingMapper.toResponse(saved);
     }
 }

@@ -27,4 +27,9 @@ public interface ListingService {
 
     SellerListingDto getListingTop5BidDetail(Long listingId);
     DashboardDto getSellerOverview();
+    ListingResponseDto updateListing(
+            Long listingId,
+            ProductListingDto productDto,
+            QualityPricingListingDto pricingDto,
+            QualityLocationListingDto locationDto);
 }
