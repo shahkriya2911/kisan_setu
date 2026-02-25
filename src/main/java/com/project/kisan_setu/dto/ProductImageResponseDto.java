@@ -1,18 +1,19 @@
 package com.project.kisan_setu.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter //getters
-@Setter //setters
-@NoArgsConstructor //needed by jackson
-@AllArgsConstructor
+import java.time.LocalDate;
+
+@Getter
+@Setter
+@NoArgsConstructor
 public class ProductImageResponseDto {
-    //image response info
-    private Long imageId;
-    private String imageUrl;
+
+    private String fileName;
+    private String filePath;
+    private String fileType;
+    private LocalDate issuedDate;
     private Boolean isPrimary;
 }
-

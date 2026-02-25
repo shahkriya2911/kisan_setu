@@ -15,6 +15,7 @@ public class BuyingRequirementMapper {
         BuyingRequirement br = new BuyingRequirement();
         br.setCropType(dto.getCropType());
         br.setQuantityRequired(dto.getQuantityRequired());
+        br.setUnit(dto.getUnit());
         br.setMinPrice(dto.getMinPrice());
         br.setMaxPrice(dto.getMaxPrice());
         br.setQualityGrade(dto.getQualityGrade());

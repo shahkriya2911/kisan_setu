@@ -21,6 +21,8 @@ public class BuyingRequirementRequestDto {
     private String cropType;
     @NotNull(message = "required quantity is needed")
     private Double quantityRequired;
+    @NotBlank(message = "unit is required")
+    private String unit;
     @NotNull(message = "minimum price is required")
     private Double minPrice;
     @NotNull(message = "maximum price is required")

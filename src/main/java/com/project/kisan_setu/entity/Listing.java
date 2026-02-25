@@ -1,5 +1,7 @@
 package com.project.kisan_setu.entity;
 
+import com.project.kisan_setu.embedded.ListingCertificate;
+import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.SaleType;
 import jakarta.persistence.*;
@@ -7,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -67,13 +70,18 @@ public class Listing {
     @JoinColumn(name = "seller_id")
     private User seller;
 
-    // Relationship with images
-    @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL)
-    private List<ProductImage> images = new ArrayList<>();
+    // images
+    @ElementCollection
+    @CollectionTable(name = "listing_images", joinColumns = @JoinColumn(name = "listing_id"))
+    private List<ListingImage> images = new ArrayList<>();
 
-    // Relationship with quality certificate
-    @OneToOne(mappedBy = "listing", cascade = CascadeType.ALL)
-    private QualityCertificate certificate;
+    //quality certificate info
+    @Embedded
+    private ListingCertificate certificate;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 
     // Relationship with bids
     @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL)

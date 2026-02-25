@@ -24,6 +24,7 @@ public class BuyingRequirement {
     //buying requirement info
     private String cropType;
     private Double quantityRequired;
+    private String unit;
     private Double minPrice;
     private Double maxPrice;
     private String qualityGrade;

@@ -1,15 +1,32 @@
 package com.project.kisan_setu.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class CreateListingRequest {
-    @NotBlank
+
+    @Valid
+    @NotNull(message = "Product details are required")
     private ProductListingDto product;
-    @NotNull(message = "product is required")
+
+    @Valid
+    @NotNull(message = "Pricing details are required")
     private QualityPricingListingDto pricing;
-    @NotBlank(message = "location is required")
-    QualityLocationListingDto location;
+
+    @Valid
+    @NotNull(message = "Location details are required")
+    private QualityLocationListingDto location;
+
+    // Optional
+    @Valid
+    private List<ProductImageListingDto> images;
+
+    // Optional
+    @Valid
+    private QualityCertificateListingDto certificate;
+    private String description; // ✅ Add this line
 }

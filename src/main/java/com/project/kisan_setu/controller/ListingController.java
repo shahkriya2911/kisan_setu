@@ -1,17 +1,16 @@
 package com.project.kisan_setu.controller;
 
-import com.project.kisan_setu.dto.CreateListingRequest;
-import com.project.kisan_setu.dto.DashboardDto;
-import com.project.kisan_setu.dto.ListingResponseDto;
-import com.project.kisan_setu.dto.SellerListingDto;
-import com.project.kisan_setu.entity.Listing;
-import com.project.kisan_setu.enums.AuctionStatus;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.service.ListingService;
-import com.project.kisan_setu.service.impl.ListingServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,86 +24,73 @@ public class ListingController {
     public ListingController(ListingService listingService) {
         this.listingService = listingService;
     }
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @PostMapping
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ListingResponseDto> createListing(
-            @RequestBody CreateListingRequest request) {
-        logger.info("Received request to create listing for product: {}", request.getProduct());
+            @RequestPart("data") String requestJson,
+            @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
+            @RequestPart(value = "certificateFile", required = false) MultipartFile certificateFile
+    ) throws JsonProcessingException {
 
-        ListingResponseDto savedListing =
-                listingService.createListing(
-                        request.getProduct(),
-                        request.getPricing(),
-                        request.getLocation()
-                );
-        logger.info("Listing created successfully with ID: {}", savedListing.getListingId());
+        // uses the injected mapper with JavaTimeModule
+        CreateListingRequest request = objectMapper.readValue(requestJson, CreateListingRequest.class);
 
-        return ResponseEntity.ok(savedListing);
+        return ResponseEntity.ok(listingService.createListing(request, imageFiles, certificateFile));
     }
 
+
+    //  UPDATE
+    @PutMapping(value = "/{listingId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ListingResponseDto> updateListing(
+            @PathVariable Long listingId,
+            @RequestPart("data") CreateListingRequest request,
+            @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
+            @RequestPart(value = "certificateFile", required = false) MultipartFile certificateFile
+    ) {
+        return ResponseEntity.ok(listingService.updateListing(listingId, request, imageFiles, certificateFile));
+    }
+
+    // GET ALL
     @GetMapping
     public ResponseEntity<List<ListingResponseDto>> getAllListings() {
-        logger.info("Fetching all listings");
         return ResponseEntity.ok(listingService.getAllListings());
     }
 
+    //  GET BY ID
     @GetMapping("/{id}")
-    public ResponseEntity<ListingResponseDto> getListingById(
-            @PathVariable Long id) {
-        logger.debug("Fetching listing with ID: {}", id);
-        ListingResponseDto listing = listingService.getListingById(id);
-        logger.info("Listing fetched successfully with ID: {}", id);
-        return ResponseEntity.ok(listing);
+    public ResponseEntity<ListingResponseDto> getListingById(@PathVariable Long id) {
+        return ResponseEntity.ok(listingService.getListingById(id));
     }
 
+    // DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteListing(@PathVariable Long id) {
-        logger.warn("Request received to delete listing with ID: {}", id);
         listingService.deleteListing(id);
-        logger.warn("Listing deleted successfully with ID: {}", id);
         return ResponseEntity.ok("Listing Deleted Successfully");
     }
 
+    //  PREVIEW
     @PostMapping("/preview")
-    public ResponseEntity<ListingResponseDto> previewListing(
-            @RequestBody CreateListingRequest request) {
-        logger.info("Preview request received for product: {}", request.getProduct());
-
-        ListingResponseDto preview =
-                listingService.previewListing(
-                        request.getProduct(),
-                        request.getPricing(),
-                        request.getLocation()
-                );
-        logger.info("Preview generated successfully");
-
-        return ResponseEntity.ok(preview);
+    public ResponseEntity<ListingResponseDto> previewListing(@RequestBody CreateListingRequest request) {
+        return ResponseEntity.ok(listingService.previewListing(
+                request.getProduct(),
+                request.getPricing(),
+                request.getLocation()
+        ));
     }
 
+    //  TOP 5 BIDS
     @GetMapping("/{listingId}/top-5")
-    public ResponseEntity<SellerListingDto> getListingDetail(
-            @PathVariable Long listingId) {
+    public ResponseEntity<SellerListingDto> getListingDetail(@PathVariable Long listingId) {
         return ResponseEntity.ok(listingService.getListingTop5BidDetail(listingId));
     }
 
+    // DASHBOARD
     @GetMapping("/dashboard")
-    public ResponseEntity<DashboardDto> getSellerOverView(){
+    public ResponseEntity<DashboardDto> getSellerOverView() {
         return ResponseEntity.ok(listingService.getSellerOverview());
-    }
-
-    @PutMapping("{listingId}")
-    public ResponseEntity<ListingResponseDto> updateCrop(@PathVariable Long listingId,
-                                                         @RequestBody CreateListingRequest request)
-    {
-        ListingResponseDto response =
-                listingService.updateListing(
-                        listingId,
-                        request.getProduct(),
-                        request.getPricing(),
-                        request.getLocation()
-                );
-        return ResponseEntity.ok(response);
-
-
     }
 }

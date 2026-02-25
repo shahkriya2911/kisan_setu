@@ -1,5 +1,6 @@
 package com.project.kisan_setu.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -38,7 +39,6 @@ public class ListingResponseDto {
     private LocalDateTime auctionEndTime;
 
     // Location
-
     private String state;
     private String packagingType;
     private String district;
@@ -48,5 +48,7 @@ public class ListingResponseDto {
     // Images & Certificate
     private List<ProductImageResponseDto> images;
     private QualityCertificateResponseDto certificate;
+
+    // Optional
     private String description;
 }

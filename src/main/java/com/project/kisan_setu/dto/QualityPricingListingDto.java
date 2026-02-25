@@ -1,5 +1,6 @@
 package com.project.kisan_setu.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.project.kisan_setu.enums.SaleType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -39,5 +40,6 @@ public class QualityPricingListingDto {
     @Enumerated(EnumType.STRING)
     private SaleType saleType;  // FIXED or AUCTION
     @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime auctionEndTime;
 }

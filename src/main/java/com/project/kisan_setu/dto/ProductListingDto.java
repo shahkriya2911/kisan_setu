@@ -1,5 +1,6 @@
 package com.project.kisan_setu.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class ProductListingDto {
     @NotBlank(message = "grade is required")
     private String grade;
     @NotBlank(message = "harvest date is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate harvestDate;
 }
 

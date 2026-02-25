@@ -15,11 +15,10 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 public class ProductImageListingDto {
     //image info send from frontend
-    @NotNull
-    @Positive
-    private Long listingId;
-    @NotNull(message = "image file is required")
-    private MultipartFile file;
+    @NotBlank(message = "image file name is required")
+    private String imageFileName;
+    @NotBlank(message = "image file is required")
+    private MultipartFile imageFile;
     @NotNull
     private Boolean isPrimary;
 }

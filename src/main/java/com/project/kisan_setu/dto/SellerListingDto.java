@@ -1,5 +1,6 @@
 package com.project.kisan_setu.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,7 @@ public class SellerListingDto {
     private Double minimumBidIncrement;
     private String state;
     private String district;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime auctionEndTime;
     // Bid Info
     private Double currentHighestBid;

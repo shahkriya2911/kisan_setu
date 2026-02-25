@@ -16,14 +16,8 @@ import java.time.LocalDate;
 @NoArgsConstructor //needed by jackson
 @AllArgsConstructor
 public class QualityCertificateListingDto {
-    @NotNull
-    @Positive
-    private Long listingId;
-    //certificate info
     @NotBlank(message = "certificate name is required")
-    private String certificateName;
-    @NotNull(message = "issued date is required")
-    private LocalDate issuedDate;
+    private String certificateFileName;
     @NotNull(message = "certificate file is required")
-    private MultipartFile file;
+    private MultipartFile certificateFile;
 }

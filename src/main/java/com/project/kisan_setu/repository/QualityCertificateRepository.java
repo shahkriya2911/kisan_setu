@@ -1,9 +1,0 @@
-package com.project.kisan_setu.repository;
-
-import com.project.kisan_setu.entity.QualityCertificate;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-@Repository //interface that talks with DB
-public interface QualityCertificateRepository extends JpaRepository<QualityCertificate,Long>  {
-}
