@@ -7,10 +7,7 @@ import java.util.List;
 
 public interface ListingService {
 
-    ListingResponseDto createListing(
-            ProductListingDto productDto,
-            QualityPricingListingDto pricingDto,
-            QualityLocationListingDto locationDto);
+    public ListingResponseDto createListing(CreateListingRequest request);
 
     List<ListingResponseDto> getAllListings();
 
@@ -18,18 +15,11 @@ public interface ListingService {
 
     void deleteListing(Long id);
 
-    ListingResponseDto previewListing(
-            ProductListingDto productDto,
-            QualityPricingListingDto pricingDto,
-            QualityLocationListingDto locationDto);
+    public ListingResponseDto previewListing(CreateListingRequest request);
 
 //    BidHistory placeBid(Long listingId, Double bidAmount, Long userId);
 
     SellerListingDto getListingTop5BidDetail(Long listingId);
+
     DashboardDto getSellerOverview();
-    ListingResponseDto updateListing(
-            Long listingId,
-            ProductListingDto productDto,
-            QualityPricingListingDto pricingDto,
-            QualityLocationListingDto locationDto);
 }

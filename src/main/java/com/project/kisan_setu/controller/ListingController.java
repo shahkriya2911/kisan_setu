@@ -8,6 +8,7 @@ import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.impl.ListingServiceImpl;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -28,18 +29,12 @@ public class ListingController {
 
     @PostMapping
     public ResponseEntity<ListingResponseDto> createListing(
-            @RequestBody CreateListingRequest request) {
-        logger.info("Received request to create listing for product: {}", request.getProduct());
+            @Valid @RequestBody CreateListingRequest request) {
 
-        ListingResponseDto savedListing =
-                listingService.createListing(
-                        request.getProduct(),
-                        request.getPricing(),
-                        request.getLocation()
-                );
-        logger.info("Listing created successfully with ID: {}", savedListing.getListingId());
+        ListingResponseDto response =
+                listingService.createListing(request);
 
-        return ResponseEntity.ok(savedListing);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
@@ -67,18 +62,12 @@ public class ListingController {
 
     @PostMapping("/preview")
     public ResponseEntity<ListingResponseDto> previewListing(
-            @RequestBody CreateListingRequest request) {
-        logger.info("Preview request received for product: {}", request.getProduct());
+            @Valid @RequestBody CreateListingRequest request) {
 
-        ListingResponseDto preview =
-                listingService.previewListing(
-                        request.getProduct(),
-                        request.getPricing(),
-                        request.getLocation()
-                );
-        logger.info("Preview generated successfully");
+        ListingResponseDto response =
+                listingService.previewListing(request);
 
-        return ResponseEntity.ok(preview);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{listingId}/top-5")

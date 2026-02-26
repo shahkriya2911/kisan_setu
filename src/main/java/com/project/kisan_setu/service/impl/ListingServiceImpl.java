@@ -2,6 +2,7 @@ package com.project.kisan_setu.service.impl;
 
 import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.Bid;
+import com.project.kisan_setu.entity.BidHistory;
 import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.enums.AuctionStatus;
@@ -17,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,14 +27,15 @@ import java.util.List;
 public class ListingServiceImpl implements ListingService {
 
     private final ListingRepository listingRepository;
-
+    private final BidHistoryRepository bidHistoryRepository;
     private final UserRepository userRepository;
     private final BidRepository bidRepository;
     private final NotificationService notificationService;
     private static final Logger logger = LoggerFactory.getLogger(ListingServiceImpl.class);
 
-    public ListingServiceImpl(ListingRepository listingRepository, UserRepository userRepository, BidRepository bidRepository,  NotificationService notificationService) {
+    public ListingServiceImpl(ListingRepository listingRepository,  BidHistoryRepository bidHistoryRepository, UserRepository userRepository, BidRepository bidRepository, NotificationService notificationService) {
         this.listingRepository = listingRepository;
+        this.bidHistoryRepository = bidHistoryRepository;
 
         this.userRepository = userRepository;
         this.bidRepository = bidRepository;
@@ -40,117 +44,108 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public ListingResponseDto createListing(
-            ProductListingDto productDto,
-            QualityPricingListingDto pricingDto,
-            QualityLocationListingDto locationDto) {
+    public ListingResponseDto createListing(CreateListingRequest request) {
 
-        logger.info("Creating listing for product: {}",
-                productDto.getCropName());
+        ProductListingDto productDto = request.getProduct();
+        QualityPricingListingDto pricingDto = request.getPricing();
+        QualityLocationListingDto locationDto = request.getLocation();
+
+        logger.info("Creating listing for product: {}", productDto.getCropName());
+
+        // BASIC VALIDATION
 
 
-        // Basic Validation
-        if (pricingDto.getQuantity() == null ||
-                pricingDto.getQuantity() <= 0) {
-
-            throw new UserException(
-                    "Quantity must be greater than 0");
+        if (pricingDto.getQuantity() == null || pricingDto.getQuantity() <= 0) {
+            throw new UserException("Quantity must be greater than 0");
         }
 
-        if (pricingDto.getPricePerKg() == null ||
-                pricingDto.getPricePerKg() <= 0) {
-
-            throw new UserException(
-                    "PricePerKg must be greater than 0");
+        if (pricingDto.getPricePerKg() == null || pricingDto.getPricePerKg() <= 0) {
+            throw new UserException("PricePerKg must be greater than 0");
         }
-        // SaleTypee
+
+        // SALE TYPE VALIDATION
+
         if (pricingDto.getSaleType() == SaleType.AUCTION) {
+
             if (pricingDto.getAuctionEndTime() == null) {
-                throw new UserException(
-                        "Auction End Time required");
+                throw new UserException("Auction End Time required");
             }
+
             if (pricingDto.getMinimumBidIncrement() == null ||
                     pricingDto.getMinimumBidIncrement() <= 0) {
-
-                throw new UserException(
-                        "Minimum Bid Increment required");
+                throw new UserException("Minimum Bid Increment required");
             }
-            //Auction timecycle
-            if (pricingDto.getAuctionEndTime()
-                    .isBefore(LocalDateTime.now())) {
 
-                throw new UserException(
-                        "Auction End Time must be future");
+            if (pricingDto.getAuctionEndTime().isBefore(LocalDateTime.now())) {
+                throw new UserException("Auction End Time must be future");
             }
 
             logger.info("Auction Listing Created");
         }
-
-        // FIXED PRICE
         else if (pricingDto.getSaleType() == SaleType.FIXED) {
-
 
             logger.info("Fixed Price Listing Created");
         }
         else {
-            throw new UserException(
-                    "SaleType must be AUCTION or FIXED");
+            throw new UserException("SaleType must be AUCTION or FIXED");
         }
+
+        // PARTIAL ORDER VALIDATION
 
         if (pricingDto.getPurchaseType() == PurchaseType.PARTIAL_ORDER_ALLOWS) {
 
-            // Partial Order Required Fields
-
-            if (pricingDto.getMinimumOrderQuantity() == null
-                    || pricingDto.getMinimumOrderQuantity() <= 0) {
-
-                throw new UserException(
-                        "Minimum Order Quantity required");
+            if (pricingDto.getMinimumOrderQuantity() == null ||
+                    pricingDto.getMinimumOrderQuantity() <= 0) {
+                throw new UserException("Minimum Order Quantity required");
             }
-            if (pricingDto.getMoqPricePerKg() == null
-                    || pricingDto.getMoqPricePerKg() <= 0) {
 
-                throw new UserException(
-                        "MOQ PricePerKg required");
+            if (pricingDto.getMoqPricePerKg() == null ||
+                    pricingDto.getMoqPricePerKg() <= 0) {
+                throw new UserException("MOQ PricePerKg required");
             }
+
             logger.info("Partial Order Listing");
-
         }
 
+        // MAP ENTITY
 
         Listing listing = ListingMapper.toEntity(
                 productDto,
                 pricingDto,
-                locationDto);
+                locationDto
+        );
+
+        // AUTHENTICATED SELLER
 
         Authentication authentication =
-                SecurityContextHolder
-                        .getContext()
-                        .getAuthentication();
+                SecurityContextHolder.getContext().getAuthentication();
 
         String email = authentication.getName();
-        User seller =
-                userRepository.findByEmail(email)
-                        .orElseThrow(() ->
-                                new RuntimeException("User not found"));
+
+        User seller = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         listing.setSeller(seller);
-        // Auction starts when published
         listing.setStatus(AuctionStatus.ACTIVE);
-        // Total Base Price
 
-        listing.setTotalBasePrice( pricingDto.getPricePerKg() * pricingDto.getQuantity());
+        // Total Base Price
+        listing.setTotalBasePrice(
+                pricingDto.getPricePerKg() * pricingDto.getQuantity()
+        );
+
+        // Remaining Quantity
         listing.setRemainingQuantity(pricingDto.getRemainingQuantity());
 
-        Listing saved =
-                listingRepository.save(listing);
+        Listing saved = listingRepository.save(listing);
 
-        logger.info("Listing Created Successfully ID: {}",
-                saved.getListingId());
-        notificationService.createNotification(seller.getUserId(), "Crop Created Successfully");
+        notificationService.createNotification(
+                seller.getUserId(),
+                "Crop Created Successfully"
+        );
+
+        logger.info("Listing Created Successfully ID: {}", saved.getListingId());
 
         return ListingMapper.toResponse(saved);
-
     }
 
     @Override
@@ -189,59 +184,72 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public ListingResponseDto previewListing(
-            ProductListingDto productDto,
-            QualityPricingListingDto pricingDto,
-            QualityLocationListingDto locationDto) {
+    public ListingResponseDto previewListing(CreateListingRequest request) {
+
+        ProductListingDto productDto = request.getProduct();
+        QualityPricingListingDto pricingDto = request.getPricing();
+        QualityLocationListingDto locationDto = request.getLocation();
 
         logger.debug("Previewing listing for product: {}", productDto.getCropName());
-        double totalBasePrice = pricingDto.getQuantity() * pricingDto.getPricePerKg();
-        pricingDto.setTotalBasePrice(totalBasePrice);
-        pricingDto.setMinimumBidIncrement(Math.ceil(totalBasePrice * 0.02));
 
-        Listing preview = ListingMapper.toEntity(productDto, pricingDto, locationDto);
+        // 🔹 Calculate Total Base Price
+        double totalBasePrice =
+                pricingDto.getQuantity() * pricingDto.getPricePerKg();
+
+        pricingDto.setTotalBasePrice(totalBasePrice);
+
+        // 🔹 Auto calculate Minimum Bid Increment (2%)
+        if (pricingDto.getSaleType() == SaleType.AUCTION) {
+            double minIncrement = Math.ceil(totalBasePrice * 0.02);
+            pricingDto.setMinimumBidIncrement(minIncrement);
+        }
+
+        // 🔹 Map to Entity (Not Saved)
+        Listing preview =
+                ListingMapper.toEntity(productDto, pricingDto, locationDto);
+
         return ListingMapper.toResponse(preview);
     }
 
-//    public BidHistory placeBid(Long listingId, Double bidAmount, Long userId) {
-//        Listing listing = listingRepository.findById(listingId)
-//                .orElseThrow(() -> new UserException("Listing not found with id: " + listingId));
-//
-//        double totalBasePrice = listing.getTotalBasePrice();
-//        double minimumBidIncrement = listing.getMinimumBidIncrement();
-//        long totalBids = bidHistoryRepository.countByListing_ListingId(listingId);
-//        double minimumRequired = totalBasePrice + (totalBids + minimumBidIncrement);
-//
-//        if (totalBids > 0) {
-//            double lastBidAmount = totalBasePrice + (totalBids - 1) * minimumBidIncrement;
-//            double exactRequired = lastBidAmount + minimumBidIncrement;
-//
-//            if (bidAmount != exactRequired) {
-//                throw new UserException(
-//                        "Invalid bid! Current base is ₹" + lastBidAmount +
-//                                ". You must bid exactly ₹" + exactRequired +
-//                                " (increment is fixed at ₹" + minimumBidIncrement + ")"
-//                );
-//            }
-//        } else {
-//            if (bidAmount != minimumRequired) {
-//                throw new UserException(
-//                        "First bid must be exactly ₹" + minimumRequired +
-//                                " (Base ₹" + totalBasePrice + " + fixed increment ₹" + minimumBidIncrement + ")"
-//                );
-//            }
-//        }
-//
-//        BidHistory newBid = new BidHistory();
-//        newBid.setListing(listing);
-//        newBid.setAmountPerKg(BigDecimal.valueOf(bidAmount));
-//        newBid.setBidTime(LocalDateTime.now());
-//
-//        BidHistory saved = bidHistoryRepository.save(newBid);
-//        logger.info("Bid saved — Round: {}, UserID: {}, Amount: ₹{}", totalBids + 1, userId, bidAmount);
-//
-//        return saved;
-//    }
+    public BidHistory placeBid(Long listingId, Double bidAmount, Long userId) {
+        Listing listing = listingRepository.findById(listingId)
+                .orElseThrow(() -> new UserException("Listing not found with id: " + listingId));
+
+        double totalBasePrice = listing.getTotalBasePrice();
+        double minimumBidIncrement = listing.getMinimumBidIncrement();
+        long totalBids = bidHistoryRepository.countByListing_ListingId(listingId);
+        double minimumRequired = totalBasePrice + (totalBids + minimumBidIncrement);
+
+        if (totalBids > 0) {
+            double lastBidAmount = totalBasePrice + (totalBids - 1) * minimumBidIncrement;
+            double exactRequired = lastBidAmount + minimumBidIncrement;
+
+            if (bidAmount != exactRequired) {
+                throw new UserException(
+                        "Invalid bid! Current base is ₹" + lastBidAmount +
+                                ". You must bid exactly ₹" + exactRequired +
+                                " (increment is fixed at ₹" + minimumBidIncrement + ")"
+                );
+            }
+        } else {
+            if (bidAmount != minimumRequired) {
+                throw new UserException(
+                        "First bid must be exactly ₹" + minimumRequired +
+                                " (Base ₹" + totalBasePrice + " + fixed increment ₹" + minimumBidIncrement + ")"
+                );
+            }
+        }
+
+        BidHistory newBid = new BidHistory();
+        newBid.setListing(listing);
+        newBid.setAmountPerKg(BigDecimal.valueOf(bidAmount));
+        newBid.setBidTime(LocalDateTime.now());
+
+        BidHistory saved = bidHistoryRepository.save(newBid);
+        logger.info("Bid saved — Round: {}, UserID: {}, Amount: ₹{}", totalBids + 1, userId, bidAmount);
+
+        return saved;
+    }
 
     @Override
     public SellerListingDto getListingTop5BidDetail(Long listingId) {
@@ -306,11 +314,5 @@ public class ListingServiceImpl implements ListingService {
 
     }
 
-    @Override
-    public ListingResponseDto updateListing(Long listingId, ProductListingDto productDto, QualityPricingListingDto pricingDto, QualityLocationListingDto locationDto) {
-        Listing listing=listingRepository.findById(listingId).orElseThrow(()->new UserException("Listing not Found with" +listingId));
-        ListingMapper.updateEntity(listing,productDto,pricingDto,locationDto);
-        Listing saved = listingRepository.save(listing);
-        return ListingMapper.toResponse(saved);
-    }
+
 }
