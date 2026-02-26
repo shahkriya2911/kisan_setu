@@ -24,12 +24,12 @@ public class NotificationController {
         this.notificationRepository = notificationRepository;
     }
 
-//    @GetMapping("/{userId}")
-//    public ResponseEntity<List<Notification>> getUserNotifications(
-//            @PathVariable Long userId) {
-//
-//        return ResponseEntity.ok(
-//                notificationService.getUserNotifications(userId)
-//        );
-//    }
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<Notification>> getUserNotifications(
+            @PathVariable Long userId) {
+
+        return ResponseEntity.ok(
+                notificationService.getUserNotifications(userId)
+        );
+    }
 }

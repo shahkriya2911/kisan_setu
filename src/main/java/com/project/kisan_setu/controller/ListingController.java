@@ -2,8 +2,15 @@ package com.project.kisan_setu.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.kisan_setu.dto.*;
+import com.project.kisan_setu.dto.CreateListingRequest;
+import com.project.kisan_setu.dto.DashboardDto;
+import com.project.kisan_setu.dto.ListingResponseDto;
+import com.project.kisan_setu.dto.SellerListingDto;
+import com.project.kisan_setu.entity.Listing;
+import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.service.ListingService;
+import com.project.kisan_setu.service.impl.ListingServiceImpl;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,32 +72,46 @@ public class ListingController {
         return ResponseEntity.ok(listingService.getListingById(id));
     }
 
-    // DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteListing(@PathVariable Long id) {
         listingService.deleteListing(id);
         return ResponseEntity.ok("Listing Deleted Successfully");
     }
 
-    //  PREVIEW
-    @PostMapping("/preview")
-    public ResponseEntity<ListingResponseDto> previewListing(@RequestBody CreateListingRequest request) {
-        return ResponseEntity.ok(listingService.previewListing(
-                request.getProduct(),
-                request.getPricing(),
-                request.getLocation()
-        ));
-    }
+//    @PostMapping("/preview")
+//    public ResponseEntity<ListingResponseDto> previewListing(
+//            @Valid @RequestBody CreateListingRequest request) {
+//
+//        ListingResponseDto response =
+//                listingService.previewListing(request);
+//
+//        return ResponseEntity.ok(response);
+//    }
 
-    //  TOP 5 BIDS
     @GetMapping("/{listingId}/top-5")
-    public ResponseEntity<SellerListingDto> getListingDetail(@PathVariable Long listingId) {
+    public ResponseEntity<SellerListingDto> getListingDetail(
+            @PathVariable Long listingId) {
         return ResponseEntity.ok(listingService.getListingTop5BidDetail(listingId));
     }
 
-    // DASHBOARD
     @GetMapping("/dashboard")
-    public ResponseEntity<DashboardDto> getSellerOverView() {
+    public ResponseEntity<DashboardDto> getSellerOverView(){
         return ResponseEntity.ok(listingService.getSellerOverview());
+    }
+
+    @PutMapping("{listingId}")
+    public ResponseEntity<ListingResponseDto> updateCrop(@PathVariable Long listingId,
+                                                         @RequestBody CreateListingRequest request)
+    {
+        ListingResponseDto response =
+                listingService.updateListing(
+                        listingId,
+                        request.getProduct(),
+                        request.getPricing(),
+                        request.getLocation()
+                );
+        return ResponseEntity.ok(response);
+
+
     }
 }

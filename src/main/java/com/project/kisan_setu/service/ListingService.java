@@ -14,7 +14,16 @@ public interface ListingService {
     List<ListingResponseDto> getAllListings();
     ListingResponseDto getListingById(Long id);
     void deleteListing(Long id);
-    ListingResponseDto previewListing(ProductListingDto product, QualityPricingListingDto pricing, QualityLocationListingDto location);
+
+//    public ListingResponseDto previewListing(CreateListingRequest request);
+
+//    BidHistory placeBid(Long listingId, Double bidAmount, Long userId);
+
     SellerListingDto getListingTop5BidDetail(Long listingId);
     DashboardDto getSellerOverview();
-    }
+    ListingResponseDto updateListing(
+            Long listingId,
+            ProductListingDto productDto,
+            QualityPricingListingDto pricingDto,
+            QualityLocationListingDto locationDto);
+}

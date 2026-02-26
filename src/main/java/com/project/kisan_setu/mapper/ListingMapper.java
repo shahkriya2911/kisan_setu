@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class ListingMapper {
 
-    // ===================== ENTITY → RESPONSE =====================
+    private static final String BASE_URL = "http://localhost:8080/uploads/";
 
     public static ListingResponseDto toResponse(Listing listing) {
 
@@ -38,6 +38,7 @@ public class ListingMapper {
         // Partial Order
         dto.setMinimumOrderQuantity(listing.getMinimumOrderQuantity());
         dto.setMoqPricePerKg(listing.getMoqPricePerKg());
+        dto.setRemainingQuantity(listing.getRemainingQuantity());
 
         // Location
         dto.setState(listing.getState());
@@ -83,8 +84,6 @@ public class ListingMapper {
         return dto;
     }
 
-    // ===================== DTO → ENTITY =====================
-
     public static Listing toEntity(
             ProductListingDto productDto,
             QualityPricingListingDto pricingDto,
@@ -110,6 +109,7 @@ public class ListingMapper {
         listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
         listing.setSaleType(pricingDto.getSaleType());
         listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
+        listing.setRemainingQuantity(pricingDto.getRemainingQuantity());
 
         // Partial Order
         listing.setMinimumOrderQuantity(pricingDto.getMinimumOrderQuantity());
@@ -148,6 +148,7 @@ public class ListingMapper {
 
         listing.setQuantity(pricingDto.getQuantity());
         listing.setUnit(pricingDto.getUnit());
+        listing.setRemainingQuantity(pricingDto.getRemainingQuantity());
         listing.setPurchaseType(pricingDto.getPurchaseType());
         listing.setMinimumOrderQuantity(pricingDto.getMinimumOrderQuantity());
         listing.setMoqPricePerKg(pricingDto.getMoqPricePerKg());

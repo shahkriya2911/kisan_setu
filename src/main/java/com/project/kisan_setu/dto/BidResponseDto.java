@@ -18,4 +18,5 @@ public class BidResponseDto {
     private Double bidAmount;
     private String bidderName;
     private LocalDateTime bidTime;
+    private Double remainingQuantity;
 }

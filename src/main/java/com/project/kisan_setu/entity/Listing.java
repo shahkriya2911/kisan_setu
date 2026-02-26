@@ -3,6 +3,7 @@ package com.project.kisan_setu.entity;
 import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.SaleType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -33,10 +34,12 @@ public class Listing {
     private String variety;
     private String grade;
     private LocalDate harvestDate;
-    private String purchaseType; // Whole Lot Only / Partial Orders Allowed
+    @Enumerated(EnumType.STRING)
+    private PurchaseType purchaseType; // Whole Lot Only / Partial Orders Allowed
 
     // Quantity
     private Integer quantity;
+    private Double remainingQuantity;
     private String unit;
 
     // Pricing & Purchase Type
@@ -45,12 +48,19 @@ public class Listing {
     @Enumerated(EnumType.STRING)
     private SaleType saleType;
     private Double minimumBidIncrement;
-    private LocalDateTime createdTime;// For auction
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
     private LocalDateTime auctionEndTime;
 
     // Partial order
     private Integer minimumOrderQuantity;
     private Double moqPricePerKg;
+
 
     private String state;
     private String packagingType;
@@ -79,9 +89,6 @@ public class Listing {
     @Embedded
     private ListingCertificate certificate;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
 
     // Relationship with bids
     @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL)

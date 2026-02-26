@@ -12,8 +12,10 @@ public interface BuyerService {
 
     List<BuyerListingResponseDto> getActiveAuctionListings();
 
-    BidResponseDto placeBid(
-            Long buyerId,
+
+
+    // Place Bid
+    Object placeBid(
             Long listingId,
             PlaceBidRequestDto dto);
 

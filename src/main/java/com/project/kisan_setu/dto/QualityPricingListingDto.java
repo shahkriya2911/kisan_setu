@@ -1,6 +1,6 @@
 package com.project.kisan_setu.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.SaleType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -28,8 +28,8 @@ public class QualityPricingListingDto {
     private Double pricePerKg;
     @NotNull(message = "total base price is required")
     private Double totalBasePrice;
-    @NotBlank(message = "purchase type is required")
-    private String purchaseType;
+    @Enumerated(EnumType.STRING)
+    private PurchaseType purchaseType;
     @NotNull(message = "minimum bid increment is required")
     private Double minimumBidIncrement;
     @NotNull(message = "sale type is required")
@@ -37,9 +37,9 @@ public class QualityPricingListingDto {
     private Integer minimumOrderQuantity;
     @NotNull(message = "moq price per kg is required")
     private Double moqPricePerKg;
+    private Double remainingQuantity;
     @Enumerated(EnumType.STRING)
     private SaleType saleType;  // FIXED or AUCTION
     @NotNull
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime auctionEndTime;
 }
