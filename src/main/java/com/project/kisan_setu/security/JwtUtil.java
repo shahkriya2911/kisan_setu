@@ -2,6 +2,7 @@ package com.project.kisan_setu.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,22 +15,18 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
+    @Getter
     @Value("${jwt.access.expiration}")
     private long accessExpiration;
 
+    @Getter
     @Value("${jwt.refresh.expiration}")
     private long refreshExpiration;
 
-    // ========================
-    // SIGNING KEY
-    // ========================
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    // ========================
-    // ACCESS TOKEN
-    // ========================
     public String generateAccessToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
@@ -40,9 +37,6 @@ public class JwtUtil {
                 .compact();
     }
 
-    // ========================
-    // REFRESH TOKEN
-    // ========================
     public String generateRefreshToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
@@ -53,67 +47,21 @@ public class JwtUtil {
                 .compact();
     }
 
-    // ========================
-    // EXTRACT EMAIL
-    // ========================
     public String extractEmail(String token) {
         return extractAllClaims(token).getSubject();
     }
 
-    // ========================
-    // VALIDATE ACCESS TOKEN
-    // ========================
-    public boolean validateAccessToken(String token, String email) {
-        final Claims claims = extractAllClaims(token);
-
-        return claims.getSubject().equals(email)
-                && !isTokenExpired(token)
-                && "ACCESS".equals(claims.get("type"));
-    }
-
-    // ========================
-    // VALIDATE REFRESH TOKEN
-    // ========================
-    public boolean validateRefreshToken(String token) {
-        final Claims claims = extractAllClaims(token);
-
-        return !isTokenExpired(token)
-                && "REFRESH".equals(claims.get("type"));
-    }
-
-    // ========================
-    // CHECK EXPIRATION
-    // ========================
     public boolean isTokenExpired(String token) {
-        try {
-            return extractAllClaims(token)
-                    .getExpiration()
-                    .before(new Date());
-        } catch (ExpiredJwtException e) {
-            return true;
-        }
+        return extractAllClaims(token)
+                .getExpiration()
+                .before(new Date());
     }
 
-    // ========================
-    // SAFE CLAIM EXTRACTION
-    // ========================
     private Claims extractAllClaims(String token) {
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (ExpiredJwtException e) {
-            throw new RuntimeException("Token expired");
-        } catch (UnsupportedJwtException e) {
-            throw new RuntimeException("Unsupported token");
-        } catch (MalformedJwtException e) {
-            throw new RuntimeException("Malformed token");
-        } catch (SignatureException e) {
-            throw new RuntimeException("Invalid signature");
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Token is empty");
-        }
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

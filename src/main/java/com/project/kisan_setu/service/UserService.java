@@ -4,6 +4,7 @@ import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserService {
 
@@ -13,4 +14,5 @@ public interface UserService {
     List<User> getAllUsers();
     UserResponseDto updateUserById(Long userId, UpdateUserRequestDto dto);
     void deleteUserById(Long userId);
+    User findByEmail(String email);
 }

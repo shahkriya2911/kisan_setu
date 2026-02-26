@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -52,15 +53,10 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
         userRepository.save(user);
-
-        String token = jwtUtil.generateAccessToken(user.getEmail());
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
         UserResponseDto userResponseDto = UserMapper.toResponse(user);
         return new SignupResponseDto(
                 201,
                 "Registration successful",
-                token,
-                refreshToken.getRefreshToken(),
                 userResponseDto
         );
     }
@@ -73,15 +69,10 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new BadCredentialsException("Invalid Password");
         }
-
-        String token = jwtUtil.generateAccessToken(user.getEmail());
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
         UserResponseDto userResponseDto = UserMapper.toResponse(user);
         return new LoginResponseDto(
                 200,
                 "Login successful",
-                token,
-                refreshToken.getRefreshToken(),
                 userResponseDto
         );
     }
@@ -123,6 +114,12 @@ public class UserServiceImpl implements UserService {
         }
 
         userRepository.deleteById(userId);
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
 

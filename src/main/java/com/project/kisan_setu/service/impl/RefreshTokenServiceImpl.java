@@ -59,7 +59,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         User user = refreshToken.getUser();
 
-        // 🔥 ROTATION (Security Best Practice)
+        // ROTATION (Security Best Practice)
         refreshToken.setRevoked(true);
         refreshTokenRepository.save(refreshToken);
 
@@ -69,13 +69,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         return new LoginResponseDto(
                 200,
                 "Token refreshed successfully",
-                newAccessToken,
-                newRefreshToken.getRefreshToken(),
                 UserMapper.toResponse(user)
         );
     }
 
-    // ================= REVOKE ALL =================
+    // REVOKE ALL
     @Override
     public void revokeAllUserTokens(User user) {
 
@@ -86,7 +84,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         refreshTokenRepository.saveAll(tokens);
     }
 
-    // ================= REVOKE ONE =================
+    //REVOKE ONE
     @Override
     public void revokeToken(String token) {
 

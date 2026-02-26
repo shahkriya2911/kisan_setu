@@ -16,25 +16,22 @@ public class CorsConfigurationSourceConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Frontend URLs allowed to access backend
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:3000",       // local frontend
-                "http://192.168.29.99:3000"   // device/frontend IP
+                "http://localhost:3000",
+                "http://192.168.29.99:3000"
         ));
 
-        // Allowed HTTP methods
         configuration.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS"
         ));
 
-        // Allow all headers
         configuration.setAllowedHeaders(List.of("*"));
 
-        // Allow credentials (cookies, auth headers)
         configuration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Apply CORS config for all endpoints
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
         source.registerCorsConfiguration("/**", configuration);
 
         return source;

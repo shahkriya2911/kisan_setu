@@ -5,13 +5,16 @@ import com.project.kisan_setu.entity.RefreshToken;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.mapper.UserMapper;
 import com.project.kisan_setu.repository.RefreshTokenRepository;
+import com.project.kisan_setu.repository.UserRepository;
 import com.project.kisan_setu.security.JwtUtil;
 import com.project.kisan_setu.service.RefreshTokenService;
 import com.project.kisan_setu.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,38 +29,105 @@ public class UserController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    public UserController(UserService userService, JwtUtil jwtUtil, RefreshTokenService refreshTokenService, RefreshTokenRepository refreshTokenRepository, RefreshTokenService refreshTokenService1) {
+    public UserController(UserService userService, JwtUtil jwtUtil, RefreshTokenService refreshTokenService, RefreshTokenRepository refreshTokenRepository, UserRepository userRepository, RefreshTokenService refreshTokenService1) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.userRepository = userRepository;
         this.refreshTokenService = refreshTokenService1;
     }
 
-    //signup
     @PostMapping("/signup")
     public ResponseEntity<SignupResponseDto> signup(
-            @Valid @RequestBody CreateUserRequestDto dto) { //json data
-        logger.debug("Signup request for user with email : {}",dto.getEmail());
-        SignupResponseDto userDto = userService.signup(dto); //signup method will be called and response will be stored
+            @Valid @RequestBody CreateUserRequestDto dto,
+            HttpServletResponse response) {
 
-        logger.info("Signup successful for user with email : {}",dto.getEmail());
-        //response send to frontend
-        return ResponseEntity.ok(userDto);
+        logger.debug("Signup request for email: {}", dto.getEmail());
+
+        SignupResponseDto responseDto = userService.signup(dto);
+
+        // Fetch saved user from DB
+        User user = userService.findByEmail(
+                responseDto.getData().getEmail()
+        );
+
+        // Generate tokens
+        String accessToken = jwtUtil.generateAccessToken(user.getEmail());
+        String refreshToken = refreshTokenService
+                .createRefreshToken(user)
+                .getRefreshToken();
+
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
+                .httpOnly(true)
+                .secure(false)              // MUST be false on HTTP
+                .path("/")
+                .maxAge(jwtUtil.getAccessExpiration() / 1000)
+                .sameSite("Lax")            // Change from Strict
+                .build();
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(false)              // MUST be false on HTTP
+                .path("/")
+                .maxAge(jwtUtil.getRefreshExpiration() / 1000)
+                .sameSite("Lax")            // Change from Strict
+                .build();
+
+        response.addHeader("Set-Cookie", accessCookie.toString());
+        response.addHeader("Set-Cookie", refreshCookie.toString());
+
+        logger.info("Signup successful for email: {}", user.getEmail());
+
+        return ResponseEntity.ok(responseDto);
     }
 
-    //login
+    // LOGIN
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(
-            @Valid @RequestBody LoginRequestDto dto) { //json from user
-        logger.debug("Login request for user with email : {}",dto.getEmail());
-        LoginResponseDto userDto = userService.login(dto); //login method will be called and response will be stored
+            @Valid @RequestBody LoginRequestDto dto,
+            HttpServletResponse response) {
 
-        logger.info("Login successful for user with email : {}",dto.getEmail());
-        //response send to frontend
-        return ResponseEntity.ok(userDto);
+        logger.debug("Login request for email: {}", dto.getEmail());
+
+        LoginResponseDto responseDto = userService.login(dto);
+
+        // Fetch authenticated user
+        User user = userService.findByEmail(
+                responseDto.getData().getEmail()
+        );
+
+        // Generate tokens
+        String accessToken = jwtUtil.generateAccessToken(user.getEmail());
+        String refreshToken = refreshTokenService
+                .createRefreshToken(user)
+                .getRefreshToken();
+
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
+                .httpOnly(true)
+                .secure(false)              //  MUST be false on HTTP
+                .path("/")
+                .maxAge(jwtUtil.getAccessExpiration() / 1000)
+                .sameSite("Lax")            // Change from Strict
+                .build();
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(false)              // MUST be false on HTTP
+                .path("/")
+                .maxAge(jwtUtil.getRefreshExpiration() / 1000)
+                .sameSite("Lax")            // Change from Strict
+                .build();
+
+        response.addHeader("Set-Cookie", accessCookie.toString());
+        response.addHeader("Set-Cookie", refreshCookie.toString());
+
+        logger.info("Login successful for email: {}", user.getEmail());
+
+        return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping("/refresh")

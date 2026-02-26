@@ -2,6 +2,7 @@ package com.project.kisan_setu.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,22 +26,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        String path = request.getServletPath();
+        try {
+            String token = null;
 
-        // 🔥 Skip auth for signup and login
-        if (path.equals("/users/signup") || path.equals("/users/login")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+            if (request.getCookies() != null) {
+                for (Cookie cookie : request.getCookies()) {
+                    if ("accessToken".equals(cookie.getName())) {
+                        token = cookie.getValue();
+                        break;
+                    }
+                }
+            }
 
-        String authHeader = request.getHeader("Authorization");
+            if (token != null && !jwtUtil.isTokenExpired(token)) {
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-
-            String token = authHeader.substring(7);
-            String email = jwtUtil.extractEmail(token);
-
-            if (email != null && !jwtUtil.isTokenExpired(token)) {
+                String email = jwtUtil.extractEmail(token);
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
@@ -51,6 +51,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+
+        } catch (Exception e) {
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);

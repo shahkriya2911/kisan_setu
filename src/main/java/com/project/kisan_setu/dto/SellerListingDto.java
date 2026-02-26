@@ -23,7 +23,6 @@ public class SellerListingDto {
     private Double minimumBidIncrement;
     private String state;
     private String district;
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime auctionEndTime;
     // Bid Info
     private Double currentHighestBid;
