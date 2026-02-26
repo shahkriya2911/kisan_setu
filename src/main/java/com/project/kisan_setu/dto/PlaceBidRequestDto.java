@@ -1,16 +1,21 @@
 package com.project.kisan_setu.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter //getters
-@Setter //setters
-@NoArgsConstructor //needed by jackson
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class PlaceBidRequestDto {
-    @NotNull(message = "bid amount is required")
+        //FIXED
+    private Integer quantity;
+
+    private Double pricePerKg;
+
+    private Double totalBasePrice;
+
+        //AUCTION
     private Double bidAmount;
+
 }

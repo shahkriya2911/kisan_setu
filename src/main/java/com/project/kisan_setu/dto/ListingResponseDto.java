@@ -1,5 +1,7 @@
 package com.project.kisan_setu.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.project.kisan_setu.enums.PurchaseType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,15 +28,19 @@ public class ListingResponseDto {
     // Pricing & Purchase Type
     private Double pricePerKg;
     private Double totalBasePrice;
-    private String purchaseType;
+    private PurchaseType purchaseType;
     private String saleType;
 
     // Partial Orders fields
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer minimumOrderQuantity;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Double moqPricePerKg;
+    private Double remainingQuantity;
 
     // Auction fields
     private Double minimumBidIncrement;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private LocalDateTime auctionEndTime;
 
     // Location

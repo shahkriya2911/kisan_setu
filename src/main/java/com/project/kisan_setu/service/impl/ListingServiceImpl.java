@@ -2,10 +2,10 @@ package com.project.kisan_setu.service.impl;
 
 import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.Bid;
-import com.project.kisan_setu.entity.BidHistory;
 import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.SaleType;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.ListingMapper;
@@ -17,8 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,15 +24,15 @@ import java.util.List;
 public class ListingServiceImpl implements ListingService {
 
     private final ListingRepository listingRepository;
-    private final BidHistoryRepository bidHistoryRepository;
+
     private final UserRepository userRepository;
     private final BidRepository bidRepository;
     private final NotificationService notificationService;
     private static final Logger logger = LoggerFactory.getLogger(ListingServiceImpl.class);
 
-    public ListingServiceImpl(ListingRepository listingRepository, BidHistoryRepository bidHistoryRepository, UserRepository userRepository, BidRepository bidRepository,  NotificationService notificationService) {
+    public ListingServiceImpl(ListingRepository listingRepository, UserRepository userRepository, BidRepository bidRepository,  NotificationService notificationService) {
         this.listingRepository = listingRepository;
-        this.bidHistoryRepository = bidHistoryRepository;
+
         this.userRepository = userRepository;
         this.bidRepository = bidRepository;
         this.notificationService = notificationService;
@@ -91,9 +89,7 @@ public class ListingServiceImpl implements ListingService {
         // FIXED PRICE
         else if (pricingDto.getSaleType() == SaleType.FIXED) {
 
-            // Remove Auction Fields
-            pricingDto.setAuctionEndTime(null);
-            pricingDto.setMinimumBidIncrement(null);
+
             logger.info("Fixed Price Listing Created");
         }
         else {
@@ -101,8 +97,7 @@ public class ListingServiceImpl implements ListingService {
                     "SaleType must be AUCTION or FIXED");
         }
 
-        if ("Partial Orders Allowed"
-                .equalsIgnoreCase(pricingDto.getPurchaseType())) {
+        if (pricingDto.getPurchaseType() == PurchaseType.PARTIAL_ORDER_ALLOWS) {
 
             // Partial Order Required Fields
 
@@ -121,17 +116,7 @@ public class ListingServiceImpl implements ListingService {
             logger.info("Partial Order Listing");
 
         }
-        // Whole Lot
-        else {
 
-            pricingDto.setMinimumOrderQuantity(null);
-
-            pricingDto.setMoqPricePerKg(null);
-
-
-            logger.info("Whole Lot Listing");
-
-        }
 
         Listing listing = ListingMapper.toEntity(
                 productDto,
@@ -152,6 +137,10 @@ public class ListingServiceImpl implements ListingService {
         listing.setSeller(seller);
         // Auction starts when published
         listing.setStatus(AuctionStatus.ACTIVE);
+        // Total Base Price
+
+        listing.setTotalBasePrice( pricingDto.getPricePerKg() * pricingDto.getQuantity());
+        listing.setRemainingQuantity(pricingDto.getRemainingQuantity());
 
         Listing saved =
                 listingRepository.save(listing);
@@ -214,45 +203,45 @@ public class ListingServiceImpl implements ListingService {
         return ListingMapper.toResponse(preview);
     }
 
-    public BidHistory placeBid(Long listingId, Double bidAmount, Long userId) {
-        Listing listing = listingRepository.findById(listingId)
-                .orElseThrow(() -> new UserException("Listing not found with id: " + listingId));
-
-        double totalBasePrice = listing.getTotalBasePrice();
-        double minimumBidIncrement = listing.getMinimumBidIncrement();
-        long totalBids = bidHistoryRepository.countByListing_ListingId(listingId);
-        double minimumRequired = totalBasePrice + (totalBids + minimumBidIncrement);
-
-        if (totalBids > 0) {
-            double lastBidAmount = totalBasePrice + (totalBids - 1) * minimumBidIncrement;
-            double exactRequired = lastBidAmount + minimumBidIncrement;
-
-            if (bidAmount != exactRequired) {
-                throw new UserException(
-                        "Invalid bid! Current base is ₹" + lastBidAmount +
-                                ". You must bid exactly ₹" + exactRequired +
-                                " (increment is fixed at ₹" + minimumBidIncrement + ")"
-                );
-            }
-        } else {
-            if (bidAmount != minimumRequired) {
-                throw new UserException(
-                        "First bid must be exactly ₹" + minimumRequired +
-                                " (Base ₹" + totalBasePrice + " + fixed increment ₹" + minimumBidIncrement + ")"
-                );
-            }
-        }
-
-        BidHistory newBid = new BidHistory();
-        newBid.setListing(listing);
-        newBid.setAmountPerKg(BigDecimal.valueOf(bidAmount));
-        newBid.setBidTime(LocalDateTime.now());
-
-        BidHistory saved = bidHistoryRepository.save(newBid);
-        logger.info("Bid saved — Round: {}, UserID: {}, Amount: ₹{}", totalBids + 1, userId, bidAmount);
-
-        return saved;
-    }
+//    public BidHistory placeBid(Long listingId, Double bidAmount, Long userId) {
+//        Listing listing = listingRepository.findById(listingId)
+//                .orElseThrow(() -> new UserException("Listing not found with id: " + listingId));
+//
+//        double totalBasePrice = listing.getTotalBasePrice();
+//        double minimumBidIncrement = listing.getMinimumBidIncrement();
+//        long totalBids = bidHistoryRepository.countByListing_ListingId(listingId);
+//        double minimumRequired = totalBasePrice + (totalBids + minimumBidIncrement);
+//
+//        if (totalBids > 0) {
+//            double lastBidAmount = totalBasePrice + (totalBids - 1) * minimumBidIncrement;
+//            double exactRequired = lastBidAmount + minimumBidIncrement;
+//
+//            if (bidAmount != exactRequired) {
+//                throw new UserException(
+//                        "Invalid bid! Current base is ₹" + lastBidAmount +
+//                                ". You must bid exactly ₹" + exactRequired +
+//                                " (increment is fixed at ₹" + minimumBidIncrement + ")"
+//                );
+//            }
+//        } else {
+//            if (bidAmount != minimumRequired) {
+//                throw new UserException(
+//                        "First bid must be exactly ₹" + minimumRequired +
+//                                " (Base ₹" + totalBasePrice + " + fixed increment ₹" + minimumBidIncrement + ")"
+//                );
+//            }
+//        }
+//
+//        BidHistory newBid = new BidHistory();
+//        newBid.setListing(listing);
+//        newBid.setAmountPerKg(BigDecimal.valueOf(bidAmount));
+//        newBid.setBidTime(LocalDateTime.now());
+//
+//        BidHistory saved = bidHistoryRepository.save(newBid);
+//        logger.info("Bid saved — Round: {}, UserID: {}, Amount: ₹{}", totalBids + 1, userId, bidAmount);
+//
+//        return saved;
+//    }
 
     @Override
     public SellerListingDto getListingTop5BidDetail(Long listingId) {
@@ -272,7 +261,8 @@ public class ListingServiceImpl implements ListingService {
                         bid.getBidId(),
                         bid.getBidAmount(),
                         bid.getBuyer().getFullName(),
-                        bid.getBidTime()
+                        bid.getBidTime(),
+                        listing.getRemainingQuantity()
                 ))
                 .toList();
 

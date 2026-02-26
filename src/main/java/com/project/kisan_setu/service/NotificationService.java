@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface NotificationService {
     public void createNotification(Long userId, String message);
-//    List<Notification> getUserNotifications(Long userId);
+    List<Notification> getUserNotifications(Long userId);
 }

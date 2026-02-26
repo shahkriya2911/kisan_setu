@@ -1,6 +1,7 @@
 package com.project.kisan_setu.entity;
 
 import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.SaleType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,10 +31,12 @@ public class Listing {
     private String variety;
     private String grade;
     private LocalDate harvestDate;
-    private String purchaseType; // Whole Lot Only / Partial Orders Allowed
+    @Enumerated(EnumType.STRING)
+    private PurchaseType purchaseType; // Whole Lot Only / Partial Orders Allowed
 
     // Quantity
     private Integer quantity;
+    private Double remainingQuantity;
     private String unit;
 
     // Pricing & Purchase Type
@@ -48,6 +51,7 @@ public class Listing {
     // Partial order
     private Integer minimumOrderQuantity;
     private Double moqPricePerKg;
+
 
     private String state;
     private String packagingType;

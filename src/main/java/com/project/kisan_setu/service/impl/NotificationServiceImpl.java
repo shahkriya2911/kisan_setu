@@ -33,8 +33,8 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(notification);
 
     }
-//    @Override
-//    public List<Notification> getUserNotifications(Long userId) {
-//        return notificationRepository.findByUserUserId(userId);
-//    }
+    @Override
+    public List<Notification> getUserNotifications(Long userId) {
+        return notificationRepository.findByUserUserId(userId);
+    }
 }

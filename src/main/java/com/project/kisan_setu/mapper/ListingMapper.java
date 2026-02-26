@@ -4,6 +4,7 @@ import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.entity.ProductImage;
 import com.project.kisan_setu.entity.QualityCertificate;
+import com.project.kisan_setu.enums.PurchaseType;
 
 import java.util.Comparator;
 import java.util.List;
@@ -36,6 +37,7 @@ public class ListingMapper {
         // Partial Order (Fixed)
         dto.setMinimumOrderQuantity(listing.getMinimumOrderQuantity());
         dto.setMoqPricePerKg(listing.getMoqPricePerKg());
+        dto.setRemainingQuantity(listing.getRemainingQuantity());
 
         // Location & Quality
 
@@ -101,6 +103,7 @@ public class ListingMapper {
         listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
         listing.setSaleType(pricingDto.getSaleType());
         listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
+        listing.setRemainingQuantity(pricingDto.getRemainingQuantity());
 
         // Partial order
         listing.setMinimumOrderQuantity(pricingDto.getMinimumOrderQuantity());
@@ -129,6 +132,7 @@ public class ListingMapper {
         listing.setHarvestDate(productDto.getHarvestDate());
         listing.setQuantity(pricingDto.getQuantity());
         listing.setUnit(pricingDto.getUnit());
+        listing.setRemainingQuantity(pricingDto.getRemainingQuantity());
         listing.setPurchaseType(pricingDto.getPurchaseType());
         listing.setMinimumOrderQuantity(pricingDto.getMinimumOrderQuantity());
         listing.setMoqPricePerKg(pricingDto.getMoqPricePerKg());

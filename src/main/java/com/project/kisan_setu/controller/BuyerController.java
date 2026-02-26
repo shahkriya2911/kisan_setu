@@ -41,15 +41,17 @@ public class BuyerController {
     }
 
     //post a bid in a particular auction listing
-    @PostMapping("/auctions/{listingId}/bid")
-    public ResponseEntity<?> placeBid(
-            @RequestParam Long buyerId,
+    @PostMapping("/{listingId}/actions")
+    public ResponseEntity<?> placeAction(
             @PathVariable Long listingId,
             @RequestBody PlaceBidRequestDto dto) {
 
-        return ResponseEntity.ok(
-                buyerService.placeBid(buyerId, listingId, dto)
-        );
+
+        Object response =
+                buyerService.placeBid(listingId, dto);
+
+        return ResponseEntity.ok(response);
+
     }
 
     //git bid history of a particular auction

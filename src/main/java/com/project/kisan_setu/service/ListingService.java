@@ -23,7 +23,7 @@ public interface ListingService {
             QualityPricingListingDto pricingDto,
             QualityLocationListingDto locationDto);
 
-    BidHistory placeBid(Long listingId, Double bidAmount, Long userId);
+//    BidHistory placeBid(Long listingId, Double bidAmount, Long userId);
 
     SellerListingDto getListingTop5BidDetail(Long listingId);
     DashboardDto getSellerOverview();
