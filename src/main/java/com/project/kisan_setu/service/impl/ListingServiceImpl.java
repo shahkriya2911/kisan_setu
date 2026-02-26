@@ -105,7 +105,7 @@ public class ListingServiceImpl implements ListingService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         listing.setSeller(seller);
         listing.setStatus(AuctionStatus.ACTIVE);
-
+        listing.setRemainingQuantity(pricingDto.getRemainingQuantity());
         // Total Base Price
         listing.setTotalBasePrice(pricingDto.getPricePerKg() * pricingDto.getQuantity());
 

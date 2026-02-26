@@ -98,6 +98,11 @@ public class BuyerServiceImpl implements BuyerService {
                 .findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        if (listing.getRemainingQuantity() == null) {
+            listing.setRemainingQuantity(Double.valueOf(listing.getQuantity()));
+            listingRepository.save(listing);
+        }
+
         // SELLER CANNOT BUY OWN LISTING
         if (listing.getSeller().getUserId()
                 .equals(buyer.getUserId())) {
@@ -122,12 +127,10 @@ public class BuyerServiceImpl implements BuyerService {
             //WHOLE LOT
             if (listing.getPurchaseType() == PurchaseType.WHOLE_LOT_ONLY) {
 
-                if (!dto.getQuantity()
-                        .equals(listing.getRemainingQuantity())) {
-
+                if (dto.getQuantity().doubleValue() != listing.getRemainingQuantity()) {
                     throw new RuntimeException(
-                            "You must buy full quantity: "
-                                    + listing.getRemainingQuantity());
+                            "You must buy full quantity: " + listing.getRemainingQuantity()
+                    );
                 }
 
             }
@@ -156,7 +159,7 @@ public class BuyerServiceImpl implements BuyerService {
                 pricePerKg = listing.getPricePerKg();
             }
 
-            Double totalBasePrice = listing.getMoqPricePerKg() * dto.getQuantity();
+            Double totalBasePrice = pricePerKg * dto.getQuantity();
             listing.setRemainingQuantity(
                     listing.getRemainingQuantity() - dto.getQuantity()
             );
