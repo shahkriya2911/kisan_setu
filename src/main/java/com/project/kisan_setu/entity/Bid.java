@@ -8,12 +8,12 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Entity //table creation
-@Table(name = "bids") //table name
-@Getter //getters
-@Setter //setters
-@NoArgsConstructor //needed by JPA
-@AllArgsConstructor //constructor
+@Entity
+@Table(name = "bids")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Bid {
 
     @Id //primary key
@@ -23,6 +23,8 @@ public class Bid {
     //bid info
     private Double bidAmount;
     private LocalDateTime bidTime;
+
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     //relationship with listing
     @ManyToOne

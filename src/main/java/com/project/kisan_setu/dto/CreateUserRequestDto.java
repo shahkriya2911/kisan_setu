@@ -11,14 +11,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter //getters
-@Setter //setters
-@NoArgsConstructor //needed by jackson
-@AllArgsConstructor //constructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreateUserRequestDto {
 
-    //user creation through signup or custom addition by admin
-    //user info
     @NotBlank(message = "Full name is required")
     @Size(min = 5, max = 20, message = "Full name must be between 5 and 20 characters")
     @Pattern(

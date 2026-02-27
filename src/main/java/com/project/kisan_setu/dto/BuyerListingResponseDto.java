@@ -7,10 +7,10 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Getter //getters
-@Setter //setters
-@AllArgsConstructor //constructor
-@NoArgsConstructor //needed by jackson
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class BuyerListingResponseDto {
 
     private Long listingId;

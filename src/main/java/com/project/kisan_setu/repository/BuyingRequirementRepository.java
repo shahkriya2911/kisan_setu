@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository //interface which talks with DB
+@Repository
 public interface BuyingRequirementRepository
         extends JpaRepository<BuyingRequirement, Long> {
 

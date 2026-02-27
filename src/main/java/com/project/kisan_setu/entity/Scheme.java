@@ -9,12 +9,12 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity //table creation
-@Table(name = "schemes") //table name
-@Getter //getters
-@Setter //setters
-@NoArgsConstructor //needed by JPA
-@AllArgsConstructor //constructor
+@Entity
+@Table(name = "schemes")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Scheme {
 
     @Id //primary key

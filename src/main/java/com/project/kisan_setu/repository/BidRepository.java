@@ -2,6 +2,7 @@ package com.project.kisan_setu.repository;
 
 import com.project.kisan_setu.dto.BidResponseDto;
 import com.project.kisan_setu.entity.Bid;
+import com.project.kisan_setu.entity.Listing;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,4 +27,6 @@ public interface BidRepository
 
     @Query("SELECT COALESCE(SUM(b.bidAmount), 0) FROM Bid b WHERE b.listing.seller.userId = :sellerId")
     Long sumAmountByListingSellerId( Long sellerId);
+
+    List<Bid> findByListing(Listing listing);
 }

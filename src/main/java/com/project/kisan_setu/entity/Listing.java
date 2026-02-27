@@ -74,6 +74,8 @@ public class Listing {
 
     @Column(nullable = true)
     private String description;
+    private boolean oneDayNotified = false;
+    private boolean thirtyMinuteNotified = false;
 
     // Relationship with user
     @ManyToOne

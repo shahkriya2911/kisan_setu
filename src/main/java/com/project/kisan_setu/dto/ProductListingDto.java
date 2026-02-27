@@ -10,8 +10,8 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Getter //getters
-@Setter //setters
+@Getter
+@Setter
 @NoArgsConstructor //needed by jackson
 @AllArgsConstructor
 public class ProductListingDto {

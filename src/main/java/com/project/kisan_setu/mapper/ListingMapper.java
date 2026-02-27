@@ -88,8 +88,8 @@ public class ListingMapper {
             ProductListingDto productDto,
             QualityPricingListingDto pricingDto,
             QualityLocationListingDto locationDto,
-            List<ListingImage> images,              // already prepared in service
-            ListingCertificate certificate          // already prepared in service
+            List<ListingImage> images,
+            ListingCertificate certificate
     ) {
 
         Listing listing = new Listing();
@@ -133,7 +133,7 @@ public class ListingMapper {
         return listing;
     }
 
-    // ===================== UPDATE EXISTING ENTITY =====================
+    // UPDATE EXISTING ENTITY
 
     public static void updateEntity(
             Listing listing,

@@ -6,9 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter //getters
-@Setter //setters
-@NoArgsConstructor //needed by jackson
+@Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class QualityLocationListingDto {
 

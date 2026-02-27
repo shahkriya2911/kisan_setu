@@ -7,10 +7,10 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Getter //getters
-@Setter //setters
-@NoArgsConstructor //needed by jackson
-@AllArgsConstructor //constructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class BidResponseDto {
 
     //bid response info

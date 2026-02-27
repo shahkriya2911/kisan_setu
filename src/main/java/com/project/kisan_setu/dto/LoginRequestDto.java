@@ -9,10 +9,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor //constructor
-@NoArgsConstructor //needed by jackson
-@Getter //getters
-@Setter //setters
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class LoginRequestDto {
 
     //login info

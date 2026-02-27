@@ -13,8 +13,6 @@ public class NotificationResponseDto {
 
     private Long notificationId;
 
-    private String title;
-
     private String message;
 
     private Boolean isRead;

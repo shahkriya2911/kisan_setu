@@ -18,11 +18,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestController //handling of rest apis
-@RequestMapping("/users") //api starts with /users
+@RestController
+@RequestMapping("/users")
 public class UserController {
 
-    //constructor dependency injection
     private final UserService userService;
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -36,7 +35,7 @@ public class UserController {
         this.refreshTokenService = refreshTokenService1;
     }
 
-    //signup
+
     @PostMapping("/signup")
     public ResponseEntity<SignupResponseDto> signup(
             @Valid @RequestBody CreateUserRequestDto dto) { //json data
@@ -48,7 +47,6 @@ public class UserController {
         return ResponseEntity.ok(userDto);
     }
 
-    //login
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(
             @Valid @RequestBody LoginRequestDto dto) { //json from user
@@ -69,7 +67,6 @@ public class UserController {
         );
     }
 
-    // ================= LOGOUT =================
     @PostMapping("/logout")
     public ResponseEntity<String> logout(
             @RequestBody RefreshTokenRequestDto request) {
@@ -79,7 +76,7 @@ public class UserController {
         return ResponseEntity.ok("Logged out successfully");
     }
 
-    //get all users
+
     @GetMapping
     public ResponseEntity<ApiResponseDto<List<UserResponseDto>>> getAllUsers() {
         logger.info("Get all users request");
@@ -88,7 +85,6 @@ public class UserController {
                 .map(UserResponseDto::new)
                 .collect(Collectors.toList());
 
-        //inserting values in api response
         ApiResponseDto<List<UserResponseDto>> response = new ApiResponseDto<>(
                 HttpStatus.OK.value(),
                 "Users fetched successfully",
@@ -100,8 +96,6 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-
-    //get user by id
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponseDto<UserResponseDto>> getUserById(
             @PathVariable Long userId) {
@@ -120,7 +114,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    //update user by id
+
     @PutMapping("/{userId}")
     public ResponseEntity<ApiResponseDto<UserResponseDto>> updateUser(
             @PathVariable Long userId,
@@ -129,7 +123,7 @@ public class UserController {
 
         UserResponseDto updatedUser = userService.updateUserById(userId, dto); //update method call
 
-        //inserting values in api response
+
         ApiResponseDto<UserResponseDto> response = new ApiResponseDto<>(
                 HttpStatus.OK.value(),
                 "User updated successfully",
@@ -141,7 +135,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    //delete by user id
+
     @DeleteMapping("/{userId}")
     public ResponseEntity<ApiResponseDto<Void>> deleteUser(
             @PathVariable Long userId) {

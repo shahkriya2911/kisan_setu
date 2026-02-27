@@ -10,10 +10,10 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@AllArgsConstructor //constructor
-@NoArgsConstructor //needed by jackson
-@Getter //getters
-@Setter //setters
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class SchemeRequestDto {
 
     //scheme info

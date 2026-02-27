@@ -42,14 +42,11 @@ public class ListingController {
             @RequestPart(value = "certificateFile", required = false) MultipartFile certificateFile
     ) throws JsonProcessingException {
 
-        // uses the injected mapper with JavaTimeModule
         CreateListingRequest request = objectMapper.readValue(requestJson, CreateListingRequest.class);
 
         return ResponseEntity.ok(listingService.createListing(request, imageFiles, certificateFile));
     }
 
-
-    //  UPDATE
     @PutMapping(value = "/{listingId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ListingResponseDto> updateListing(
             @PathVariable Long listingId,
@@ -60,13 +57,11 @@ public class ListingController {
         return ResponseEntity.ok(listingService.updateListing(listingId, request, imageFiles, certificateFile));
     }
 
-    // GET ALL
     @GetMapping
     public ResponseEntity<List<ListingResponseDto>> getAllListings() {
         return ResponseEntity.ok(listingService.getAllListings());
     }
 
-    //  GET BY ID
     @GetMapping("/{id}")
     public ResponseEntity<ListingResponseDto> getListingById(@PathVariable Long id) {
         return ResponseEntity.ok(listingService.getListingById(id));

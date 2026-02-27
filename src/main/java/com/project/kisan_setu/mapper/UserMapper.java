@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 
 public class UserMapper {
 
-    // CREATE ENTITY FROM DTO
+
     public static User toEntity(CreateUserRequestDto dto) {
         User user = new User();
         user.setFullName(dto.getFullName());
@@ -20,7 +20,7 @@ public class UserMapper {
         return user;
     }
 
-    // UPDATE ENTITY FROM DTO
+
     public static void updateEntity(User user, UpdateUserRequestDto dto, PasswordEncoder passwordEncoder) {
         if (dto.getUserFullName() != null) user.setFullName(dto.getUserFullName());
         if (dto.getEmail() != null) user.setEmail(dto.getEmail());
@@ -28,7 +28,7 @@ public class UserMapper {
         if (dto.getUserPassword() != null) user.setPassword(passwordEncoder.encode(dto.getUserPassword()));
     }
 
-    // MAP ENTITY TO USER RESPONSE DTO
+
     public static UserResponseDto toResponse(User user) {
         UserResponseDto dto = new UserResponseDto();
         dto.setId(user.getUserId());

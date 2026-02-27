@@ -15,4 +15,5 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
 
     Long countBySellerUserIdAndStatus(Long sellerId, AuctionStatus status);
 
+    List<Listing> findByStatus(AuctionStatus auctionStatus);
 }

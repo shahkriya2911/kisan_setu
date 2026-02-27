@@ -104,7 +104,13 @@ public class ListingServiceImpl implements ListingService {
         User seller = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         listing.setSeller(seller);
-        listing.setStatus(AuctionStatus.ACTIVE);
+
+        if (listing.getAuctionEndTime().isAfter(LocalDateTime.now())) {
+            listing.setStatus(AuctionStatus.ACTIVE);
+        } else {
+            listing.setStatus(AuctionStatus.CLOSED);
+        }
+
         listing.setRemainingQuantity(pricingDto.getRemainingQuantity());
         // Total Base Price
         listing.setTotalBasePrice(pricingDto.getPricePerKg() * pricingDto.getQuantity());
@@ -112,11 +118,9 @@ public class ListingServiceImpl implements ListingService {
         // Remaining Quantity
         listing.setRemainingQuantity(pricingDto.getRemainingQuantity());
 
+
         // Save
         Listing saved = listingRepository.save(listing);
-
-        notificationService.createNotification(seller.getUserId(), "Crop Created Successfully");
-        logger.info("Listing Created Successfully ID: {}", saved.getListingId());
 
 
         return ListingMapper.toResponse(saved);

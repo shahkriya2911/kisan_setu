@@ -6,10 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter //getters
-@Setter //setters
-@NoArgsConstructor //needed by jackson
-@AllArgsConstructor //constructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoginResponseDto {
     private int status;
     private String message;

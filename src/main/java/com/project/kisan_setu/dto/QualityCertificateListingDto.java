@@ -11,9 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
-@Getter //getters
-@Setter //setters
-@NoArgsConstructor //needed by jackson
+@Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class QualityCertificateListingDto {
     @NotBlank(message = "certificate name is required")

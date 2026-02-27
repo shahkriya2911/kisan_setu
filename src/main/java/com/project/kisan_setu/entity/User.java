@@ -15,12 +15,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity //table creation
-@Table(name = "users") //table name
-@Getter //getters
-@Setter //setters
-@NoArgsConstructor //needed by JPA
-@AllArgsConstructor //constructor
+@Entity
+@Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id //primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY) //auto-increment

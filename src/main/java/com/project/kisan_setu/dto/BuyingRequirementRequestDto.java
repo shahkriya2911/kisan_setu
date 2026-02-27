@@ -10,10 +10,10 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Getter //getters
-@Setter //setters
-@NoArgsConstructor //needed by jackson
-@AllArgsConstructor //constructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class BuyingRequirementRequestDto {
 
     //buying requirement info
