@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,7 +22,7 @@ public class Bid {
     private Long bidId;
 
     //bid info
-    private Double bidAmount;
+    private BigDecimal buyerAmount;
     private LocalDateTime bidTime;
 
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -35,4 +36,6 @@ public class Bid {
     @ManyToOne
     @JoinColumn(name = "buyer_id")
     private User buyer;
+
+
 }

@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class BidHistoryDto {
 
     private String buyerName;
-    private BigDecimal bidAmountPerKg;
-    private BigDecimal totalBidAmount;
+    private BigDecimal buyerAmountPerKg;
+    private BigDecimal totalbuyerAmount;
     private LocalDateTime bidTime;
 }

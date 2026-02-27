@@ -1,32 +1,36 @@
 package com.project.kisan_setu.dto;
+import com.project.kisan_setu.enums.AuctionStatus;
+import lombok.*;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 public class SellerListingDto {
+
     private Long listingId;
     private String cropName;
+    private String variety;
     private String grade;
     private Integer quantity;
     private String unit;
-    private Double totalBasePrice;
-    private Double minimumBidIncrement;
+
+    private BigDecimal totalBasePrice;
+    private BigDecimal minimumBidIncrement;
+
     private String state;
     private String district;
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime auctionEndTime;
-    // Bid Info
-    private Double currentHighestBid;
+
+    private Long totalBids;
     private Long activeBidders;
+
+    private AuctionStatus status;
+    private LocalDateTime auctionEndTime;
+
+    private BigDecimal currentHighestBid;
+
     private List<BidResponseDto> top5Bids;
 }

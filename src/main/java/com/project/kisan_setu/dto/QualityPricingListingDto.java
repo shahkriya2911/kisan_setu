@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
@@ -27,7 +28,7 @@ public class QualityPricingListingDto {
     @NotNull(message = "price per kg is required")
     private Double pricePerKg;
     @NotNull(message = "total base price is required")
-    private Double totalBasePrice;
+    private BigDecimal totalBasePrice;
     @Enumerated(EnumType.STRING)
     private PurchaseType purchaseType;
     @NotNull(message = "minimum bid increment is required")

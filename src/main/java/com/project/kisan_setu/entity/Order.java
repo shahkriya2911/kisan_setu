@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -34,7 +35,7 @@ public class Order {
 
     private Double pricePerKg;
 
-    private Double totalBasePrice;
+    private BigDecimal totalBasePrice;
 
     private LocalDateTime orderTime;
 }

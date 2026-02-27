@@ -5,6 +5,7 @@ import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.entity.Listing;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -106,7 +107,7 @@ public class ListingMapper {
         listing.setPricePerKg(pricingDto.getPricePerKg());
         listing.setTotalBasePrice(pricingDto.getTotalBasePrice());
         listing.setPurchaseType(pricingDto.getPurchaseType());
-        listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
+        listing.setMinimumBidIncrement(BigDecimal.valueOf(pricingDto.getMinimumBidIncrement()));
         listing.setSaleType(pricingDto.getSaleType());
         listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
         listing.setRemainingQuantity(pricingDto.getRemainingQuantity());
@@ -154,7 +155,7 @@ public class ListingMapper {
         listing.setMoqPricePerKg(pricingDto.getMoqPricePerKg());
         listing.setPricePerKg(pricingDto.getPricePerKg());
         listing.setTotalBasePrice(pricingDto.getTotalBasePrice());
-        listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
+        listing.setMinimumBidIncrement(BigDecimal.valueOf(pricingDto.getMinimumBidIncrement()));
         listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
         listing.setSaleType(pricingDto.getSaleType());
 

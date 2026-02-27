@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -14,9 +15,12 @@ import java.time.LocalDateTime;
 public class BidResponseDto {
 
     //bid response info
-    private Long bidId;
-    private Double bidAmount;
-    private String bidderName;
+    private Long buyerId;
+    private BigDecimal buyerAmount;
+    private String buyerName;
     private LocalDateTime bidTime;
     private Double remainingQuantity;
+
+
+
 }

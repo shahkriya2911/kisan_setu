@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -17,7 +18,8 @@ public class BuyerListingResponseDto {
     private String cropName;
     private String grade;
     private Double basePrice;
-    private Double currentHighestBid;
+    private BigDecimal currentHighestBid;
     private String district;
     private LocalDateTime auctionEndTime;
+
 }

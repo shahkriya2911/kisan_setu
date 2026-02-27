@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -60,11 +61,11 @@ public class BuyerServiceImpl implements BuyerService {
                 .stream()
                 .map(listing -> {
 
-                    Double currentHighest = bidRepository
-                            .findTopByListingListingIdOrderByBidAmountDesc(
+                    BigDecimal currentHighest = bidRepository
+                            .findTopByListingListingIdOrderByBuyerAmountDesc(
                                     listing.getListingId())
-                            .map(Bid::getBidAmount)
-                            .orElse(listing.getPricePerKg());
+                            .map(Bid::getBuyerAmount)
+                            .orElse(BigDecimal.valueOf(listing.getPricePerKg()));
 
                     return new BuyerListingResponseDto(
                             listing.getListingId(),
@@ -171,7 +172,7 @@ public class BuyerServiceImpl implements BuyerService {
             order.setListing(listing);
             order.setQuantity(dto.getQuantity());
             order.setPricePerKg(pricePerKg);
-            order.setTotalBasePrice(totalBasePrice);
+            order.setTotalBasePrice(BigDecimal.valueOf(totalBasePrice));
             order.setOrderTime(LocalDateTime.now());
 
             orderRepository.save(order);
@@ -222,8 +223,8 @@ public class BuyerServiceImpl implements BuyerService {
                 throw new RuntimeException("Quantity exceeds available stock");
             }
 
-            Double totalPrice =
-                    listing.getMoqPricePerKg() * dto.getQuantity();
+           BigDecimal totalPrice =
+                   BigDecimal.valueOf(listing.getMoqPricePerKg() * dto.getQuantity());
 
             listing.setRemainingQuantity(
                     listing.getRemainingQuantity() - dto.getQuantity()
@@ -244,15 +245,15 @@ public class BuyerServiceImpl implements BuyerService {
 
         else if (listing.getPurchaseType() == PurchaseType.WHOLE_LOT_ONLY) {
 
-            Double currentHighest = bidRepository
-                    .findTopByListingListingIdOrderByBidAmountDesc(listingId)
-                    .map(Bid::getBidAmount)
-                    .orElse(listing.getPricePerKg() * listing.getQuantity());
+            BigDecimal currentHighest = bidRepository
+                    .findTopByListingListingIdOrderByBuyerAmountDesc(listingId)
+                    .map(Bid::getBuyerAmount)
+                    .orElse(BigDecimal.valueOf(listing.getPricePerKg() * listing.getQuantity()));
 
-            double expectedNextBid =
-                    currentHighest + listing.getMinimumBidIncrement();
+            BigDecimal expectedNextBid =
+                    currentHighest.add(listing.getMinimumBidIncrement());
 
-            if (Double.compare(dto.getBidAmount(), expectedNextBid) != 0) {
+            if (dto.getBuyerAmount().compareTo(expectedNextBid) != 0) {
                 throw new RuntimeException(
                         "Bid must be exactly last bid + minimum increment: "
                                 + expectedNextBid
@@ -260,7 +261,7 @@ public class BuyerServiceImpl implements BuyerService {
             }
 
             Bid bid = new Bid();
-            bid.setBidAmount(dto.getBidAmount());
+            bid.setBuyerAmount(dto.getBuyerAmount());
             bid.setBidTime(LocalDateTime.now());
             bid.setListing(listing);
             bid.setBuyer(buyer);
@@ -268,8 +269,8 @@ public class BuyerServiceImpl implements BuyerService {
             bidRepository.save(bid);
 
             return new BidResponseDto(
-                    bid.getBidId(),
-                    bid.getBidAmount(),
+                    bid.getBuyer().getUserId(),
+                    bid.getBuyerAmount(),
                     buyer.getFullName(),
                     bid.getBidTime(),
                     listing.getRemainingQuantity()
@@ -295,11 +296,11 @@ public class BuyerServiceImpl implements BuyerService {
 //    public List<BidResponseDto> getBidHistory(Long listingId) {
 //
 //        return bidRepository
-//                .findByListingListingIdOrderByBidAmountDesc(listingId)
+//                .findByListingListingIdOrderBybuyerAmountDesc(listingId)
 //                .stream()
 //                .map(bid -> new BidResponseDto(
 //                        bid.getBidId(),
-//                        bid.getBidAmount(),
+//                        bid.getbuyerAmount(),
 //                        bid.getBuyer().getFullName(),
 //                        bid.getBidTime()
 //                ))

@@ -113,7 +113,7 @@ public class ListingServiceImpl implements ListingService {
 
         listing.setRemainingQuantity(pricingDto.getRemainingQuantity());
         // Total Base Price
-        listing.setTotalBasePrice(pricingDto.getPricePerKg() * pricingDto.getQuantity());
+        listing.setTotalBasePrice(BigDecimal.valueOf(pricingDto.getPricePerKg() * pricingDto.getQuantity()));
 
         // Remaining Quantity
         listing.setRemainingQuantity(pricingDto.getRemainingQuantity());
@@ -276,73 +276,93 @@ public class ListingServiceImpl implements ListingService {
 //        return ListingMapper.toResponse(preview);
     //}
 
-    public BidHistory placeBid(Long listingId, Double bidAmount, Long userId) {
+    public BidHistory placeBid(Long listingId,BigDecimal buyerAmount, Long userId) {
         Listing listing = listingRepository.findById(listingId)
                 .orElseThrow(() -> new UserException("Listing not found with id: " + listingId));
 
-        double totalBasePrice = listing.getTotalBasePrice();
-        double minimumBidIncrement = listing.getMinimumBidIncrement();
+        BigDecimal totalBasePrice = listing.getTotalBasePrice();
+        BigDecimal minimumBidIncrement = listing.getMinimumBidIncrement();
+
         long totalBids = bidHistoryRepository.countByListing_ListingId(listingId);
 
+        BigDecimal lastbuyerAmount;
 
         if (totalBids > 0) {
-            double lastBidAmount = totalBasePrice + (totalBids * minimumBidIncrement);
-            double exactRequired = lastBidAmount + minimumBidIncrement;
 
-            if (bidAmount != exactRequired) {
+            BigDecimal bidCount = BigDecimal.valueOf(totalBids);
+
+            lastbuyerAmount = totalBasePrice.add(
+                    minimumBidIncrement.multiply(bidCount)
+            );
+
+            BigDecimal exactRequired = lastbuyerAmount;
+
+            if (buyerAmount.compareTo(exactRequired) != 0) {
                 throw new UserException(
-                        "Invalid bid! Current base is ₹" + lastBidAmount +
+                        "Invalid bid! Current base is ₹" + lastbuyerAmount +
                                 ". You must bid exactly ₹" + exactRequired +
                                 " (increment is fixed at ₹" + minimumBidIncrement + ")"
                 );
             }
+
         } else {
-            double firstBidRequired = totalBasePrice + minimumBidIncrement;
-            if (bidAmount != firstBidRequired) {
+
+            BigDecimal firstBidRequired =
+                    totalBasePrice.add(minimumBidIncrement);
+
+            if (buyerAmount.compareTo(firstBidRequired) != 0) {
                 throw new UserException(
                         "First bid must be exactly ₹" + firstBidRequired +
-                                " (Base ₹" + totalBasePrice + " + fixed increment ₹" + minimumBidIncrement + ")"
+                                " (Base ₹" + totalBasePrice +
+                                " + fixed increment ₹" + minimumBidIncrement + ")"
                 );
             }
         }
 
         BidHistory newBid = new BidHistory();
         newBid.setListing(listing);
-        newBid.setAmountPerKg(BigDecimal.valueOf(bidAmount));
+        newBid.setAmountPerKg(buyerAmount);
         newBid.setBidTime(LocalDateTime.now());
 
         BidHistory saved = bidHistoryRepository.save(newBid);
-        logger.info("Bid saved — Round: {}, UserID: {}, Amount: ₹{}", totalBids + 1, userId, bidAmount);
+        logger.info("Bid saved — Round: {}, UserID: {}, Amount: ₹{}", totalBids + 1, userId, buyerAmount);
         return saved;
     }
 
     @Override
-    public SellerListingDto getListingTop5BidDetail(Long listingId) {
-        Listing listing = listingRepository.findById(listingId)
-                .orElseThrow(() -> new RuntimeException("Listing not found with id: " + listingId));
+    public SellerListingDto getSellerListingDetail(Long listingId) {
 
-        Double currentHighestBid = bidRepository
-                .findTopByListingListingIdOrderByBidAmountDesc(listingId)
-                .map(Bid::getBidAmount)
-                .orElse(listing.getTotalBasePrice());
+        Listing listing = listingRepository.findById(listingId)
+                .orElseThrow(() ->
+                        new RuntimeException("Listing not found with id: " + listingId));
+
+        BigDecimal currentHighestBid =
+                bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(listingId)
+                        .map(Bid::getBuyerAmount)
+                        .orElse(listing.getTotalBasePrice());
+
 
         List<BidResponseDto> top5Bids = bidRepository
-                .findTop5ByListingListingIdOrderByBidAmountDesc(listingId)
+                .findTop5ByListingListingIdOrderByBuyerAmountDesc(listingId)
                 .stream()
                 .map(bid -> new BidResponseDto(
-                        bid.getBidId(),
-                        bid.getBidAmount(),
+                        bid.getBuyer().getUserId(),
+                        bid.getBuyerAmount(),
                         bid.getBuyer().getFullName(),
                         bid.getBidTime(),
                         listing.getRemainingQuantity()
                 ))
                 .toList();
 
+
+        long totalBids = bidRepository.countTotalBidsBySellerId(listingId);
+
         long activeBidders = bidRepository.countActiveBidders(listingId);
 
         return new SellerListingDto(
                 listing.getListingId(),
                 listing.getCropName(),
+                listing.getVariety(),
                 listing.getGrade(),
                 listing.getQuantity(),
                 listing.getUnit(),
@@ -350,9 +370,11 @@ public class ListingServiceImpl implements ListingService {
                 listing.getMinimumBidIncrement(),
                 listing.getState(),
                 listing.getDistrict(),
+                totalBids,
+                activeBidders,
+                listing.getStatus(),
                 listing.getAuctionEndTime(),
                 currentHighestBid,
-                activeBidders,
                 top5Bids
         );
     }
@@ -368,7 +390,7 @@ public class ListingServiceImpl implements ListingService {
         Long activeListings = listingRepository.countBySellerUserIdAndStatus(sellerId, AuctionStatus.ACTIVE);
         Long pendingApprovals = listingRepository.countBySellerUserIdAndStatus(sellerId, AuctionStatus.PENDING);
         Long totalBidsReceived = bidRepository.countTotalBidsBySellerId(sellerId);
-        Long totalRevenue = bidRepository.sumAmountByListingSellerId(sellerId);
+        BigDecimal totalRevenue = bidRepository.sumAmountByListingSellerId(sellerId);
 
         return new DashboardDto(activeListings, pendingApprovals, totalBidsReceived, totalRevenue);
     }

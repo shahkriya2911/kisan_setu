@@ -86,7 +86,7 @@ public class ListingController {
     @GetMapping("/{listingId}/top-5")
     public ResponseEntity<SellerListingDto> getListingDetail(
             @PathVariable Long listingId) {
-        return ResponseEntity.ok(listingService.getListingTop5BidDetail(listingId));
+        return ResponseEntity.ok(listingService.getSellerListingDetail(listingId));
     }
 
     @GetMapping("/dashboard")
