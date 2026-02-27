@@ -11,10 +11,9 @@ public class NotificationMapper {
                 new NotificationResponseDto();
 
         dto.setNotificationId(n.getNotificationId());
-        dto.setTitle(n.getTitle());
         dto.setMessage(n.getMessage());
         dto.setIsRead(n.getIsRead());
-        dto.setCreatedTime(n.getCreatedTime());
+        dto.setCreatedTime(n.getCreatedAt());
 
         return dto;
     }

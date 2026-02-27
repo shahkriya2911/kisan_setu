@@ -25,11 +25,11 @@ public class NotificationController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<List<Notification>> getUserNotifications(
+    public List<Notification> getUserNotifications(
             @PathVariable Long userId) {
+        User user = new User();
+        user.setUserId(userId);
+        return notificationService.getBuyerNotifications(user);
 
-        return ResponseEntity.ok(
-                notificationService.getUserNotifications(userId)
-        );
     }
 }

@@ -2,11 +2,11 @@ package com.project.kisan_setu.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.project.kisan_setu.enums.PurchaseType;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,7 +28,7 @@ public class ListingResponseDto {
 
     // Pricing & Purchase Type
     private Double pricePerKg;
-    private Double totalBasePrice;
+    private BigDecimal totalBasePrice;
     private PurchaseType purchaseType;
     private String saleType;
 
@@ -40,7 +40,7 @@ public class ListingResponseDto {
     private Double remainingQuantity;
 
     // Auction fields
-    private Double minimumBidIncrement;
+    private BigDecimal minimumBidIncrement;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private LocalDateTime auctionEndTime;
 
@@ -56,4 +56,6 @@ public class ListingResponseDto {
     private List<ProductImageResponseDto> images;
     private QualityCertificateResponseDto certificate;
     private String description;
+
+
 }

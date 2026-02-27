@@ -22,19 +22,18 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void createNotification(Long userId, String message) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public void notifyBuyer(User buyer, String message) {
         Notification notification = new Notification();
-        notification.setUser(user);
-        notification.setTitle("Crop Created");
+        notification.setBuyer(buyer);
         notification.setMessage(message);
-
+        notification.setBuyer(buyer);
         notificationRepository.save(notification);
+        //print in console
+        System.out.println("Notification to"+buyer.getFullName()+" : "+message);
 
     }
-    @Override
-    public List<Notification> getUserNotifications(Long userId) {
-        return notificationRepository.findByUserUserId(userId);
+    public List<Notification> getBuyerNotifications(User buyer) {
+        return notificationRepository.findByBuyer(buyer);
     }
 }
+

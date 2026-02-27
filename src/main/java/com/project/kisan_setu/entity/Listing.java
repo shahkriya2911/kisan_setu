@@ -2,15 +2,18 @@ package com.project.kisan_setu.entity;
 
 import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
-import com.project.kisan_setu.enums.ListingStatus;
+import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.SaleType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -43,10 +46,10 @@ public class Listing {
 
     // Pricing & Purchase Type
     private Double pricePerKg;
-    private Double totalBasePrice;
+    private BigDecimal totalBasePrice;
     @Enumerated(EnumType.STRING)
     private SaleType saleType;
-    private Double minimumBidIncrement;
+    private BigDecimal minimumBidIncrement;
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -69,10 +72,12 @@ public class Listing {
 
     // Auction status
     @Enumerated(EnumType.STRING)
-    private ListingStatus status;
+    private AuctionStatus status;
 
     @Column(nullable = true)
     private String description;
+    private boolean oneDayNotified = false;
+    private boolean thirtyMinuteNotified = false;
 
     // Relationship with user
     @ManyToOne
@@ -96,6 +101,9 @@ public class Listing {
     // Relationship with buying requirements
     @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL)
     private List<BuyingRequirement> buyingRequirements = new ArrayList<>();
+
+
+
 
     // Optional winner
     // @ManyToOne

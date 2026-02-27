@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
-@Getter //getters
-@Setter //setters
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductImageListingDto {

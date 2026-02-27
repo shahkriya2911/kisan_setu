@@ -16,13 +16,12 @@ public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long notificationId;
-    private String title;
     private String message;
     private Boolean isRead = false;
-    private LocalDateTime createdTime;
+    private LocalDateTime createdAt = LocalDateTime.now();
     @ManyToOne
     @JoinColumn(name="user_id")
-    private User user;
+    private User buyer;
 
 
 }

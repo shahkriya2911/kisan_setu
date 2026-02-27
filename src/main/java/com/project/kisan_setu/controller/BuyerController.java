@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController //handling of rest apis
-@RequestMapping("/buyers") //api starts with /buyers
+@RestController
+@RequestMapping("/buyers")
 public class BuyerController {
 
     //constructor dependency injection
@@ -19,7 +19,7 @@ public class BuyerController {
         this.buyerService = buyerService;
     }
 
-    //create buying requirement
+
     @PostMapping("/requirements")
     public ResponseEntity<?> postRequirement(
             @RequestParam Long buyerId,

@@ -2,6 +2,7 @@ package com.project.kisan_setu.dto;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -20,7 +21,7 @@ public class OrderResponseDto {
 
     private Double pricePerKg;
 
-    private Double totalBasePrice;
+    private BigDecimal totalBasePrice;
 
     private LocalDateTime orderTime;
     private Double remainingQuantity;

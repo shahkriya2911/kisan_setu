@@ -9,8 +9,8 @@ public class BidHistoryMapper {
 
         BidHistoryDto dto = new BidHistoryDto();
         dto.setBuyerName(String.valueOf(bid.getBuyer()));
-        dto.setBidAmountPerKg(bid.getAmountPerKg());
-        dto.setTotalBidAmount(bid.getAmountPerKg());
+        dto.setBuyerAmountPerKg(bid.getAmountPerKg());
+        dto.setTotalbuyerAmount(bid.getAmountPerKg());
         dto.setBidTime(bid.getBidTime());
 
         return dto;
