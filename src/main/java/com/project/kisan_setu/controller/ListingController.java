@@ -6,11 +6,7 @@ import com.project.kisan_setu.dto.CreateListingRequest;
 import com.project.kisan_setu.dto.DashboardDto;
 import com.project.kisan_setu.dto.ListingResponseDto;
 import com.project.kisan_setu.dto.SellerListingDto;
-import com.project.kisan_setu.entity.Listing;
-import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.service.ListingService;
-import com.project.kisan_setu.service.impl.ListingServiceImpl;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,7 +107,5 @@ public class ListingController {
                         request.getLocation()
                 );
         return ResponseEntity.ok(response);
-
-
     }
 }

@@ -7,7 +7,7 @@ import com.project.kisan_setu.entity.Bid;
 import com.project.kisan_setu.entity.BidHistory;
 import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.entity.User;
-import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.enums.ListingStatus;
 import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.SaleType;
 import com.project.kisan_setu.exception.UserException;
@@ -18,6 +18,7 @@ import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -104,7 +105,7 @@ public class ListingServiceImpl implements ListingService {
         User seller = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         listing.setSeller(seller);
-        listing.setStatus(AuctionStatus.ACTIVE);
+        listing.setStatus(ListingStatus.ACTIVE);
         listing.setRemainingQuantity(pricingDto.getRemainingQuantity());
         // Total Base Price
         listing.setTotalBasePrice(pricingDto.getPricePerKg() * pricingDto.getQuantity());
@@ -355,18 +356,43 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public DashboardDto getSellerOverview() {
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
+
         User seller = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Long sellerId = seller.getUserId();
-        Long activeListings = listingRepository.countBySellerUserIdAndStatus(sellerId, AuctionStatus.ACTIVE);
-        Long pendingApprovals = listingRepository.countBySellerUserIdAndStatus(sellerId, AuctionStatus.PENDING);
-        Long totalBidsReceived = bidRepository.countTotalBidsBySellerId(sellerId);
-        Long totalRevenue = bidRepository.sumAmountByListingSellerId(sellerId);
 
-        return new DashboardDto(activeListings, pendingApprovals, totalBidsReceived, totalRevenue);
+        Long activeAuctions =
+                listingRepository.countBySellerUserIdAndSaleTypeAndStatus(
+                        sellerId,
+                        SaleType.AUCTION,
+                        ListingStatus.ACTIVE
+                );
+
+        Long pendingApprovals =
+                listingRepository.countBySellerUserIdAndStatus(
+                        sellerId,
+                        ListingStatus.PENDING
+                );
+
+        Long totalBidsReceived =
+                bidRepository.countTotalBidsBySellerId(sellerId);
+
+        Double totalRevenueAmount =
+                bidRepository.sumWinningRevenueBySellerId(sellerId);
+        Long totalRevenue = totalRevenueAmount == null
+                ? 0L
+                : Math.round(totalRevenueAmount);
+
+        return new DashboardDto(
+                activeAuctions,
+                pendingApprovals,
+                totalBidsReceived,
+                totalRevenue
+        );
     }
 
     @Override

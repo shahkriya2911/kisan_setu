@@ -2,7 +2,7 @@ package com.project.kisan_setu.entity;
 
 import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
-import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.enums.ListingStatus;
 import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.SaleType;
 import jakarta.persistence.*;
@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -70,7 +69,7 @@ public class Listing {
 
     // Auction status
     @Enumerated(EnumType.STRING)
-    private AuctionStatus status;
+    private ListingStatus status;
 
     @Column(nullable = true)
     private String description;
@@ -97,8 +96,6 @@ public class Listing {
     // Relationship with buying requirements
     @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL)
     private List<BuyingRequirement> buyingRequirements = new ArrayList<>();
-
-
 
     // Optional winner
     // @ManyToOne
