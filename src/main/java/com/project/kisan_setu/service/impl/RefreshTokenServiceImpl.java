@@ -26,7 +26,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         this.jwtUtil = jwtUtil;
     }
 
-    // ================= CREATE =================
+    //CREATE
     @Override
     public RefreshToken createRefreshToken(User user) {
 
@@ -39,7 +39,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         return refreshTokenRepository.save(token);
     }
 
-    // ================= REFRESH =================
+    //REFRESH
     @Override
     public LoginResponseDto refreshAccessToken(String requestToken) {
 
@@ -59,7 +59,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         User user = refreshToken.getUser();
 
-        // ROTATION (Security Best Practice)
+        // ROTATION
         refreshToken.setRevoked(true);
         refreshTokenRepository.save(refreshToken);
 

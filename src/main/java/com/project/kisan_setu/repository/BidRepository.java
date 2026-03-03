@@ -1,5 +1,4 @@
 package com.project.kisan_setu.repository;
-
 import com.project.kisan_setu.entity.Bid;
 import com.project.kisan_setu.entity.Listing;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,7 +17,7 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
 
     List<Bid> findTop5ByListingListingIdOrderByBuyerAmountDesc(Long listingId);
 
-    @Query("SELECT COUNT(DISTINCT b.buyer.id) FROM Bid b WHERE b.listing.listingId = :listingId")
+    @Query("SELECT COUNT(DISTINCT b.buyer.userId) FROM Bid b WHERE b.listing.listingId = :listingId")
     Long countActiveBidders(@Param("listingId") Long listingId);
 
     @Query("SELECT COUNT(b) FROM Bid b WHERE b.listing.seller.userId = :sellerId")
@@ -28,4 +27,7 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
     BigDecimal sumAmountByListingSellerId(@Param("sellerId") Long sellerId);
 
     List<Bid> findByListing(Listing listing);
+
+    @Query("SELECT COALESCE(AVG(b.buyerAmount), 0) FROM Bid b WHERE b.listing.cropName = :cropName")
+    Double getAveragePriceByCrop(@Param("cropName") String cropName);
 }

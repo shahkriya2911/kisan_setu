@@ -2,7 +2,7 @@ package com.project.kisan_setu.specification;
 
 import com.project.kisan_setu.dto.MarketFilterRequestDto;
 import com.project.kisan_setu.entity.Listing;
-import com.project.kisan_setu.enums.ListingStatus;
+import com.project.kisan_setu.enums.AuctionStatus;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -17,7 +17,7 @@ public class ListingSpecification {
 
             List<Predicate> predicates = new ArrayList<>();
 
-            predicates.add(cb.equal(root.get("status"), ListingStatus.ACTIVE));
+            predicates.add(cb.equal(root.get("status"), AuctionStatus.ACTIVE));
 
             if (filter.getCropType() != null) {
                 predicates.add(cb.equal(root.get("cropName"), filter.getCropType()));

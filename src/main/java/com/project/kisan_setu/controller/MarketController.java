@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/market")
+@RequestMapping("api/market")
 @RequiredArgsConstructor
 public class MarketController {
 
@@ -25,7 +25,7 @@ public class MarketController {
     @GetMapping("/listings")
     public ResponseEntity<Page<MarketListingResponseDto>> getListings(
             MarketFilterRequestDto filter,
-            @PageableDefault(size = 6, sort = "auctionEndDate") Pageable pageable) {
+            @PageableDefault(size = 6, sort = "auctionEndTime") Pageable pageable) {
 
         return ResponseEntity.ok(
                 marketService.getLiveListings(filter, pageable)

@@ -5,7 +5,7 @@ import com.project.kisan_setu.dto.MarketInsightDto;
 import com.project.kisan_setu.dto.MarketListingResponseDto;
 import com.project.kisan_setu.entity.Bid;
 import com.project.kisan_setu.entity.Listing;
-import com.project.kisan_setu.enums.ListingStatus;
+import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.SaleType;
 import com.project.kisan_setu.mapper.MarketMapper;
 import com.project.kisan_setu.repository.BidRepository;
@@ -17,6 +17,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -37,12 +39,12 @@ public class MarketServiceImpl implements MarketService {
 
         return listings.map(listing -> {
 
-            Double highestBid = null;
+            BigDecimal highestBid = null;
 
             if (listing.getSaleType() == SaleType.AUCTION) {
                 highestBid = bidRepository
-                        .findTopByListingListingIdOrderByBidAmountDesc(listing.getListingId())
-                        .map(Bid::getBidAmount)
+                        .findTopByListingListingIdOrderByBuyerAmountDesc(listing.getListingId())
+                        .map(Bid::getBuyerAmount)
                         .orElse(listing.getTotalBasePrice());
             }
 
@@ -54,9 +56,9 @@ public class MarketServiceImpl implements MarketService {
     public MarketInsightDto getMarketInsights() {
 
         Double avgWheat = bidRepository.getAveragePriceByCrop("Wheat");
-        Long liveAuctions = listingRepository.countLiveAuctions(
+        Long liveAuctions = listingRepository.countBySaleTypeAndStatus(
                 SaleType.AUCTION,
-                ListingStatus.ACTIVE
+                AuctionStatus.ACTIVE
         );
         return new MarketInsightDto(
                 avgWheat,

@@ -4,10 +4,12 @@ import com.project.kisan_setu.dto.MarketListingResponseDto;
 import com.project.kisan_setu.entity.Listing;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Component
 public class MarketMapper {
 
-    public MarketListingResponseDto toDto(Listing listing, Double highestBid) {
+    public MarketListingResponseDto toDto(Listing listing, BigDecimal highestBid) {
 
         return new MarketListingResponseDto(
                 listing.getListingId(),
@@ -15,7 +17,7 @@ public class MarketMapper {
                 listing.getQuantity(),
                 listing.getUnit(),
                 listing.getSaleType(),
-                listing.getTotalBasePrice() * listing.getQuantity(),
+                listing.getTotalBasePrice().multiply(listing.getQuantity()),
                 listing.getTotalBasePrice(),
                 listing.getDistrict(),
                 listing.getState(),

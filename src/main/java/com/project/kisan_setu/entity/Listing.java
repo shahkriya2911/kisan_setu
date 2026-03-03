@@ -89,9 +89,19 @@ public class Listing {
     @JoinColumn(name = "seller_id")
     private User seller;
 
-    // images
+    // Store images in separate relational columns (one row per image)
     @ElementCollection
-    @CollectionTable(name = "listing_images", joinColumns = @JoinColumn(name = "listing_id"))
+    @CollectionTable(
+            name = "listing_images",
+            joinColumns = @JoinColumn(name = "listing_id")
+    )
+    @AttributeOverrides({
+            @AttributeOverride(name = "fileName", column = @Column(name = "file_name")),
+            @AttributeOverride(name = "filePath", column = @Column(name = "file_path")),
+            @AttributeOverride(name = "fileType", column = @Column(name = "file_type")),
+            @AttributeOverride(name = "issuedDate", column = @Column(name = "issued_date")),
+            @AttributeOverride(name = "isPrimary", column = @Column(name = "is_primary"))
+    })
     private List<ListingImage> images = new ArrayList<>();
 
     //quality certificate info
