@@ -107,7 +107,7 @@ public class ListingMapper {
         listing.setPricePerKg(pricingDto.getPricePerKg());
         listing.setTotalBasePrice(pricingDto.getTotalBasePrice());
         listing.setPurchaseType(pricingDto.getPurchaseType());
-        listing.setMinimumBidIncrement(BigDecimal.valueOf(pricingDto.getMinimumBidIncrement()));
+        listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
         listing.setSaleType(pricingDto.getSaleType());
         listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
         listing.setRemainingQuantity(pricingDto.getRemainingQuantity());
@@ -155,7 +155,7 @@ public class ListingMapper {
         listing.setMoqPricePerKg(pricingDto.getMoqPricePerKg());
         listing.setPricePerKg(pricingDto.getPricePerKg());
         listing.setTotalBasePrice(pricingDto.getTotalBasePrice());
-        listing.setMinimumBidIncrement(BigDecimal.valueOf(pricingDto.getMinimumBidIncrement()));
+        listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
         listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
         listing.setSaleType(pricingDto.getSaleType());
 

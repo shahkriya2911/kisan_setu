@@ -17,9 +17,10 @@ public class BuyerListingResponseDto {
     private Long listingId;
     private String cropName;
     private String grade;
-    private Double basePrice;
+    private BigDecimal basePrice;
     private BigDecimal currentHighestBid;
     private String district;
     private LocalDateTime auctionEndTime;
+
 
 }

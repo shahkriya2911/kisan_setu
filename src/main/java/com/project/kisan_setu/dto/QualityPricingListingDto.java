@@ -22,23 +22,23 @@ public class QualityPricingListingDto {
 
     //quality and pricing info
     @NotNull(message = "quantity is required")
-    private Integer quantity;
+    private BigDecimal quantity;
     @NotNull(message = "unit is required")
     private String unit;
     @NotNull(message = "price per kg is required")
-    private Double pricePerKg;
+    private BigDecimal pricePerKg;
     @NotNull(message = "total base price is required")
     private BigDecimal totalBasePrice;
     @Enumerated(EnumType.STRING)
     private PurchaseType purchaseType;
     @NotNull(message = "minimum bid increment is required")
-    private Double minimumBidIncrement;
+    private BigDecimal minimumBidIncrement;
     @NotNull(message = "sale type is required")
     @NotNull(message = "minimum order quantity is required")
-    private Integer minimumOrderQuantity;
+    private BigDecimal minimumOrderQuantity;
     @NotNull(message = "moq price per kg is required")
-    private Double moqPricePerKg;
-    private Double remainingQuantity;
+    private BigDecimal moqPricePerKg;
+    private BigDecimal remainingQuantity;
     @Enumerated(EnumType.STRING)
     private SaleType saleType;  // FIXED or AUCTION
     @NotNull

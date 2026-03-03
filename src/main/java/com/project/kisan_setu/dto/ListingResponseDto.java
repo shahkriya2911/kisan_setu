@@ -23,21 +23,21 @@ public class ListingResponseDto {
     private String variety;
     private String grade;
     private LocalDate harvestDate;
-    private Integer quantity;
+    private BigDecimal quantity;
     private String unit;
 
     // Pricing & Purchase Type
-    private Double pricePerKg;
+    private BigDecimal pricePerKg;
     private BigDecimal totalBasePrice;
     private PurchaseType purchaseType;
     private String saleType;
 
     // Partial Orders fields
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Integer minimumOrderQuantity;
+    private BigDecimal minimumOrderQuantity;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Double moqPricePerKg;
-    private Double remainingQuantity;
+    private BigDecimal moqPricePerKg;
+    private BigDecimal remainingQuantity;
 
     // Auction fields
     private BigDecimal minimumBidIncrement;
@@ -56,6 +56,8 @@ public class ListingResponseDto {
     private List<ProductImageResponseDto> images;
     private QualityCertificateResponseDto certificate;
     private String description;
+    private List<InquiryResponseDto> buyerInquiries;
+
 
 
 }

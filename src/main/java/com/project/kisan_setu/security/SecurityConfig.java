@@ -1,6 +1,5 @@
 package com.project.kisan_setu.security;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,12 +11,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
-@RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
-    private final CorsConfigurationSource corsConfigurationSource;
+    private final CorsConfigurationSource corsConfigurationSource; // Injected bean
+
+    public SecurityConfig(JwtAuthenticationFilter jwtFilter,
+                          CorsConfigurationSource corsConfigurationSource) {
+        this.jwtFilter = jwtFilter;
+        this.corsConfigurationSource = corsConfigurationSource;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -29,12 +33,15 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource)) // ✅ use injected bean
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/users/signup",
-                                "/users/login"
-                        ).permitAll()
+                                "api/users/signup",
+                                "api/users/login",
+                                "api/schemes/**",
+                                "api/users/**"
+                        )
+                        .permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

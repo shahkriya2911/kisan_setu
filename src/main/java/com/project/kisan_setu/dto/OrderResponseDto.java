@@ -17,12 +17,12 @@ public class OrderResponseDto {
 
     private String cropName;
 
-    private Integer quantity;
+    private BigDecimal quantity;
 
-    private Double pricePerKg;
+    private BigDecimal pricePerKg;
 
     private BigDecimal totalBasePrice;
 
     private LocalDateTime orderTime;
-    private Double remainingQuantity;
+    private BigDecimal remainingQuantity;
 }

@@ -1,5 +1,7 @@
 package com.project.kisan_setu.dto;
 import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.enums.PurchaseType;
+import com.project.kisan_setu.enums.SaleType;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -15,7 +17,8 @@ public class SellerListingDto {
     private String cropName;
     private String variety;
     private String grade;
-    private Integer quantity;
+    private BigDecimal quantity;
+    private BigDecimal pricePerKg;
     private String unit;
 
     private BigDecimal totalBasePrice;
@@ -31,6 +34,10 @@ public class SellerListingDto {
     private LocalDateTime auctionEndTime;
 
     private BigDecimal currentHighestBid;
+    private PurchaseType purchaseType;
+    private SaleType saleType;
+    private LocalDateTime postedOn;
 
     private List<BidResponseDto> top5Bids;
+    private Long totalInquires;
 }

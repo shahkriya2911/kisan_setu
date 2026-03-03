@@ -19,7 +19,7 @@ public class BidResponseDto {
     private BigDecimal buyerAmount;
     private String buyerName;
     private LocalDateTime bidTime;
-    private Double remainingQuantity;
+    private BigDecimal remainingQuantity;
 
 
 

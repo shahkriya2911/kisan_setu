@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -17,7 +18,7 @@ public class BuyingRequirementResponseDto {
     //buying requirement response info
     private Long id;
     private String cropType;
-    private Double quantityRequired;
+    private BigDecimal quantityRequired;
     private String deliveryLocation;
     private LocalDate deadline;
 }

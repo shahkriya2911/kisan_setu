@@ -9,9 +9,12 @@ public class AuctionMapper {
 
     public static AuctionInfoDto todto(Listing listing){
         AuctionInfoDto dto = new AuctionInfoDto();
-        dto.setBasePricePerKg(BigDecimal.valueOf(listing.getPricePerKg()));
+        dto.setBasePricePerKg(listing.getPricePerKg());
         dto.setMinBidIncrement(listing.getMinimumBidIncrement());
-        dto.setTotalLotValue(BigDecimal.valueOf(listing.getPricePerKg() * listing.getQuantity()));
+        dto.setTotalLotValue(
+                listing.getPricePerKg()
+                        .multiply(listing.getQuantity())
+        );
 
         return dto;
     }
