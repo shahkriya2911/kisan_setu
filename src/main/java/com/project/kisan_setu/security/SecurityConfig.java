@@ -36,11 +36,10 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource)) // ✅ use injected bean
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/users/signup",
-                                "/users/login",
-                                "/listings/**",
-                                "/schemes/**",
-                                "/users/**"
+                                "api/users/signup",
+                                "api/users/login",
+                                "api/schemes/**",
+                                "api/users/**"
                         )
                         .permitAll()
                         .anyRequest().authenticated()

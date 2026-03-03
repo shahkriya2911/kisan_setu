@@ -11,8 +11,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class PlaceBidRequestDto {
         //FIXED
-    private Integer quantity;
-    private Double pricePerKg;
+    private BigDecimal quantity;
+    private BigDecimal pricePerKg;
     private BigDecimal totalBasePrice;
     private BigDecimal buyerAmount;
 

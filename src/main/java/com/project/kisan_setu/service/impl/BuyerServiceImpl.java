@@ -2,11 +2,14 @@ package com.project.kisan_setu.service.impl;
 
 import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.*;
+import com.project.kisan_setu.enums.InquiryStatus;
 import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.SaleType;
 import com.project.kisan_setu.mapper.BuyingRequirementMapper;
 import com.project.kisan_setu.repository.*;
 import com.project.kisan_setu.service.BuyerService;
+import com.project.kisan_setu.util.ValidatorMethods;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class BuyerServiceImpl implements BuyerService {
 
     private final BuyingRequirementRepository requirementRepository;
@@ -23,18 +27,9 @@ public class BuyerServiceImpl implements BuyerService {
     private final BidRepository bidRepository;
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final ValidatorMethods validatorMethods;
+    private final BuyerInquiryRepository buyerInquiryRepository;
 
-    public BuyerServiceImpl(
-            BuyingRequirementRepository requirementRepository,
-            ListingRepository listingRepository,
-            BidRepository bidRepository,
-            UserRepository userRepository, OrderRepository orderRepository) {
-        this.requirementRepository = requirementRepository;
-        this.listingRepository = listingRepository;
-        this.bidRepository = bidRepository;
-        this.userRepository = userRepository;
-        this.orderRepository = orderRepository;
-    }
 
     // Post Requirement
     @Override
@@ -44,12 +39,9 @@ public class BuyerServiceImpl implements BuyerService {
 
         User buyer = userRepository.findById(buyerId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
         BuyingRequirement br =
                 BuyingRequirementMapper.toEntity(dto, buyer);
-
         requirementRepository.save(br);
-
         return BuyingRequirementMapper.toDto(br);
     }
 
@@ -65,13 +57,13 @@ public class BuyerServiceImpl implements BuyerService {
                             .findTopByListingListingIdOrderByBuyerAmountDesc(
                                     listing.getListingId())
                             .map(Bid::getBuyerAmount)
-                            .orElse(BigDecimal.valueOf(listing.getPricePerKg()));
+                            .orElse(listing.getPricePerKg());
 
                     return new BuyerListingResponseDto(
                             listing.getListingId(),
                             listing.getCropName(),
                             listing.getGrade(),
-                            listing.getPricePerKg(),
+                            listing.getTotalBasePrice(),
                             currentHighest,
                             listing.getDistrict(),
                             listing.getAuctionEndTime()
@@ -83,34 +75,23 @@ public class BuyerServiceImpl implements BuyerService {
     // Place Bid
 
     @Override
-    public Object placeBid(Long listingId,
-                           PlaceBidRequestDto dto) {
+    public Object placeBid(Long listingId, PlaceBidRequestDto dto) {
 
-        Listing listing = listingRepository.findById(listingId)
-                .orElseThrow(() -> new RuntimeException("Listing not found"));
+        Listing listing = validatorMethods.validateExists(listingId);
+        String email = validatorMethods.getCurrentUserEmail();
+        User buyer = validatorMethods.validateUserByEmail(email);
 
-        Authentication auth = SecurityContextHolder
-                .getContext()
-                .getAuthentication();
-
-        String email = auth.getName();
-
-        User buyer = userRepository
-                .findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
+        // Initialize remaining quantity if null
         if (listing.getRemainingQuantity() == null) {
-            listing.setRemainingQuantity(Double.valueOf(listing.getQuantity()));
+            listing.setRemainingQuantity(listing.getQuantity());
             listingRepository.save(listing);
         }
 
-        // SELLER CANNOT BUY OWN LISTING
-        if (listing.getSeller().getUserId()
-                .equals(buyer.getUserId())) {
+        // Seller cannot buy own listing
+        if (listing.getSeller().getUserId().equals(buyer.getUserId())) {
             throw new RuntimeException("Seller cannot buy own listing");
         }
 
-        //FIXED PRICE LOGIC
 
         if (listing.getSaleType() == SaleType.FIXED) {
 
@@ -118,29 +99,27 @@ public class BuyerServiceImpl implements BuyerService {
                 throw new RuntimeException("Quantity required");
             }
 
-            if (listing.getRemainingQuantity() <= 0) {
+            if (listing.getRemainingQuantity().compareTo(BigDecimal.ZERO) <= 0) {
                 throw new RuntimeException("Listing sold out");
             }
 
-            if (listing.getRemainingQuantity() < dto.getQuantity()) {
+            if (listing.getRemainingQuantity().compareTo(dto.getQuantity()) < 0) {
                 throw new RuntimeException("Not enough quantity available");
             }
-            //WHOLE LOT
-            if (listing.getPurchaseType() == PurchaseType.WHOLE_LOT_ONLY) {
 
-                if (dto.getQuantity().doubleValue() != listing.getRemainingQuantity()) {
+            // WHOLE LOT
+            if (listing.getPurchaseType() == PurchaseType.WHOLE_LOT_ONLY) {
+                if (dto.getQuantity().compareTo(listing.getRemainingQuantity()) != 0) {
                     throw new RuntimeException(
                             "You must buy full quantity: " + listing.getRemainingQuantity()
                     );
                 }
-
             }
 
-            //PARTIAL ORDER
-
+            // PARTIAL ORDER
             if (listing.getPurchaseType() == PurchaseType.PARTIAL_ORDER_ALLOWS) {
-
-                if (dto.getQuantity() < listing.getMinimumOrderQuantity()) {
+                if (dto.getQuantity()
+                        .compareTo(listing.getMinimumOrderQuantity()) < 0) {
 
                     throw new RuntimeException(
                             "Minimum order quantity is "
@@ -149,85 +128,83 @@ public class BuyerServiceImpl implements BuyerService {
             }
 
             // PRICE SELECTION
-
-            Double pricePerKg;
+            BigDecimal pricePerKg;
 
             if (listing.getPurchaseType() == PurchaseType.PARTIAL_ORDER_ALLOWS &&
-                    dto.getQuantity() < listing.getRemainingQuantity()) {
+                    dto.getQuantity().compareTo(listing.getRemainingQuantity()) < 0) {
 
                 pricePerKg = listing.getMoqPricePerKg();
             } else {
                 pricePerKg = listing.getPricePerKg();
             }
 
-            Double totalBasePrice = pricePerKg * dto.getQuantity();
+            BigDecimal totalBasePrice =
+                    pricePerKg.multiply(dto.getQuantity());
+
             listing.setRemainingQuantity(
-                    listing.getRemainingQuantity() - dto.getQuantity()
+                    listing.getRemainingQuantity()
+                            .subtract(dto.getQuantity())
             );
-
-
-            //SAVE ORDER
-            Order order = new Order();
-            order.setBuyer(buyer);
-            order.setListing(listing);
-            order.setQuantity(dto.getQuantity());
-            order.setPricePerKg(pricePerKg);
-            order.setTotalBasePrice(BigDecimal.valueOf(totalBasePrice));
-            order.setOrderTime(LocalDateTime.now());
-
-            orderRepository.save(order);
-
-            // UPDATE REMAINING QUANTITY
 
             listingRepository.save(listing);
 
-            return new OrderResponseDto(
-                    order.getOrderId(),
-                    buyer.getFullName(),
-                    listing.getCropName(),
-                    order.getQuantity(),
-                    order.getPricePerKg(),
-                    order.getTotalBasePrice(),
-                    order.getOrderTime(),
-                    order.getListing().getRemainingQuantity()
+            BuyerInquiry inquiry = new BuyerInquiry();
+            inquiry.setBuyer(buyer);
+            inquiry.setListing(listing);
+            inquiry.setQuantityRequested(dto.getQuantity());
+            inquiry.setPricePerKg(pricePerKg);
+            inquiry.setStatus(InquiryStatus.PENDING);
+            inquiry.setInquiryTime(LocalDateTime.now());
+
+            buyerInquiryRepository.save(inquiry);
+
+            return new InquiryResponseDto(
+                    inquiry.getInquiryId(),
+                    listing.getListingId(),
+                    inquiry.getQuantityRequested(),
+                    inquiry.getPricePerKg(),
+                    inquiry.getInquiryTime(),
+                    inquiry.getListing().getRemainingQuantity(),
+                    inquiry.getStatus()
             );
         }
 
-       // Must be auction
         if (listing.getSaleType() != SaleType.AUCTION) {
             throw new RuntimeException("Invalid sale type");
         }
 
-       // Auction time check
+        if (listing.getAuctionEndTime() == null) {
+            throw new RuntimeException("Auction end time not set");
+        }
+
         if (LocalDateTime.now().isAfter(listing.getAuctionEndTime())) {
             throw new RuntimeException("Auction Time Ended");
         }
 
-        // Seller cannot bid
-        if (listing.getSeller().getUserId().equals(buyer.getUserId())) {
-            throw new RuntimeException("Seller cannot bid on own listing");
-        }
-
-
-         // PARTIAL ORDER (FIXED PRICE)
-
+        // PARTIAL ORDER AUCTION
         if (listing.getPurchaseType() == PurchaseType.PARTIAL_ORDER_ALLOWS) {
 
-            if (dto.getQuantity() < listing.getMinimumOrderQuantity()) {
+            if (dto.getQuantity()
+                    .compareTo(listing.getMinimumOrderQuantity()) < 0) {
+
                 throw new RuntimeException(
-                        "Minimum order quantity is " + listing.getMinimumOrderQuantity()
-                );
+                        "Minimum order quantity is "
+                                + listing.getMinimumOrderQuantity());
             }
 
-            if (dto.getQuantity() > listing.getRemainingQuantity()) {
+            if (dto.getQuantity()
+                    .compareTo(listing.getRemainingQuantity()) > 0) {
+
                 throw new RuntimeException("Quantity exceeds available stock");
             }
 
-           BigDecimal totalPrice =
-                   BigDecimal.valueOf(listing.getMoqPricePerKg() * dto.getQuantity());
+            BigDecimal totalPrice =
+                    listing.getMoqPricePerKg()
+                            .multiply(dto.getQuantity());
 
             listing.setRemainingQuantity(
-                    listing.getRemainingQuantity() - dto.getQuantity()
+                    listing.getRemainingQuantity()
+                            .subtract(dto.getQuantity())
             );
 
             listingRepository.save(listing);
@@ -242,18 +219,27 @@ public class BuyerServiceImpl implements BuyerService {
         }
 
         // WHOLE LOT AUCTION
+        if (listing.getPurchaseType() == PurchaseType.WHOLE_LOT_ONLY) {
 
-        else if (listing.getPurchaseType() == PurchaseType.WHOLE_LOT_ONLY) {
+            BigDecimal basePrice =
+                    listing.getPricePerKg()
+                            .multiply(listing.getQuantity());
 
             BigDecimal currentHighest = bidRepository
                     .findTopByListingListingIdOrderByBuyerAmountDesc(listingId)
                     .map(Bid::getBuyerAmount)
-                    .orElse(BigDecimal.valueOf(listing.getPricePerKg() * listing.getQuantity()));
+                    .orElse(basePrice);
+
+            if (listing.getMinimumBidIncrement() == null) {
+                throw new RuntimeException("Minimum bid increment not set");
+            }
 
             BigDecimal expectedNextBid =
                     currentHighest.add(listing.getMinimumBidIncrement());
 
-            if (dto.getBuyerAmount().compareTo(expectedNextBid) != 0) {
+            if (dto.getBuyerAmount()
+                    .compareTo(expectedNextBid) != 0) {
+
                 throw new RuntimeException(
                         "Bid must be exactly last bid + minimum increment: "
                                 + expectedNextBid
@@ -277,9 +263,8 @@ public class BuyerServiceImpl implements BuyerService {
             );
         }
 
-        else {
-            throw new RuntimeException("Invalid purchase type");
-        }}
+        throw new RuntimeException("Invalid purchase type");
+    }
 
 
         @Override

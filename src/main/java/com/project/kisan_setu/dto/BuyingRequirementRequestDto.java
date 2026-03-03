@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -20,7 +21,7 @@ public class BuyingRequirementRequestDto {
     @NotBlank(message = "crop type is required")
     private String cropType;
     @NotNull(message = "required quantity is needed")
-    private Double quantityRequired;
+    private BigDecimal quantityRequired;
     @NotBlank(message = "unit is required")
     private String unit;
     @NotNull(message = "minimum price is required")

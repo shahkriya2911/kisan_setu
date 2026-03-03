@@ -40,28 +40,33 @@ public class Listing {
     private PurchaseType purchaseType; // Whole Lot Only / Partial Orders Allowed
 
     // Quantity
-    private Integer quantity;
-    private Double remainingQuantity;
+    private BigDecimal quantity;
+    private BigDecimal remainingQuantity;
     private String unit;
 
     // Pricing & Purchase Type
-    private Double pricePerKg;
+    private BigDecimal pricePerKg;
     private BigDecimal totalBasePrice;
     @Enumerated(EnumType.STRING)
     private SaleType saleType;
     private BigDecimal minimumBidIncrement;
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+    private LocalDateTime postedOn;
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
+        if(createdAt == null){
+        this.createdAt = LocalDateTime.now();}
+        if(postedOn == null){
+            this.postedOn = LocalDateTime.now();
+        }
     }
     private LocalDateTime auctionEndTime;
 
     // Partial order
-    private Integer minimumOrderQuantity;
-    private Double moqPricePerKg;
+    private BigDecimal minimumOrderQuantity;
+    private BigDecimal moqPricePerKg;
 
 
     private String state;

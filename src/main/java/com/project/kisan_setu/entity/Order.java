@@ -31,11 +31,13 @@ public class Order {
     @JoinColumn(name="listing_id")
     private Listing listing;
 
-    private Integer quantity;
+    private BigDecimal quantity;
 
-    private Double pricePerKg;
+    private BigDecimal pricePerKg;
 
     private BigDecimal totalBasePrice;
 
     private LocalDateTime orderTime;
+
+
 }

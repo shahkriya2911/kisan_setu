@@ -14,7 +14,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/schemes")
+@RequestMapping("api/schemes")
 @RequiredArgsConstructor
 public class SchemeController {
 

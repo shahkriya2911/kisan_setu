@@ -6,11 +6,11 @@ import com.project.kisan_setu.dto.CreateListingRequest;
 import com.project.kisan_setu.dto.DashboardDto;
 import com.project.kisan_setu.dto.ListingResponseDto;
 import com.project.kisan_setu.dto.SellerListingDto;
-import com.project.kisan_setu.entity.Listing;
-import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.service.ListingService;
-import com.project.kisan_setu.service.impl.ListingServiceImpl;
-import jakarta.validation.Valid;
+import com.project.kisan_setu.service.UserService;
+import com.project.kisan_setu.util.ValidatorMethods;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +22,16 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/listings")
+@RequestMapping("api/listings")
+@RequiredArgsConstructor
 public class ListingController {
 
     private final ListingService listingService;
+    private final UserService userService;
+    private final ValidatorMethods validatorMethods;
     private static final Logger logger = LoggerFactory.getLogger(ListingController.class);
 
-    public ListingController(ListingService listingService) {
-        this.listingService = listingService;
-    }
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -43,6 +44,7 @@ public class ListingController {
     ) throws JsonProcessingException {
 
         CreateListingRequest request = objectMapper.readValue(requestJson, CreateListingRequest.class);
+        String seller = validatorMethods.getCurrentUserEmail();
 
         return ResponseEntity.ok(listingService.createListing(request, imageFiles, certificateFile));
     }
@@ -67,10 +69,11 @@ public class ListingController {
         return ResponseEntity.ok(listingService.getListingById(id));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteListing(@PathVariable Long id) {
-        listingService.deleteListing(id);
+    @DeleteMapping("/{listingId}")
+    public ResponseEntity<String> deleteListing(@PathVariable Long listingId,@RequestParam Long sellerId) {
+        listingService.deleteListing(listingId,sellerId);
         return ResponseEntity.ok("Listing Deleted Successfully");
+
     }
 
 //    @PostMapping("/preview")
@@ -86,6 +89,7 @@ public class ListingController {
     @GetMapping("/{listingId}/top-5")
     public ResponseEntity<SellerListingDto> getListingDetail(
             @PathVariable Long listingId) {
+        String seller = validatorMethods.getCurrentUserEmail();
         return ResponseEntity.ok(listingService.getSellerListingDetail(listingId));
     }
 
@@ -106,7 +110,20 @@ public class ListingController {
                         request.getLocation()
                 );
         return ResponseEntity.ok(response);
+    }
 
+    @PutMapping("/seller/{listingId}/mark-sold")
+    public ResponseEntity<String> markAsSold(
+            @PathVariable Long listingId,
+            @RequestParam Long sellerId) {
+        listingService.markAsSold(listingId, sellerId);
+        return ResponseEntity.ok("Listing marked as SOLD successfully");
+    }
+
+    @PutMapping("/{listingId},extends")
+    public ResponseEntity<String> extendAuctionTime(@PathVariable Long listingId,@RequestParam Long sellerId,@RequestParam int minutes){
+        listingService.extendAuctionTime(listingId,sellerId,minutes);
+        return ResponseEntity.ok("Auction time extended successfully");
 
     }
 }

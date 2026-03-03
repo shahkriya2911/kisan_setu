@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -23,7 +24,7 @@ public class BuyingRequirement {
 
     //buying requirement info
     private String cropType;
-    private Double quantityRequired;
+    private BigDecimal quantityRequired;
     private String unit;
     private Double minPrice;
     private Double maxPrice;

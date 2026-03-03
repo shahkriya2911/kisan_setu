@@ -19,17 +19,12 @@ public class JwtUtil {
 
     @Value("${jwt.refresh.expiration}")
     private long refreshExpiration;
-
-    // ========================
     // SIGNING KEY
-    // ========================
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    // ========================
     // ACCESS TOKEN
-    // ========================
     public String generateAccessToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
@@ -39,10 +34,7 @@ public class JwtUtil {
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
-
-    // ========================
     // REFRESH TOKEN
-    // ========================
     public String generateRefreshToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
@@ -53,16 +45,10 @@ public class JwtUtil {
                 .compact();
     }
 
-    // ========================
-    // EXTRACT EMAIL
-    // ========================
     public String extractEmail(String token) {
         return extractAllClaims(token).getSubject();
     }
 
-    // ========================
-    // VALIDATE ACCESS TOKEN
-    // ========================
     public boolean validateAccessToken(String token, String email) {
         final Claims claims = extractAllClaims(token);
 
@@ -71,9 +57,6 @@ public class JwtUtil {
                 && "ACCESS".equals(claims.get("type"));
     }
 
-    // ========================
-    // VALIDATE REFRESH TOKEN
-    // ========================
     public boolean validateRefreshToken(String token) {
         final Claims claims = extractAllClaims(token);
 
@@ -81,9 +64,6 @@ public class JwtUtil {
                 && "REFRESH".equals(claims.get("type"));
     }
 
-    // ========================
-    // CHECK EXPIRATION
-    // ========================
     public boolean isTokenExpired(String token) {
         try {
             return extractAllClaims(token)
@@ -94,9 +74,6 @@ public class JwtUtil {
         }
     }
 
-    // ========================
-    // SAFE CLAIM EXTRACTION
-    // ========================
     private Claims extractAllClaims(String token) {
         try {
             return Jwts.parserBuilder()

@@ -14,7 +14,7 @@ public interface ListingService {
     ListingResponseDto updateListing(Long listingId, CreateListingRequest request, List<MultipartFile> imageFiles, MultipartFile certificateFile);
     List<ListingResponseDto> getAllListings();
     ListingResponseDto getListingById(Long id);
-    void deleteListing(Long id);
+    void deleteListing(Long listingId,Long sellerId);
 
 //    public ListingResponseDto previewListing(CreateListingRequest request);
 
@@ -27,4 +27,7 @@ public interface ListingService {
             ProductListingDto productDto,
             QualityPricingListingDto pricingDto,
             QualityLocationListingDto locationDto);
+    void markAsSold(Long listingId,Long userId);
+    void extendAuctionTime(Long listingId,Long sellerId,int minutes);
+
 }
