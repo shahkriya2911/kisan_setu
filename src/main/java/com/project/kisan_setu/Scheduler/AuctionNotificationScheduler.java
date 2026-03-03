@@ -35,6 +35,15 @@ public class AuctionNotificationScheduler {
                 listingRepository.findByStatus(AuctionStatus.ACTIVE);
 
         for (Listing listing : activeListings) {
+            if (listing.getAuctionEndTime() == null) {
+                continue;
+            }
+            if (listing.getAuctionEndTime().isBefore(now)) {
+                listing.setStatus(AuctionStatus.CLOSED);
+                listingRepository.save(listing);
+                continue;
+            }
+            Duration duration = Duration.between(now, listing.getAuctionEndTime());
 
             long minutesLeft =
                     Duration.between(now, listing.getAuctionEndTime()).toMinutes();
