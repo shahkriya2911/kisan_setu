@@ -28,5 +28,7 @@ public class CreateListingRequest {
     // Optional
     @Valid
     private QualityCertificateListingDto certificate;
-    private String description; // ✅ Add this line
+
+    @Valid
+    private String description; //
 }

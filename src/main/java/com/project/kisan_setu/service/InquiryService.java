@@ -8,8 +8,8 @@ import com.project.kisan_setu.enums.InquiryStatus;
 import java.util.List;
 
 public interface InquiryService {
-    InquiryResponseDto createInquiry(InquiryRequestDto request, String email);
-    List<InquiryResponseDto> getSellerInquiries(String email);
+    InquiryResponseDto createInquiry(InquiryRequestDto request, Long userId);
+    List<InquiryResponseDto> getSellerInquiries(Long userId);
 
 
 }

@@ -24,18 +24,18 @@ public class ValidatorMethods {
                         new ResourceNotFoundException("Listing not found"));
     }
 
-    public String getCurrentUserEmail() {
+    public Long getCurrentUserId() {
         Authentication auth = SecurityContextHolder
                 .getContext()
                 .getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
             throw new RuntimeException("User not authenticated");
         }
-        return auth.getName();
+        return Long.parseLong(auth.getName());
     }
 
-    public User validateUserByEmail(String email){
-        return userRepository.findByEmail(email).orElseThrow(()->new ResourceNotFoundException("User Not Found"));
+    public User validateUserById(Long userId){
+        return userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("User Not Found"));
     }
     public void checkStatus(Listing listing, AuctionStatus requiredStatus){
         if(listing.getStatus() != requiredStatus){

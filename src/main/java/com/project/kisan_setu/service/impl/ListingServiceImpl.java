@@ -16,6 +16,10 @@ import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -84,9 +88,11 @@ public class ListingServiceImpl implements ListingService {
             certificate.setFileType(certificateFile.getContentType());
         }
 
-        Listing listing = ListingMapper.toEntity(productDto, pricingDto, locationDto, images, certificate);
-        String email = validatorMethods.getCurrentUserEmail();
-        User seller =  validatorMethods.validateUserByEmail(email);
+        String description = request.getDescription();
+
+        Listing listing = ListingMapper.toEntity(productDto, pricingDto, locationDto, images, certificate,description);
+        Long userId = validatorMethods.getCurrentUserId();
+        User seller =  validatorMethods.validateUserById(userId);
         listing.setSeller(seller);
 
         if (listing.getSaleType() == SaleType.AUCTION) {
@@ -129,7 +135,8 @@ public class ListingServiceImpl implements ListingService {
 
         // Validate pricing (includes sale type validation)
         validatePricing(pricingDto);
-        ListingMapper.updateEntity(listing, productDto, pricingDto, locationDto);
+        String description = request.getDescription();
+        ListingMapper.updateEntity(listing, productDto, pricingDto, locationDto,description);
 
         // Update images if new files provided
         if (imageFiles != null && !imageFiles.isEmpty()) {
@@ -259,6 +266,7 @@ public class ListingServiceImpl implements ListingService {
 
         listingRepository.delete(listing);
     }
+
 
     public BidHistory placeBid(Long listingId,BigDecimal buyerAmount, Long userId) {
         Listing listing = validatorMethods.validateExists(listingId);
@@ -402,12 +410,12 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public DashboardDto getSellerOverview() {
-        String email = validatorMethods.getCurrentUserEmail();
-        User seller = validatorMethods.validateUserByEmail(email);
+        Long userId = validatorMethods.getCurrentUserId();
+        User seller = validatorMethods.validateUserById(userId);
 
         Long sellerId = seller.getUserId();
-        Long activeListings = listingRepository.countBySellerUserIdAndStatus(sellerId, AuctionStatus.ACTIVE);
-        Long pendingApprovals = listingRepository.countBySellerUserIdAndStatus(sellerId, AuctionStatus.PENDING);
+        Long activeListings = listingRepository.countBySeller_UserIdAndStatus(sellerId, AuctionStatus.ACTIVE);
+        Long pendingApprovals = listingRepository.countBySeller_UserIdAndStatus(sellerId, AuctionStatus.PENDING);
         Long totalBidsReceived = bidRepository.countTotalBidsBySellerId(sellerId);
         BigDecimal totalRevenue = bidRepository.sumAmountByListingSellerId(sellerId);
 
@@ -415,9 +423,9 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public Order acceptInqury(Long inquiryId, String email) {
+    public Order acceptInqury(Long inquiryId, Long userId) {
         //convert email to user
-        User seller = validatorMethods.validateUserByEmail(email);
+        User seller = validatorMethods.validateUserById(userId);
         BuyerInquiry inquiry = buyerInquiryRepository.findById(inquiryId)
                 .orElseThrow(() -> new RuntimeException("Inquiry not found"));
 
@@ -443,16 +451,6 @@ public class ListingServiceImpl implements ListingService {
     }
 
 
-    @Override
-    public ListingResponseDto updateListing(Long listingId,
-                                            ProductListingDto productDto,
-                                            QualityPricingListingDto pricingDto,
-                                            QualityLocationListingDto locationDto) {
-        Listing listing = validatorMethods.validateExists(listingId);;
-        ListingMapper.updateEntity(listing, productDto, pricingDto, locationDto);
-        Listing saved = listingRepository.save(listing);
-        return ListingMapper.toResponse(saved);
-    }
 
     public void markAsSold(Long listingId,Long sellerId) {
         Listing listing = validatorMethods.validateExists(listingId);
@@ -501,6 +499,12 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
+    public Page<ListingResponseDto> activeListings(Long sellerId, Pageable pageable){
+        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.ACTIVE,pageable);
+        return listings.map(ListingMapper::toResponse);
+    }
+
+    @Override
     public void extendAuctionTime(Long listingId, Long sellerId, int minutes) {
         Listing listing = validatorMethods.validateExists(listingId);
        validatorMethods.checkStatus(listing,AuctionStatus.ACTIVE);
@@ -514,8 +518,8 @@ public class ListingServiceImpl implements ListingService {
     }
     @Override
     public List<BuyingRequirementResponseDto> getBuyerRequirementsForSeller() {
-        String email = validatorMethods.getCurrentUserEmail();
-        User seller = validatorMethods.validateUserByEmail(email);
+        Long userId= validatorMethods.getCurrentUserId();
+        User seller = validatorMethods.validateUserById(userId);
 
         List<Listing> sellerListings = listingRepository.findBySellerUserId(seller.getUserId());
         List<BuyingRequirement> requirements = new ArrayList<>();

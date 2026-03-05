@@ -21,16 +21,16 @@ public class InquiryController {
     @PostMapping("/create")
     public ResponseEntity<?> createInquiry(@RequestBody InquiryRequestDto request) {
 
-        String email = validatorMethods.getCurrentUserEmail();
+        Long userId = validatorMethods.getCurrentUserId();
 
         InquiryResponseDto response =
-                inquiryService.createInquiry(request, email);
+                inquiryService.createInquiry(request, userId);
         return ResponseEntity.ok(response);
     }
     @GetMapping("/seller")
     public ResponseEntity<List<InquiryResponseDto>> getSellerInquiries() {
-        String email = validatorMethods.getCurrentUserEmail();
-        List<InquiryResponseDto> inquiries = inquiryService.getSellerInquiries(email);
+        Long userId = validatorMethods.getCurrentUserId();
+        List<InquiryResponseDto> inquiries = inquiryService.getSellerInquiries(userId);
         return ResponseEntity.ok(inquiries);
     }
 }

@@ -10,8 +10,6 @@ import com.project.kisan_setu.repository.*;
 import com.project.kisan_setu.service.BuyerService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -21,8 +19,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class BuyerServiceImpl implements BuyerService {
-
-    private final BuyingRequirementRepository requirementRepository;
     private final ListingRepository listingRepository;
     private final BidRepository bidRepository;
     private final UserRepository userRepository;
@@ -36,8 +32,8 @@ public class BuyerServiceImpl implements BuyerService {
     @Override
     public BuyingRequirementResponseDto postRequirement(BuyingRequirementRequestDto dto) {
 
-        String email = validatorMethods.getCurrentUserEmail();
-        User buyer = validatorMethods.validateUserByEmail(email);
+       Long userId = validatorMethods.getCurrentUserId();
+        User buyer = validatorMethods.validateUserById(userId);
 
         BuyingRequirement requirement=
                 BuyingRequirementMapper.toEntity(dto, buyer);
@@ -81,8 +77,8 @@ public class BuyerServiceImpl implements BuyerService {
     public Object placeBid(Long listingId, PlaceBidRequestDto dto) {
 
         Listing listing = validatorMethods.validateExists(listingId);
-        String email = validatorMethods.getCurrentUserEmail();
-        User buyer = validatorMethods.validateUserByEmail(email);
+        Long userId = validatorMethods.getCurrentUserId();
+        User buyer = validatorMethods.validateUserById(userId);
 
         // Initialize remaining quantity if null
         if (listing.getRemainingQuantity() == null) {

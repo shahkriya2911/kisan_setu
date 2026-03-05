@@ -2,6 +2,10 @@ package com.project.kisan_setu.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.kisan_setu.dto.CreateListingRequest;
+import com.project.kisan_setu.dto.DashboardDto;
+import com.project.kisan_setu.dto.ListingResponseDto;
+import com.project.kisan_setu.dto.SellerListingDto;
 import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.service.ListingService;
@@ -11,8 +15,11 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,7 +48,7 @@ public class ListingController {
     ) throws JsonProcessingException {
 
         CreateListingRequest request = objectMapper.readValue(requestJson, CreateListingRequest.class);
-        String seller = validatorMethods.getCurrentUserEmail();
+        Long sellerId = validatorMethods.getCurrentUserId();
 
         return ResponseEntity.ok(listingService.createListing(request, imageFiles, certificateFile));
     }
@@ -86,14 +93,14 @@ public class ListingController {
     @GetMapping("/{listingId}/top-5")
     public ResponseEntity<SellerListingDto> getListingDetail(
             @PathVariable Long listingId) {
-        String seller = validatorMethods.getCurrentUserEmail();
+        Long sellerId = validatorMethods.getCurrentUserId();
         return ResponseEntity.ok(listingService.getSellerListingDetail(listingId));
     }
 
     @PutMapping("{inquiryId}/accept")
     public ResponseEntity<String> acceptInquiry(@PathVariable Long inquiryId){
-        String email = validatorMethods.getCurrentUserEmail();
-        listingService.acceptInqury(inquiryId,email);
+        Long userId = validatorMethods.getCurrentUserId();
+        listingService.acceptInqury(inquiryId,userId);
         return ResponseEntity.ok("Inquiry accepted successfully");
     }
 
@@ -104,19 +111,6 @@ public class ListingController {
         return ResponseEntity.ok(listingService.getSellerOverview());
     }
 
-    @PutMapping("{listingId}")
-    public ResponseEntity<ListingResponseDto> updateCrop(@PathVariable Long listingId,
-                                                         @RequestBody CreateListingRequest request)
-    {
-        ListingResponseDto response =
-                listingService.updateListing(
-                        listingId,
-                        request.getProduct(),
-                        request.getPricing(),
-                        request.getLocation()
-                );
-        return ResponseEntity.ok(response);
-    }
 
     @PutMapping("/seller/{listingId}/mark-sold")
     public ResponseEntity<String> markAsSold(
@@ -131,6 +125,13 @@ public class ListingController {
         listingService.extendAuctionTime(listingId,sellerId,minutes);
         return ResponseEntity.ok("Auction time extended successfully");
 
+    }
+
+    @GetMapping("/my-active")
+    public ResponseEntity<Page<ListingResponseDto>> activeListings(Authentication authentication, Pageable pageable){
+        Long userId = Long.parseLong(authentication.getName());
+        Page<ListingResponseDto> listings = listingService.activeListings(userId,pageable);
+        return ResponseEntity.ok(listings);
     }
     @GetMapping("/seller/requirements")
     public ResponseEntity<List<BuyingRequirementResponseDto>> getRequirementsForSeller() {

@@ -3,7 +3,8 @@ package com.project.kisan_setu.service;
 import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.BidHistory;
 import com.project.kisan_setu.entity.Order;
-import com.project.kisan_setu.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
@@ -22,13 +23,11 @@ public interface ListingService {
 
     SellerListingDto getSellerListingDetail(Long listingId);
     DashboardDto getSellerOverview();
-    Order acceptInqury(Long inquiryId, String email);
-    ListingResponseDto updateListing(
-            Long listingId,
-            ProductListingDto productDto,
-            QualityPricingListingDto pricingDto,
-            QualityLocationListingDto locationDto);
+    Order acceptInqury(Long inquiryId, Long userId);
+
     void markAsSold(Long listingId,Long userId);
+
+    Page<ListingResponseDto> activeListings(Long sellerId, Pageable pageable);
     void extendAuctionTime(Long listingId,Long sellerId,int minutes);
     List<BuyingRequirementResponseDto> getBuyerRequirementsForSeller();
 

@@ -21,8 +21,8 @@ public class InquiryServiceImpl implements InquiryService {
     private final ValidatorMethods validatorMethods;
     private final BuyerInquiryRepository buyerInquiryRepository;
     @Override
-    public InquiryResponseDto createInquiry(InquiryRequestDto request, String email) {
-        User buyer = validatorMethods.validateUserByEmail(email);
+    public InquiryResponseDto createInquiry(InquiryRequestDto request, Long userId) {
+        User buyer = validatorMethods.validateUserById(userId);
         Listing listing = validatorMethods.validateExists(request.getListingId());
         if (listing.getSeller().getUserId().equals(buyer.getUserId())) {
             throw new RuntimeException("You cannot send inquiry to your own listing");
@@ -44,9 +44,9 @@ public class InquiryServiceImpl implements InquiryService {
     }
 
     @Override
-    public List<InquiryResponseDto> getSellerInquiries(String email) {
+    public List<InquiryResponseDto> getSellerInquiries(Long userId) {
 
-        User seller = validatorMethods.validateUserByEmail(email);
+        User seller = validatorMethods.validateUserById(userId);
 
         List<BuyerInquiry> inquiries = buyerInquiryRepository
                 .findByListingSellerUserId(seller.getUserId());

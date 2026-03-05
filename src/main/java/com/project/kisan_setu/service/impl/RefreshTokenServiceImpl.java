@@ -64,7 +64,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         refreshTokenRepository.save(refreshToken);
 
         RefreshToken newRefreshToken = createRefreshToken(user);
-        String newAccessToken = jwtUtil.generateAccessToken(user.getEmail());
+        String newAccessToken = jwtUtil.generateAccessToken(user.getUserId());
 
         return new LoginResponseDto(
                 200,
