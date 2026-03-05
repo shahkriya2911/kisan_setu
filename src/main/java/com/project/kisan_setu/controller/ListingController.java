@@ -35,10 +35,8 @@ public class ListingController {
     private final ValidatorMethods validatorMethods;
     private static final Logger logger = LoggerFactory.getLogger(ListingController.class);
 
-
     @Autowired
     private ObjectMapper objectMapper;
-
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ListingResponseDto> createListing(
@@ -80,16 +78,6 @@ public class ListingController {
 
     }
 
-//    @PostMapping("/preview")
-//    public ResponseEntity<ListingResponseDto> previewListing(
-//            @Valid @RequestBody CreateListingRequest request) {
-//
-//        ListingResponseDto response =
-//                listingService.previewListing(request);
-//
-//        return ResponseEntity.ok(response);
-//    }
-
     @GetMapping("/{listingId}/top-5")
     public ResponseEntity<SellerListingDto> getListingDetail(
             @PathVariable Long listingId) {
@@ -103,8 +91,6 @@ public class ListingController {
         listingService.acceptInqury(inquiryId,userId);
         return ResponseEntity.ok("Inquiry accepted successfully");
     }
-
-
 
     @GetMapping("/dashboard")
     public ResponseEntity<DashboardDto> getSellerOverView(){
@@ -139,6 +125,12 @@ public class ListingController {
         return ResponseEntity.ok(
                 listingService.getBuyerRequirementsForSeller()
         );
+    }
+    @GetMapping("/requirements/contact/{requirementId}")
+    public BuyerContactResponseDto getBuyerContact(
+            @PathVariable Long requirementId) {
+
+        return listingService.getBuyerContact(requirementId);
     }
 
 }

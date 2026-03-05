@@ -30,5 +30,6 @@ public interface ListingService {
     Page<ListingResponseDto> activeListings(Long sellerId, Pageable pageable);
     void extendAuctionTime(Long listingId,Long sellerId,int minutes);
     List<BuyingRequirementResponseDto> getBuyerRequirementsForSeller();
+    BuyerContactResponseDto getBuyerContact(Long requirementId);
 
 }

@@ -119,8 +119,6 @@ public class ListingServiceImpl implements ListingService {
         return ListingMapper.toResponse(saved);
     }
 
-
-    // UPDATE LISTING
     @Override
     public ListingResponseDto updateListing(Long listingId,
                                             CreateListingRequest request,
@@ -556,4 +554,23 @@ public class ListingServiceImpl implements ListingService {
                 .map(BuyingRequirementMapper::toDto)
                 .toList();
     }
+
+    @Override
+    public BuyerContactResponseDto getBuyerContact(Long requirementId) {
+        BuyingRequirement requirement =
+                buyingRequirementRepository.findById(requirementId)
+                        .orElseThrow(() -> new RuntimeException("Requirement not found"));
+
+        User buyer = requirement.getBuyer();
+
+        return new BuyerContactResponseDto(
+                requirement.getRequirementId(),
+                buyer.getFullName(),
+                buyer.getMobileNumber(),
+                requirement.getCropName(),
+                requirement.getQuantityRequired(),
+                requirement.getUnit()
+        );
+    }
+
 }
