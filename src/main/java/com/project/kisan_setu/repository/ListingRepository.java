@@ -23,4 +23,6 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
     Long countBySaleTypeAndStatus(SaleType saleType, AuctionStatus listingStatus);
 
     Page<Listing> findAll(Specification<Listing> spec, Pageable pageable);
+
+    List<Listing> findBySellerUserId(Long userId);
 }

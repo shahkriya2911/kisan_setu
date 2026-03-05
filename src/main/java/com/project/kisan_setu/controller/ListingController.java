@@ -2,10 +2,7 @@ package com.project.kisan_setu.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.kisan_setu.dto.CreateListingRequest;
-import com.project.kisan_setu.dto.DashboardDto;
-import com.project.kisan_setu.dto.ListingResponseDto;
-import com.project.kisan_setu.dto.SellerListingDto;
+import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.UserService;
@@ -93,6 +90,15 @@ public class ListingController {
         return ResponseEntity.ok(listingService.getSellerListingDetail(listingId));
     }
 
+    @PutMapping("{inquiryId}/accept")
+    public ResponseEntity<String> acceptInquiry(@PathVariable Long inquiryId){
+        String email = validatorMethods.getCurrentUserEmail();
+        listingService.acceptInqury(inquiryId,email);
+        return ResponseEntity.ok("Inquiry accepted successfully");
+    }
+
+
+
     @GetMapping("/dashboard")
     public ResponseEntity<DashboardDto> getSellerOverView(){
         return ResponseEntity.ok(listingService.getSellerOverview());
@@ -126,4 +132,12 @@ public class ListingController {
         return ResponseEntity.ok("Auction time extended successfully");
 
     }
+    @GetMapping("/seller/requirements")
+    public ResponseEntity<List<BuyingRequirementResponseDto>> getRequirementsForSeller() {
+
+        return ResponseEntity.ok(
+                listingService.getBuyerRequirementsForSeller()
+        );
+    }
+
 }

@@ -11,4 +11,6 @@ public interface BuyingRequirementRepository
         extends JpaRepository<BuyingRequirement, Long> {
 
     List<BuyingRequirement> findByBuyerUserId(Long buyerId); //find a particular buyer (user)
+
+    List<BuyingRequirement> findByCropNameIgnoreCase(String cropName);
 }

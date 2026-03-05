@@ -29,21 +29,24 @@ public class BuyerServiceImpl implements BuyerService {
     private final OrderRepository orderRepository;
     private final ValidatorMethods validatorMethods;
     private final BuyerInquiryRepository buyerInquiryRepository;
+    private final BuyingRequirementRepository buyingRequirementRepository;
 
 
     // Post Requirement
     @Override
-    public BuyingRequirementResponseDto postRequirement(
-            Long buyerId,
-            BuyingRequirementRequestDto dto) {
+    public BuyingRequirementResponseDto postRequirement(BuyingRequirementRequestDto dto) {
 
-        User buyer = userRepository.findById(buyerId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        BuyingRequirement br =
+        String email = validatorMethods.getCurrentUserEmail();
+        User buyer = validatorMethods.validateUserByEmail(email);
+
+        BuyingRequirement requirement=
                 BuyingRequirementMapper.toEntity(dto, buyer);
-        requirementRepository.save(br);
-        return BuyingRequirementMapper.toDto(br);
+        BuyingRequirement saved =
+                buyingRequirementRepository.save(requirement);
+
+        return BuyingRequirementMapper.toDto(saved);
     }
+
 
     // Get Active Auction Listings
     @Override
@@ -152,7 +155,6 @@ public class BuyerServiceImpl implements BuyerService {
             inquiry.setBuyer(buyer);
             inquiry.setListing(listing);
             inquiry.setQuantityRequested(dto.getQuantity());
-            inquiry.setPricePerKg(pricePerKg);
             inquiry.setStatus(InquiryStatus.PENDING);
             inquiry.setInquiryTime(LocalDateTime.now());
 
@@ -161,10 +163,10 @@ public class BuyerServiceImpl implements BuyerService {
             return new InquiryResponseDto(
                     inquiry.getInquiryId(),
                     listing.getListingId(),
+                    inquiry.getBuyer().getFullName(),
+                    inquiry.getListing().getCropName(),
                     inquiry.getQuantityRequested(),
-                    inquiry.getPricePerKg(),
                     inquiry.getInquiryTime(),
-                    inquiry.getListing().getRemainingQuantity(),
                     inquiry.getStatus()
             );
         }

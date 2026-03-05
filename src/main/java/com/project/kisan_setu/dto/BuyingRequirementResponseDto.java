@@ -1,24 +1,38 @@
 package com.project.kisan_setu.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.project.kisan_setu.enums.Urgency;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class BuyingRequirementResponseDto {
 
-    //buying requirement response info
-    private Long id;
-    private String cropType;
+    private Long requirementId;
+
+    private String cropName;
+    private String variety;
+    private String grade;
+
     private BigDecimal quantityRequired;
-    private String deliveryLocation;
+    private String unit;
+
+    private BigDecimal expectedMinPrice;
+    private BigDecimal expectedMaxPrice;
+
+    private String state;
+    private String district;
+    private String deliveryAddress;
+
     private LocalDate deadline;
+
+    private Urgency urgency;
+
+    private String additionalNotes;
+
+    private String buyerName;
 }

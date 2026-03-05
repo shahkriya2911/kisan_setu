@@ -26,11 +26,20 @@ public class BuyerInquiry {
     private User buyer;
 
     private BigDecimal quantityRequested;
-    private BigDecimal pricePerKg;
-
+    private LocalDateTime respondedAt;
     private LocalDateTime inquiryTime;
     @Enumerated(EnumType.STRING)
     private InquiryStatus status; // PENDING, ACCEPTED, REJECTED
+    private LocalDateTime createdAt;
+    @PrePersist
+    public void prePersist() {
+        if (inquiryTime == null) {
+            inquiryTime = LocalDateTime.now();
+        }
+        if (status == null) {
+            status = InquiryStatus.PENDING;
+        }
+    }
 
 
 }

@@ -1,35 +1,39 @@
 package com.project.kisan_setu.controller;
 
 import com.project.kisan_setu.dto.BuyingRequirementRequestDto;
+import com.project.kisan_setu.dto.BuyingRequirementResponseDto;
 import com.project.kisan_setu.dto.PlaceBidRequestDto;
+import com.project.kisan_setu.entity.BuyingRequirement;
+import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.mapper.BuyingRequirementMapper;
 import com.project.kisan_setu.service.BuyerService;
+import com.project.kisan_setu.service.ListingService;
+import com.project.kisan_setu.util.ValidatorMethods;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/buyers")
+@RequiredArgsConstructor
 public class BuyerController {
 
     //constructor dependency injection
     private final BuyerService buyerService;
+    private final ValidatorMethods validatorMethods;
     private static final Logger logger = LoggerFactory.getLogger(BuyerController.class);
-    public BuyerController(BuyerService buyerService) {
-        this.buyerService = buyerService;
+
+    @PostMapping
+    public BuyingRequirementResponseDto createRequirement(
+            @Valid @RequestBody BuyingRequirementRequestDto dto) {
+        return buyerService.postRequirement(dto);
     }
 
-
-    @PostMapping("/requirements")
-    public ResponseEntity<?> postRequirement(
-            @RequestParam Long buyerId,
-            @RequestBody BuyingRequirementRequestDto dto) { //json from user
-        logger.debug("Create buying requirement request for user with id : {}",buyerId);
-
-        return ResponseEntity.ok(
-                buyerService.postRequirement(buyerId, dto)
-        );
-    }
 
     //get all auction listings
     @GetMapping("/auctions")

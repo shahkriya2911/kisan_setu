@@ -113,9 +113,6 @@ public class Listing {
     @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL)
     private List<Bid> bids = new ArrayList<>();
 
-    // Relationship with buying requirements
-    @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL)
-    private List<BuyingRequirement> buyingRequirements = new ArrayList<>();
 
 
 

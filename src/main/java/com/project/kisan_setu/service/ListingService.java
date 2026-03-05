@@ -2,6 +2,8 @@ package com.project.kisan_setu.service;
 
 import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.BidHistory;
+import com.project.kisan_setu.entity.Order;
+import com.project.kisan_setu.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
@@ -16,12 +18,11 @@ public interface ListingService {
     ListingResponseDto getListingById(Long id);
     void deleteListing(Long listingId,Long sellerId);
 
-//    public ListingResponseDto previewListing(CreateListingRequest request);
-
 //    BidHistory placeBid(Long listingId, Double buyerAmount, Long userId);
 
     SellerListingDto getSellerListingDetail(Long listingId);
     DashboardDto getSellerOverview();
+    Order acceptInqury(Long inquiryId, String email);
     ListingResponseDto updateListing(
             Long listingId,
             ProductListingDto productDto,
@@ -29,5 +30,6 @@ public interface ListingService {
             QualityLocationListingDto locationDto);
     void markAsSold(Long listingId,Long userId);
     void extendAuctionTime(Long listingId,Long sellerId,int minutes);
+    List<BuyingRequirementResponseDto> getBuyerRequirementsForSeller();
 
 }

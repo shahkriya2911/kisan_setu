@@ -6,13 +6,10 @@ import java.util.List;
 
 public interface BuyerService {
 
-    BuyingRequirementResponseDto postRequirement(
-            Long buyerId,
-            BuyingRequirementRequestDto dto);
-
-    List<BuyerListingResponseDto> getActiveAuctionListings();
+    public BuyingRequirementResponseDto postRequirement(BuyingRequirementRequestDto dto) ;
 
 
+        List<BuyerListingResponseDto> getActiveAuctionListings();
 
     // Place Bid
     Object placeBid(

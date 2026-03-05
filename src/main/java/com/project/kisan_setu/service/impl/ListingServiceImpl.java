@@ -4,11 +4,9 @@ import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.entity.*;
-import com.project.kisan_setu.enums.AuctionStatus;
-import com.project.kisan_setu.enums.InquiryStatus;
-import com.project.kisan_setu.enums.PurchaseType;
-import com.project.kisan_setu.enums.SaleType;
+import com.project.kisan_setu.enums.*;
 import com.project.kisan_setu.exception.UserException;
+import com.project.kisan_setu.mapper.BuyingRequirementMapper;
 import com.project.kisan_setu.mapper.ListingMapper;
 import com.project.kisan_setu.repository.*;
 import com.project.kisan_setu.service.FileStorageService;
@@ -26,6 +24,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,6 +42,7 @@ public class ListingServiceImpl implements ListingService {
     private final ValidatorMethods validatorMethods;
     private final BuyerInquiryRepository buyerInquiryRepository;
     private final OrderRepository orderRepository;
+    private final BuyingRequirementRepository buyingRequirementRepository;
     private static final Logger logger = LoggerFactory.getLogger(ListingServiceImpl.class);
 
 
@@ -259,29 +260,6 @@ public class ListingServiceImpl implements ListingService {
         listingRepository.delete(listing);
     }
 
-//    @Override
-//    public ListingResponseDto previewListing(CreateListingRequest request) {
-//        ProductListingDto productDto = request.getProduct();
-//        QualityPricingListingDto pricingDto = request.getPricing();
-//        QualityLocationListingDto locationDto = request.getLocation();
-//
-//        logger.debug("Previewing listing for product: {}", productDto.getCropName());
-//
-//        // Calculate Total Base Price
-//        double totalBasePrice = pricingDto.getQuantity() * pricingDto.getPricePerKg();
-//        pricingDto.setTotalBasePrice(totalBasePrice);
-//
-//        // Auto-calculate Minimum Bid Increment (2%) for auctions
-//        if (pricingDto.getSaleType() == SaleType.AUCTION) {
-//            double minIncrement = Math.ceil(totalBasePrice * 0.02);
-//            pricingDto.setMinimumBidIncrement(minIncrement);
-//        }
-//
-//        // Map to Entity (not saved)
-//        Listing preview = ListingMapper.toEntity(productDto, pricingDto, locationDto,ListingImage,ListingCertificate);
-//        return ListingMapper.toResponse(preview);
-    //}
-
     public BidHistory placeBid(Long listingId,BigDecimal buyerAmount, Long userId) {
         Listing listing = validatorMethods.validateExists(listingId);
         BigDecimal totalBasePrice = listing.getTotalBasePrice();
@@ -382,13 +360,14 @@ public class ListingServiceImpl implements ListingService {
          }else{
              List<BuyerInquiry> inquiries = buyerInquiryRepository.findByListingListingId(listingId);
 
-             List<InquiryResponseDto> inquiryList = inquiries.stream().map(inquiry -> new InquiryResponseDto(
-                     inquiry.getBuyer().getUserId(),
+             List<InquiryResponseDto> inquiryList = inquiries.stream().map(
+                     inquiry -> new InquiryResponseDto(
+                             inquiry.getInquiryId(),
                      inquiry.getListing().getListingId(),
+                     inquiry.getBuyer().getFullName(),
+                     inquiry.getListing().getCropName(),
                      inquiry.getQuantityRequested(),
-                     inquiry.getPricePerKg(),
                      inquiry.getInquiryTime(),
-                     inquiry.getListing().getRemainingQuantity(),
                      inquiry.getStatus()
              )).toList();
 
@@ -434,6 +413,35 @@ public class ListingServiceImpl implements ListingService {
 
         return new DashboardDto(activeListings, pendingApprovals, totalBidsReceived, totalRevenue);
     }
+
+    @Override
+    public Order acceptInqury(Long inquiryId, String email) {
+        //convert email to user
+        User seller = validatorMethods.validateUserByEmail(email);
+        BuyerInquiry inquiry = buyerInquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new RuntimeException("Inquiry not found"));
+
+        Listing listing = inquiry.getListing();
+        if (!listing.getSeller().getUserId().equals(seller.getUserId())) {
+            throw new RuntimeException("Unauthorized action");
+        }
+
+        if (inquiry.getStatus() != InquiryStatus.PENDING) {
+            throw new RuntimeException("Inquiry already processed");
+        }
+
+        inquiry.setStatus(InquiryStatus.ACCEPTED);
+        inquiry.setRespondedAt(LocalDateTime.now());
+        buyerInquiryRepository.save(inquiry);
+        Order order = new Order();
+        order.setListing(listing);
+        order.setBuyer(inquiry.getBuyer());
+        order.setQuantity(inquiry.getQuantityRequested());
+        order.setOrderTime(LocalDateTime.now());
+        orderRepository.save(order);
+        return order;
+    }
+
 
     @Override
     public ListingResponseDto updateListing(Long listingId,
@@ -483,10 +491,6 @@ public class ListingServiceImpl implements ListingService {
             order.setBuyer(acceptedInquiry.getBuyer());
             order.setListing(listing);
             order.setQuantity(acceptedInquiry.getQuantityRequested());
-            order.setPricePerKg(acceptedInquiry.getPricePerKg());
-            order.setTotalBasePrice(acceptedInquiry.getPricePerKg()
-                            .multiply(acceptedInquiry.getQuantityRequested())
-            );
             order.setOrderTime(LocalDateTime.now());
 
             orderRepository.save(order);
@@ -495,9 +499,6 @@ public class ListingServiceImpl implements ListingService {
 
 
     }
-
-
-
 
     @Override
     public void extendAuctionTime(Long listingId, Long sellerId, int minutes) {
@@ -510,5 +511,45 @@ public class ListingServiceImpl implements ListingService {
             throw new UserException("Extension time must be greater than 0");
         }
         listing.setAuctionEndTime(listing.getAuctionEndTime().plusMinutes(minutes));
+    }
+    @Override
+    public List<BuyingRequirementResponseDto> getBuyerRequirementsForSeller() {
+        String email = validatorMethods.getCurrentUserEmail();
+        User seller = validatorMethods.validateUserByEmail(email);
+
+        List<Listing> sellerListings = listingRepository.findBySellerUserId(seller.getUserId());
+        List<BuyingRequirement> requirements = new ArrayList<>();
+        for (Listing listing : sellerListings) {
+
+            List<BuyingRequirement> requirement =
+                    buyingRequirementRepository
+                            .findByCropNameIgnoreCase(
+                                    listing.getCropName());
+
+            requirements.addAll(requirement);
+            for (BuyingRequirement req : requirements) {
+
+                // Skip if seller is same as buyer
+                if (!req.getBuyer().getUserId().equals(seller.getUserId())) {
+                    continue;
+                }
+                if (req.getDeadline() != null &&
+                        req.getDeadline().isBefore(ChronoLocalDate.from(LocalDateTime.now()))) {
+                    continue;
+                }
+                if (req.getRequirementStatus() != RequirementStatus.ACTIVE) {
+                    continue;
+                }
+                if (listing.getQuantity()
+                        .compareTo(req.getQuantityRequired()) < 0) {
+                    continue;
+                }
+                requirements.add(req);
+            }
+        }
+
+        return requirements.stream()
+                .map(BuyingRequirementMapper::toDto)
+                .toList();
     }
 }

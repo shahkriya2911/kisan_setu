@@ -4,6 +4,7 @@ import com.project.kisan_setu.dto.BuyingRequirementRequestDto;
 import com.project.kisan_setu.dto.BuyingRequirementResponseDto;
 import com.project.kisan_setu.entity.BuyingRequirement;
 import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.enums.RequirementStatus;
 
 import java.time.LocalDateTime;
 
@@ -13,17 +14,22 @@ public class BuyingRequirementMapper {
             BuyingRequirementRequestDto dto, User buyer) {
 
         BuyingRequirement br = new BuyingRequirement();
-        br.setCropType(dto.getCropType());
+        br.setCropName(dto.getCropName());
+        br.setVariety(dto.getVariety());
+        br.setGrade(dto.getGrade());
         br.setQuantityRequired(dto.getQuantityRequired());
         br.setUnit(dto.getUnit());
         br.setMinPrice(dto.getMinPrice());
         br.setMaxPrice(dto.getMaxPrice());
-        br.setQualityGrade(dto.getQualityGrade());
-        br.setDeliveryLocation(dto.getDeliveryLocation());
+        br.setState(dto.getState());
+        br.setDistrict(dto.getDistrict());
+        br.setDeliveryAddress(dto.getDeliveryAddress());
         br.setDeadline(dto.getDeadline());
-        br.setAdditionalNotes(dto.getAdditionalNotes());
+        br.setUrgency(dto.getUrgency());
+        br.setAddtionalNote(dto.getAdditionalNotes());
         br.setBuyer(buyer);
         br.setCreatedAt(LocalDateTime.now());
+        br.setRequirementStatus(RequirementStatus.ACTIVE);
 
         return br;
     }
@@ -31,10 +37,20 @@ public class BuyingRequirementMapper {
     public static BuyingRequirementResponseDto toDto(BuyingRequirement br) {
         return new BuyingRequirementResponseDto(
                 br.getRequirementId(),
-                br.getCropType(),
+                br.getCropName(),
+                br.getVariety(),
+                br.getGrade(),
                 br.getQuantityRequired(),
-                br.getDeliveryLocation(),
-                br.getDeadline()
+                br.getUnit(),
+                br.getMinPrice(),
+                br.getMaxPrice(),
+                br.getState(),
+                br.getDistrict(),
+                br.getDeliveryAddress(),
+                br.getDeadline(),
+                br.getUrgency(),
+                br.getAddtionalNote(),
+                br.getBuyer().getFullName()
         );
     }
 }

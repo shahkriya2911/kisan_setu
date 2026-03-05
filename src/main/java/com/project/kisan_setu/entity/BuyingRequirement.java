@@ -1,10 +1,9 @@
 package com.project.kisan_setu.entity;
 
+import com.project.kisan_setu.enums.RequirementStatus;
+import com.project.kisan_setu.enums.Urgency;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,8 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity //table creation
 @Table(name = "buying_requirements") //table name
-@Getter //getters
-@Setter //setters
+@Data
 @NoArgsConstructor //needed by JPA
 @AllArgsConstructor //constructor
 public class BuyingRequirement {
@@ -23,21 +21,23 @@ public class BuyingRequirement {
     private Long requirementId;
 
     //buying requirement info
-    private String cropType;
+    private String cropName;
+    private String variety;
+    private String grade;
     private BigDecimal quantityRequired;
     private String unit;
-    private Double minPrice;
-    private Double maxPrice;
-    private String qualityGrade;
-    private String deliveryLocation;
+    private BigDecimal minPrice;
+    private BigDecimal maxPrice;
+    private String state;
+    private String district;
+    private String deliveryAddress;
     private LocalDate deadline;
-    private String additionalNotes;
+    @Enumerated(EnumType.STRING)
+    private Urgency urgency;
+    private String addtionalNote;
     private LocalDateTime createdAt;
-
-    //relationship with listing
-    @ManyToOne
-    @JoinColumn(name = "listing_id")
-    private Listing listing;
+    @Enumerated(EnumType.STRING)
+    private RequirementStatus requirementStatus;
 
     //relationship with user
     @ManyToOne
