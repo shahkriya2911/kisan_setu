@@ -1,5 +1,6 @@
 package com.project.kisan_setu.dto;
 
+import com.project.kisan_setu.enums.BidStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,8 @@ public class BidResponseDto {
     private BigDecimal buyerAmount;
     private String buyerName;
     private LocalDateTime bidTime;
-    private BigDecimal remainingQuantity;
+    private BidStatus bidStatus;
+
 
 
 

@@ -3,6 +3,7 @@ package com.project.kisan_setu.service;
 import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.BidHistory;
 import com.project.kisan_setu.entity.Order;
+import com.project.kisan_setu.enums.BidStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,5 +32,8 @@ public interface ListingService {
     void extendAuctionTime(Long listingId,Long sellerId,int minutes);
     List<BuyingRequirementResponseDto> getBuyerRequirementsForSeller();
     BuyerContactResponseDto getBuyerContact(Long requirementId);
+    List<RecentBidResponseDto> getRecentBids();
+    String acceptBid(Long bidId);
+    String rejectBid(Long bidId);
 
 }

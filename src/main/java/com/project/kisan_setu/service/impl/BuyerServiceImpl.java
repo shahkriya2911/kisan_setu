@@ -2,6 +2,7 @@ package com.project.kisan_setu.service.impl;
 
 import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.*;
+import com.project.kisan_setu.enums.BidStatus;
 import com.project.kisan_setu.enums.InquiryStatus;
 import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.SaleType;
@@ -212,7 +213,8 @@ public class BuyerServiceImpl implements BuyerService {
                     totalPrice,
                     buyer.getFullName(),
                     LocalDateTime.now(),
-                    listing.getRemainingQuantity()
+                    BidStatus.NEW
+
             );
         }
 
@@ -247,6 +249,7 @@ public class BuyerServiceImpl implements BuyerService {
             Bid bid = new Bid();
             bid.setBuyerAmount(dto.getBuyerAmount());
             bid.setBidTime(LocalDateTime.now());
+            bid.setBidStatus(BidStatus.NEW);
             bid.setListing(listing);
             bid.setBuyer(buyer);
 
@@ -257,7 +260,8 @@ public class BuyerServiceImpl implements BuyerService {
                     bid.getBuyerAmount(),
                     buyer.getFullName(),
                     bid.getBidTime(),
-                    listing.getRemainingQuantity()
+                    BidStatus.NEW
+
             );
         }
 
@@ -274,19 +278,3 @@ public class BuyerServiceImpl implements BuyerService {
 
 
 
-//    // Bid History
-//    @Override
-//    public List<BidResponseDto> getBidHistory(Long listingId) {
-//
-//        return bidRepository
-//                .findByListingListingIdOrderBybuyerAmountDesc(listingId)
-//                .stream()
-//                .map(bid -> new BidResponseDto(
-//                        bid.getBidId(),
-//                        bid.getbuyerAmount(),
-//                        bid.getBuyer().getFullName(),
-//                        bid.getBidTime()
-//                ))
-//                .toList();
-//
-//    }

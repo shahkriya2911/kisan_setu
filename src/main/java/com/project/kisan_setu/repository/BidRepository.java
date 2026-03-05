@@ -1,6 +1,7 @@
 package com.project.kisan_setu.repository;
 import com.project.kisan_setu.entity.Bid;
 import com.project.kisan_setu.entity.Listing;
+import com.project.kisan_setu.enums.BidStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,4 +31,6 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
 
     @Query("SELECT COALESCE(AVG(b.buyerAmount), 0) FROM Bid b WHERE b.listing.cropName = :cropName")
     Double getAveragePriceByCrop(@Param("cropName") String cropName);
+
+    List<Bid> findTop5ByListingSellerUserIdAndBidStatusOrderByCreatedAtDesc(Long userId, BidStatus bidStatus);
 }

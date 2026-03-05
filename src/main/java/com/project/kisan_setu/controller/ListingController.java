@@ -8,6 +8,7 @@ import com.project.kisan_setu.dto.ListingResponseDto;
 import com.project.kisan_setu.dto.SellerListingDto;
 import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.enums.BidStatus;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.UserService;
 import com.project.kisan_setu.util.ValidatorMethods;
@@ -131,6 +132,20 @@ public class ListingController {
             @PathVariable Long requirementId) {
 
         return listingService.getBuyerContact(requirementId);
+    }
+    @GetMapping("/recent-bids")
+    public ResponseEntity<List<RecentBidResponseDto>> getRecentBids() {
+        return ResponseEntity.ok(listingService.getRecentBids());
+    }
+
+    @PutMapping("/recent-bids/{bidId}/accept")
+    public ResponseEntity<String> acceptBid(@PathVariable Long bidId) {
+        return ResponseEntity.ok(listingService.acceptBid(bidId));
+    }
+
+    @PutMapping("/recent-bids/{bidId}/reject")
+    public ResponseEntity<String> rejectBid(@PathVariable Long bidId) {
+        return ResponseEntity.ok(listingService.rejectBid(bidId));
     }
 
 }

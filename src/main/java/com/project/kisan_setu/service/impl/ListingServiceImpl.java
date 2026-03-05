@@ -18,8 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -48,7 +46,6 @@ public class ListingServiceImpl implements ListingService {
     private final OrderRepository orderRepository;
     private final BuyingRequirementRepository buyingRequirementRepository;
     private static final Logger logger = LoggerFactory.getLogger(ListingServiceImpl.class);
-
 
 
     @Override
@@ -90,9 +87,9 @@ public class ListingServiceImpl implements ListingService {
 
         String description = request.getDescription();
 
-        Listing listing = ListingMapper.toEntity(productDto, pricingDto, locationDto, images, certificate,description);
+        Listing listing = ListingMapper.toEntity(productDto, pricingDto, locationDto, images, certificate, description);
         Long userId = validatorMethods.getCurrentUserId();
-        User seller =  validatorMethods.validateUserById(userId);
+        User seller = validatorMethods.validateUserById(userId);
         listing.setSeller(seller);
 
         if (listing.getSaleType() == SaleType.AUCTION) {
@@ -134,7 +131,7 @@ public class ListingServiceImpl implements ListingService {
         // Validate pricing (includes sale type validation)
         validatePricing(pricingDto);
         String description = request.getDescription();
-        ListingMapper.updateEntity(listing, productDto, pricingDto, locationDto,description);
+        ListingMapper.updateEntity(listing, productDto, pricingDto, locationDto, description);
 
         // Update images if new files provided
         if (imageFiles != null && !imageFiles.isEmpty()) {
@@ -169,6 +166,7 @@ public class ListingServiceImpl implements ListingService {
         logger.info("Listing Updated Successfully ID: {}", updated.getListingId());
         return ListingMapper.toResponse(updated);
     }
+
     private void validatePricing(QualityPricingListingDto pricingDto) {
 
         if (pricingDto.getQuantity() == null ||
@@ -203,12 +201,9 @@ public class ListingServiceImpl implements ListingService {
             }
 
             logger.info("Auction Listing validated");
-        }
-        else if (pricingDto.getSaleType() == SaleType.FIXED) {
+        } else if (pricingDto.getSaleType() == SaleType.FIXED) {
             logger.info("Fixed Price Listing validated");
-        }
-
-        else {
+        } else {
             throw new UserException("SaleType must be AUCTION or FIXED");
         }
         if (pricingDto.getPurchaseType() == PurchaseType.PARTIAL_ORDER_ALLOWS) {
@@ -254,9 +249,9 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public void deleteListing(Long listingId,Long sellerId) {
+    public void deleteListing(Long listingId, Long sellerId) {
         Listing listing = validatorMethods.validateExists(listingId);
-        validatorMethods.checkStatus(listing,AuctionStatus.SOLD);
+        validatorMethods.checkStatus(listing, AuctionStatus.SOLD);
         long bidCount = bidRepository.countTotalBidsBySellerId(sellerId);
         if (bidCount > 0) {
             throw new UserException("Cannot delete listing. Bids already placed.");
@@ -266,7 +261,7 @@ public class ListingServiceImpl implements ListingService {
     }
 
 
-    public BidHistory placeBid(Long listingId,BigDecimal buyerAmount, Long userId) {
+    public BidHistory placeBid(Long listingId, BigDecimal buyerAmount, Long userId) {
         Listing listing = validatorMethods.validateExists(listingId);
         BigDecimal totalBasePrice = listing.getTotalBasePrice();
         BigDecimal minimumBidIncrement = listing.getMinimumBidIncrement();
@@ -315,95 +310,95 @@ public class ListingServiceImpl implements ListingService {
     @Override
     public SellerListingDto getSellerListingDetail(Long listingId) {
 
-         Listing listing = validatorMethods.validateExists(listingId);
+        Listing listing = validatorMethods.validateExists(listingId);
 
-         if (listing.getSaleType() == SaleType.AUCTION) {
-             BigDecimal currentHighestBid =
-                     bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(listingId)
-                             .map(Bid::getBuyerAmount)
-                             .orElse(listing.getTotalBasePrice());
-
-
-             List<BidResponseDto> top5Bids = bidRepository
-                     .findTop5ByListingListingIdOrderByBuyerAmountDesc(listingId)
-                     .stream()
-                     .map(bid -> new BidResponseDto(
-                             bid.getBuyer().getUserId(),
-                             bid.getBuyerAmount(),
-                             bid.getBuyer().getFullName(),
-                             bid.getBidTime(),
-                             listing.getRemainingQuantity()
-                     ))
-                     .toList();
+        if (listing.getSaleType() == SaleType.AUCTION) {
+            BigDecimal currentHighestBid =
+                    bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(listingId)
+                            .map(Bid::getBuyerAmount)
+                            .orElse(listing.getTotalBasePrice());
 
 
-             long totalBids = bidRepository.countTotalBidsBySellerId(listingId);
-             long activeBidders = bidRepository.countActiveBidders(listingId);
+            List<BidResponseDto> top5Bids = bidRepository
+                    .findTop5ByListingListingIdOrderByBuyerAmountDesc(listingId)
+                    .stream()
+                    .map(bid -> new BidResponseDto(
+                            bid.getBuyer().getUserId(),
+                            bid.getBuyerAmount(),
+                            bid.getBuyer().getFullName(),
+                            bid.getBidTime(),
+                            BidStatus.NEW
+                    ))
+                    .toList();
 
-             return new SellerListingDto(
-                     listing.getListingId(),
-                     listing.getCropName(),
-                     listing.getVariety(),
-                     listing.getGrade(),
-                     listing.getQuantity(),
-                     listing.getPricePerKg(),
-                     listing.getUnit(),
-                     listing.getTotalBasePrice(),
-                     listing.getMinimumBidIncrement(),
-                     listing.getState(),
-                     listing.getDistrict(),
-                     totalBids,
-                     activeBidders,
-                     listing.getStatus(),
-                     listing.getAuctionEndTime(),
-                     currentHighestBid,
-                     listing.getPurchaseType(),
-                     listing.getSaleType(),
-                     listing.getPostedOn(),
-                     top5Bids,
-                     null
-             );
-         }else{
-             List<BuyerInquiry> inquiries = buyerInquiryRepository.findByListingListingId(listingId);
 
-             List<InquiryResponseDto> inquiryList = inquiries.stream().map(
-                     inquiry -> new InquiryResponseDto(
-                             inquiry.getInquiryId(),
-                     inquiry.getListing().getListingId(),
-                     inquiry.getBuyer().getFullName(),
-                     inquiry.getListing().getCropName(),
-                     inquiry.getQuantityRequested(),
-                     inquiry.getInquiryTime(),
-                     inquiry.getStatus()
-             )).toList();
+            long totalBids = bidRepository.countTotalBidsBySellerId(listingId);
+            long activeBidders = bidRepository.countActiveBidders(listingId);
 
-             long totalInquires = inquiries.size();
-             return new SellerListingDto(
-                     listing.getListingId(),
-                     listing.getCropName(),
-                     listing.getVariety(),
-                     listing.getGrade(),
-                     listing.getQuantity(),
-                     listing.getPricePerKg(),
-                     listing.getUnit(),
-                     listing.getTotalBasePrice(),
-                   null,
-                     listing.getState(),
-                     listing.getDistrict(),
+            return new SellerListingDto(
+                    listing.getListingId(),
+                    listing.getCropName(),
+                    listing.getVariety(),
+                    listing.getGrade(),
+                    listing.getQuantity(),
+                    listing.getPricePerKg(),
+                    listing.getUnit(),
+                    listing.getTotalBasePrice(),
+                    listing.getMinimumBidIncrement(),
+                    listing.getState(),
+                    listing.getDistrict(),
+                    totalBids,
+                    activeBidders,
+                    listing.getStatus(),
+                    listing.getAuctionEndTime(),
+                    currentHighestBid,
+                    listing.getPurchaseType(),
+                    listing.getSaleType(),
+                    listing.getPostedOn(),
+                    top5Bids,
+                    null
+            );
+        } else {
+            List<BuyerInquiry> inquiries = buyerInquiryRepository.findByListingListingId(listingId);
+
+            List<InquiryResponseDto> inquiryList = inquiries.stream().map(
+                    inquiry -> new InquiryResponseDto(
+                            inquiry.getInquiryId(),
+                            inquiry.getListing().getListingId(),
+                            inquiry.getBuyer().getFullName(),
+                            inquiry.getListing().getCropName(),
+                            inquiry.getQuantityRequested(),
+                            inquiry.getInquiryTime(),
+                            inquiry.getStatus()
+                    )).toList();
+
+            long totalInquires = inquiries.size();
+            return new SellerListingDto(
+                    listing.getListingId(),
+                    listing.getCropName(),
+                    listing.getVariety(),
+                    listing.getGrade(),
+                    listing.getQuantity(),
+                    listing.getPricePerKg(),
+                    listing.getUnit(),
+                    listing.getTotalBasePrice(),
                     null,
-                     null,
-                     listing.getStatus(),
-                     null,
-                     null,
-                     listing.getPurchaseType(),
-                     listing.getSaleType(),
-                     listing.getPostedOn(),
-                     null,
-                     totalInquires
-             );
+                    listing.getState(),
+                    listing.getDistrict(),
+                    null,
+                    null,
+                    listing.getStatus(),
+                    null,
+                    null,
+                    listing.getPurchaseType(),
+                    listing.getSaleType(),
+                    listing.getPostedOn(),
+                    null,
+                    totalInquires
+            );
 
 
-         }
+        }
     }
 
     @Override
@@ -449,8 +444,7 @@ public class ListingServiceImpl implements ListingService {
     }
 
 
-
-    public void markAsSold(Long listingId,Long sellerId) {
+    public void markAsSold(Long listingId, Long sellerId) {
         Listing listing = validatorMethods.validateExists(listingId);
         // Check seller ownership
         if (!listing.getSeller().getUserId().equals(sellerId)) {
@@ -497,26 +491,27 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public Page<ListingResponseDto> activeListings(Long sellerId, Pageable pageable){
-        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.ACTIVE,pageable);
+    public Page<ListingResponseDto> activeListings(Long sellerId, Pageable pageable) {
+        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.ACTIVE, pageable);
         return listings.map(ListingMapper::toResponse);
     }
 
     @Override
     public void extendAuctionTime(Long listingId, Long sellerId, int minutes) {
         Listing listing = validatorMethods.validateExists(listingId);
-       validatorMethods.checkStatus(listing,AuctionStatus.ACTIVE);
-        if(listing.getAuctionEndTime().isBefore(LocalDateTime.now())){
+        validatorMethods.checkStatus(listing, AuctionStatus.ACTIVE);
+        if (listing.getAuctionEndTime().isBefore(LocalDateTime.now())) {
             throw new UserException("Cannot Extend expire Auction");
         }
-        if(minutes <= 0){
+        if (minutes <= 0) {
             throw new UserException("Extension time must be greater than 0");
         }
         listing.setAuctionEndTime(listing.getAuctionEndTime().plusMinutes(minutes));
     }
+
     @Override
     public List<BuyingRequirementResponseDto> getBuyerRequirementsForSeller() {
-        Long userId= validatorMethods.getCurrentUserId();
+        Long userId = validatorMethods.getCurrentUserId();
         User seller = validatorMethods.validateUserById(userId);
 
         List<Listing> sellerListings = listingRepository.findBySellerUserId(seller.getUserId());
@@ -573,4 +568,69 @@ public class ListingServiceImpl implements ListingService {
         );
     }
 
+    @Override
+    public List<RecentBidResponseDto> getRecentBids() {
+        Long userId = validatorMethods.getCurrentUserId();
+        User seller = validatorMethods.validateUserById(userId);
+
+        List<Bid> bids = bidRepository
+                .findTop5ByListingSellerUserIdAndBidStatusOrderByCreatedAtDesc(
+                        seller.getUserId(), BidStatus.NEW);
+
+        List<RecentBidResponseDto> response = new ArrayList<>();
+
+        for (Bid bid : bids) {
+            response.add(RecentBidResponseDto.builder()
+                    .bidderId(bid.getBidId())
+                    .bidderName(bid.getBuyer().getFullName())
+                    .cropListing(bid.getListing().getCropName())
+                    .bidAmount(bid.getBuyerAmount())
+                    .timestamp(bid.getCreatedAt())
+                    .bidStatus(bid.getBidStatus().name())
+                    .build());
+        }
+        return response;
+    }
+
+    @Override
+    public String acceptBid(Long bidId) {
+        Long userId = validatorMethods.getCurrentUserId();
+
+        Bid bid = bidRepository.findById(bidId)
+                .orElseThrow(() -> new RuntimeException("Bid not found"));
+
+        if (!bid.getListing().getSeller().getUserId().equals(userId)) {
+            throw new RuntimeException("You are not authorized to accept this bid");
+        }
+
+        if (bid.getBidStatus() != BidStatus.NEW) {
+            throw new RuntimeException("Bid is already " + bid.getBidStatus());
+        }
+
+        bid.setBidStatus(BidStatus.ACCEPTED);
+        bidRepository.save(bid);
+        return "Bid Accepted Successfully";
+    }
+
+    @Override
+    public String rejectBid(Long bidId) {
+        Long userId = validatorMethods.getCurrentUserId();
+
+        Bid bid = bidRepository.findById(bidId)
+                .orElseThrow(() -> new RuntimeException("Bid not found"));
+
+        if (!bid.getListing().getSeller().getUserId().equals(userId)) {
+            throw new RuntimeException("You are not authorized to reject this bid");
+        }
+
+        if (bid.getBidStatus() != BidStatus.NEW) {
+            throw new RuntimeException("Bid is already " + bid.getBidStatus());
+        }
+
+        bid.setBidStatus(BidStatus.REJECTED);
+        bidRepository.save(bid);
+        return "Bid Rejected Successfully";
+    }
 }
+
+

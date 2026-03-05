@@ -1,5 +1,7 @@
 package com.project.kisan_setu.entity;
 
+import com.project.kisan_setu.enums.BidStatus;
+import jakarta.annotation.Resource;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,6 +28,8 @@ public class Bid {
     private LocalDateTime bidTime;
 
     private LocalDateTime createdAt = LocalDateTime.now();
+    @Enumerated(EnumType.STRING)
+    private BidStatus bidStatus =  BidStatus.NEW;
 
     //relationship with listing
     @ManyToOne
@@ -36,6 +40,7 @@ public class Bid {
     @ManyToOne
     @JoinColumn(name = "buyer_id")
     private User buyer;
+
 
 
 }
