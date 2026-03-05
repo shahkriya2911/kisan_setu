@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
 
@@ -17,6 +18,5 @@ public class ListingImage {
     private String fileName;
     private String filePath;
     private String fileType;
-    private LocalDate issuedDate;
     private Boolean isPrimary; // cover image
 }

@@ -39,7 +39,7 @@ public class SecurityConfig {
                                 "api/users/signup",
                                 "api/users/login",
                                 "api/schemes/**",
-                                "api/users/**"
+                                "api/users/refresh"
                         )
                         .permitAll()
                         .anyRequest().authenticated()

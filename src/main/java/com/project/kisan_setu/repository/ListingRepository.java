@@ -15,8 +15,8 @@ import java.util.List;
 public interface ListingRepository extends JpaRepository<Listing, Long> {
     boolean existsBySellerUserId(Long userId); //checks if that particular user (seller) exists
     List<Listing> findBySaleType(SaleType saleType); //type of listing (fixed or auction)
-
-    Long countBySellerUserIdAndStatus(Long sellerId, AuctionStatus status);
+    Page<Listing> findBySeller_UserIdAndStatus(Long sellerId,AuctionStatus status,Pageable pageable);
+    Long countBySeller_UserIdAndStatus(Long sellerId, AuctionStatus status);
 
     List<Listing> findByStatus(AuctionStatus auctionStatus);
 

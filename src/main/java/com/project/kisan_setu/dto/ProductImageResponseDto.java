@@ -14,6 +14,5 @@ public class ProductImageResponseDto {
     private String fileName;
     private String filePath;
     private String fileType;
-    private LocalDate issuedDate;
     private Boolean isPrimary;
 }

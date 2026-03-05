@@ -56,7 +56,7 @@ public class UserController {
         );
 
         // Generate tokens
-        String accessToken = jwtUtil.generateAccessToken(user.getEmail());
+        String accessToken = jwtUtil.generateAccessToken(user.getUserId());
         String refreshToken = refreshTokenService
                 .createRefreshToken(user)
                 .getRefreshToken();
@@ -101,7 +101,7 @@ public class UserController {
         );
 
         // Generate tokens
-        String accessToken = jwtUtil.generateAccessToken(user.getEmail());
+        String accessToken = jwtUtil.generateAccessToken(user.getUserId());
         String refreshToken = refreshTokenService
                 .createRefreshToken(user)
                 .getRefreshToken();

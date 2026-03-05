@@ -18,7 +18,6 @@ public class ListingMapper {
 
         ListingResponseDto dto = new ListingResponseDto();
 
-        dto.setListingId(listing.getListingId());
         dto.setCropName(listing.getCropName());
         dto.setVariety(listing.getVariety());
         dto.setGrade(listing.getGrade());
@@ -82,6 +81,9 @@ public class ListingMapper {
             dto.setCertificate(certDto);
         }
 
+        //description
+        dto.setDescription(listing.getDescription());
+
         return dto;
     }
 
@@ -90,8 +92,8 @@ public class ListingMapper {
             QualityPricingListingDto pricingDto,
             QualityLocationListingDto locationDto,
             List<ListingImage> images,
-            ListingCertificate certificate
-    ) {
+            ListingCertificate certificate,
+            String description) {
 
         Listing listing = new Listing();
 
@@ -131,6 +133,8 @@ public class ListingMapper {
 
         listing.setCreatedAt(LocalDateTime.now());
 
+        listing.setDescription(description);
+
         return listing;
     }
 
@@ -140,7 +144,8 @@ public class ListingMapper {
             Listing listing,
             ProductListingDto productDto,
             QualityPricingListingDto pricingDto,
-            QualityLocationListingDto locationDto) {
+            QualityLocationListingDto locationDto,
+            String description) {
 
         listing.setCropName(productDto.getCropName());
         listing.setVariety(productDto.getVariety());
@@ -165,5 +170,7 @@ public class ListingMapper {
         listing.setPackagingType(locationDto.getPackagingType());
         listing.setStorageType(locationDto.getStorageType());
         listing.setPickupMethod(locationDto.getPickupMethod());
+
+        listing.setDescription(description);
     }
 }

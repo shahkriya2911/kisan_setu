@@ -78,8 +78,8 @@ public class BuyerServiceImpl implements BuyerService {
     public Object placeBid(Long listingId, PlaceBidRequestDto dto) {
 
         Listing listing = validatorMethods.validateExists(listingId);
-        String email = validatorMethods.getCurrentUserEmail();
-        User buyer = validatorMethods.validateUserByEmail(email);
+        Long userId = validatorMethods.getCurrentUserId();
+        User buyer = validatorMethods.validateUserById(userId);
 
         // Initialize remaining quantity if null
         if (listing.getRemainingQuantity() == null) {
