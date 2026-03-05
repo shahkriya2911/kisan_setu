@@ -154,6 +154,7 @@ public class BuyerServiceImpl implements BuyerService {
             inquiry.setQuantityRequested(dto.getQuantity());
             inquiry.setStatus(InquiryStatus.PENDING);
             inquiry.setInquiryTime(LocalDateTime.now());
+            inquiry.setRemainingQuantity(listing.getRemainingQuantity());
 
             buyerInquiryRepository.save(inquiry);
 
@@ -164,7 +165,8 @@ public class BuyerServiceImpl implements BuyerService {
                     inquiry.getListing().getCropName(),
                     inquiry.getQuantityRequested(),
                     inquiry.getInquiryTime(),
-                    inquiry.getStatus()
+                    inquiry.getStatus(),
+                    inquiry.getRemainingQuantity()
             );
         }
 

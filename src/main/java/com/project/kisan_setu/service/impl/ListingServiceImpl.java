@@ -369,7 +369,8 @@ public class ListingServiceImpl implements ListingService {
                             inquiry.getListing().getCropName(),
                             inquiry.getQuantityRequested(),
                             inquiry.getInquiryTime(),
-                            inquiry.getStatus()
+                            inquiry.getStatus(),
+                            inquiry.getRemainingQuantity()
                     )).toList();
 
             long totalInquires = inquiries.size();

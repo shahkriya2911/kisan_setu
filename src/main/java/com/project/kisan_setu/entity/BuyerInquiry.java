@@ -26,6 +26,7 @@ public class BuyerInquiry {
     private User buyer;
 
     private BigDecimal quantityRequested;
+    private BigDecimal remainingQuantity;
     private LocalDateTime respondedAt;
     private LocalDateTime inquiryTime;
     @Enumerated(EnumType.STRING)

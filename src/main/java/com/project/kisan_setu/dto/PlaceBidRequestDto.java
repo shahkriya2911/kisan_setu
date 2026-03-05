@@ -12,8 +12,6 @@ import java.math.BigDecimal;
 public class PlaceBidRequestDto {
         //FIXED
     private BigDecimal quantity;
-    private BigDecimal pricePerKg;
-    private BigDecimal totalBasePrice;
     private BigDecimal buyerAmount;
 
 }

@@ -7,11 +7,13 @@ import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.enums.InquiryStatus;
 import com.project.kisan_setu.repository.BuyerInquiryRepository;
+import com.project.kisan_setu.repository.ListingRepository;
 import com.project.kisan_setu.service.InquiryService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,19 +22,40 @@ import java.util.List;
 public class InquiryServiceImpl implements InquiryService {
     private final ValidatorMethods validatorMethods;
     private final BuyerInquiryRepository buyerInquiryRepository;
+    private final ListingRepository listingRepository;
     @Override
     public InquiryResponseDto createInquiry(InquiryRequestDto request, Long userId) {
         User buyer = validatorMethods.validateUserById(userId);
         Listing listing = validatorMethods.validateExists(request.getListingId());
+
+        System.out.println("=================================");
+        System.out.println("Listing ID: " + listing.getListingId());
+        System.out.println("Listing Quantity: " + listing.getQuantity());
+        System.out.println("Listing Remaining Quantity: " + listing.getRemainingQuantity());
+        System.out.println("Requested Quantity: " + request.getQuantityRequested());
+        System.out.println("=================================");
+
         if (listing.getSeller().getUserId().equals(buyer.getUserId())) {
             throw new RuntimeException("You cannot send inquiry to your own listing");
         }
+        BigDecimal currentRemaining = listing.getRemainingQuantity();
+        BigDecimal requestedQuantity = request.getQuantityRequested();
+        BigDecimal remainingQuantity = currentRemaining.subtract(requestedQuantity);
+
+        if (remainingQuantity.compareTo(BigDecimal.ZERO) < 0) {
+            throw new RuntimeException("Not enough quantity available. Remaining: " + currentRemaining);
+        }
+        listing.setRemainingQuantity(remainingQuantity);
+        listingRepository.save(listing);
+
+
         BuyerInquiry inquiry = new BuyerInquiry();
         inquiry.setListing(listing);
         inquiry.setBuyer(buyer);
         inquiry.setQuantityRequested(request.getQuantityRequested());
         inquiry.setStatus(InquiryStatus.PENDING);
         inquiry.setCreatedAt(LocalDateTime.now());
+        inquiry.setRemainingQuantity(remainingQuantity);
         BuyerInquiry saved = buyerInquiryRepository.save(inquiry);
 
         return InquiryResponseDto.builder()
@@ -40,6 +63,7 @@ public class InquiryServiceImpl implements InquiryService {
                 .buyerName(inquiry.getBuyer().getFullName())
                 .quantityRequested(saved.getQuantityRequested())
                 .status(InquiryStatus.valueOf(saved.getStatus().name()))
+                .remainingQuantity(remainingQuantity)
                 .build();
     }
 
@@ -60,7 +84,8 @@ public class InquiryServiceImpl implements InquiryService {
                         inq.getListing().getCropName(),
                         inq.getQuantityRequested(),
                         inq.getInquiryTime(),
-                        inq.getStatus()
+                        inq.getStatus(),
+                        inq.getRemainingQuantity()
                 ))
                 .toList();
     }

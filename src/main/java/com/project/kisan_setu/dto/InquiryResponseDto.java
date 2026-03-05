@@ -22,6 +22,8 @@ public class InquiryResponseDto {
     private BigDecimal quantityRequested;
     private LocalDateTime inquiryTime;
     private InquiryStatus status;
+    private BigDecimal remainingQuantity;
+
 
 
 }
