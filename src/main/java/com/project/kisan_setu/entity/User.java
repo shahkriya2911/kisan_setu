@@ -1,16 +1,11 @@
 package com.project.kisan_setu.entity;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,11 +17,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-    @Id //primary key
-    @GeneratedValue(strategy = GenerationType.IDENTITY) //auto-increment
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
-
-    //user details
     private String fullName;
     private String email;
     @Column(nullable = false,unique = true)
@@ -35,12 +28,31 @@ public class User {
     private String password;
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+    private String dateOfBirth;
+    private String bankName;
+    private String accountNumber;
+    private String ifscCode;
+    private String upiId;
 
-    //relationship with listings (as a seller)
+    private BigDecimal farmSize;
+    private String primaryCrops;
+    private String farmLocation;
+    private Integer yearsOfExperience;
+
+
+
     @OneToMany(mappedBy = "seller")
     private List<Listing> listings = new ArrayList<>();
 
-    //relationship with buying requirement (as a buyer)
     @OneToMany(mappedBy = "buyer")
     private List<BuyingRequirement> buyingRequirements = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private AadhaarVerification aadhaarVerification;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private BankAccountVerification bankAccountVerification;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private MobileVerification mobileVerification;
 }

@@ -59,8 +59,10 @@ public class InquiryServiceImpl implements InquiryService {
         BuyerInquiry saved = buyerInquiryRepository.save(inquiry);
 
         return InquiryResponseDto.builder()
+                .inquiryId(inquiry.getInquiryId())
                 .listingId(listing.getListingId())
                 .buyerName(inquiry.getBuyer().getFullName())
+                .cropName(inquiry.getListing().getCropName())
                 .quantityRequested(saved.getQuantityRequested())
                 .status(InquiryStatus.valueOf(saved.getStatus().name()))
                 .remainingQuantity(remainingQuantity)

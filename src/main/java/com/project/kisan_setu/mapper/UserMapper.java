@@ -1,8 +1,9 @@
 package com.project.kisan_setu.mapper;
 
-import com.project.kisan_setu.dto.UpdateUserRequestDto;
-import com.project.kisan_setu.dto.UserResponseDto;
-import com.project.kisan_setu.dto.CreateUserRequestDto;
+import com.project.kisan_setu.dto.*;
+import com.project.kisan_setu.entity.AadhaarVerification;
+import com.project.kisan_setu.entity.BankAccountVerification;
+import com.project.kisan_setu.entity.MobileVerification;
 import com.project.kisan_setu.entity.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -39,5 +40,56 @@ public class UserMapper {
             dto.setUserCreatedAt(user.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         }
         return dto;
+    }
+
+    public static UserProfileResponseDto toDto(User user)
+    {
+        MobileVerification mobile = user.getMobileVerification();
+        AadhaarVerification aadhaar = user.getAadhaarVerification();
+        BankAccountVerification bank = user.getBankAccountVerification();
+
+        return UserProfileResponseDto.builder()
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .dateOfBirth(user.getDateOfBirth())
+                .mobileNumber(user.getMobileNumber())
+                .bankName(user.getBankName())
+                .accountNumber(user.getAccountNumber())
+                .ifscCode(user.getIfscCode())
+                .farmSize(user.getFarmSize())
+                .primaryCrops(user.getPrimaryCrops())
+                .farmLocation(user.getFarmLocation())
+                .yearsOfExperience(user.getYearsOfExperience())
+
+                .mobileVerified(mobile != null && mobile.isVerified())
+                .mobileVerifiedAt(mobile != null ? mobile.getVerifiedAt() : null)
+
+                .aadhaarVerified(aadhaar != null && aadhaar.isVerified())
+                .aadhaarVerifiedAt(aadhaar != null ? aadhaar.getVerifiedAt() : null)
+
+                .bankAccountVerified(bank != null && bank.isVerified())
+                .bankAccountVerifiedAt(bank != null ? bank.getVerifiedAt() : null)
+                .build();
+    }
+    public static void updateUserEntity(User user, UserProfileRequestDto request) {
+        if(request.getDateOfBirth()!= null)
+            user.setDateOfBirth(request.getDateOfBirth());
+        if (request.getBankName() != null)
+            user.setBankName(request.getBankName());
+        if (request.getAccountNumber() != null)
+            user.setAccountNumber(request.getAccountNumber());
+        if (request.getIfscCode() != null)
+            user.setIfscCode(request.getIfscCode());
+        if (request.getUpiId() != null)
+            user.setUpiId(request.getUpiId());
+        if (request.getFarmSize() != null)
+            user.setFarmSize(request.getFarmSize());
+        if (request.getPrimaryCrops() != null)
+            user.setPrimaryCrops(request.getPrimaryCrops());
+        if (request.getFarmLocation() != null)
+            user.setFarmLocation(request.getFarmLocation());
+        if (request.getYearsOfExperience() != null)
+            user.setYearsOfExperience(request.getYearsOfExperience());
     }
 }

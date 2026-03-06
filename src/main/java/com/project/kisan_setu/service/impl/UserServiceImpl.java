@@ -1,15 +1,23 @@
 package com.project.kisan_setu.service.impl;
 
 import com.project.kisan_setu.dto.*;
+import com.project.kisan_setu.entity.AadhaarVerification;
+import com.project.kisan_setu.entity.MobileVerification;
 import com.project.kisan_setu.entity.RefreshToken;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.UserMapper;
+import com.project.kisan_setu.repository.AadhaarVerificationRepository;
+import com.project.kisan_setu.repository.MobileVerificationRepository;
 import com.project.kisan_setu.repository.RefreshTokenRepository;
 import com.project.kisan_setu.repository.UserRepository;
 import com.project.kisan_setu.security.JwtUtil;
 import com.project.kisan_setu.service.RefreshTokenService;
 import com.project.kisan_setu.service.UserService;
+import com.project.kisan_setu.util.ValidatorMethods;
+import lombok.RequiredArgsConstructor;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,21 +27,18 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ValidatorMethods validatorMethods;
     private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
+    private final JavaMailSender javaMailSender;
+    private final MobileVerificationRepository mobileVerificationRepository;
+    private final AadhaarVerificationRepository aadhaarVerificationRepository;
 
-    public UserServiceImpl(UserRepository userRepository,
-                           PasswordEncoder passwordEncoder,
-                           JwtUtil jwtUtil, RefreshTokenService refreshTokenService) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
-        this.refreshTokenService = refreshTokenService;
-    }
 
     @Override
     public SignupResponseDto signup(CreateUserRequestDto dto) {
@@ -121,5 +126,20 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
+
+    @Override
+    public UserProfileResponseDto updateSellerProfileData(UserProfileRequestDto dto) {
+        Long userId = validatorMethods.getCurrentUserId();
+        User user = validatorMethods.validateUserById(userId);
+
+        UserMapper.updateUserEntity(user,dto);
+        userRepository.save(user);
+
+        User updatedUser = userRepository.findByIdWithVerifications(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return UserMapper.toDto(updatedUser);
+    }
+
 }
 

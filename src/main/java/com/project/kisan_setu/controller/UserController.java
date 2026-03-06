@@ -11,6 +11,7 @@ import com.project.kisan_setu.service.RefreshTokenService;
 import com.project.kisan_setu.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController //handling of rest apis
-@RequestMapping("api/users") //api starts with /users
+@RequestMapping("api/users")
+@RequiredArgsConstructor//api starts with /users
 public class UserController {
 
     //constructor dependency injection
@@ -32,14 +34,6 @@ public class UserController {
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-
-    public UserController(UserService userService, JwtUtil jwtUtil, RefreshTokenService refreshTokenService, RefreshTokenRepository refreshTokenRepository, UserRepository userRepository, RefreshTokenService refreshTokenService1) {
-        this.userService = userService;
-        this.jwtUtil = jwtUtil;
-        this.refreshTokenRepository = refreshTokenRepository;
-        this.userRepository = userRepository;
-        this.refreshTokenService = refreshTokenService1;
-    }
 
     @PostMapping("/signup")
     public ResponseEntity<SignupResponseDto> signup(
@@ -228,4 +222,11 @@ public class UserController {
         //response send to frontend
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/updateProfile")
+    public ResponseEntity<UserProfileResponseDto> updateProfile(@RequestBody UserProfileRequestDto dto) {
+        UserProfileResponseDto response = userService.updateSellerProfileData(dto);
+        return ResponseEntity.ok(response);
+    }
+
 }

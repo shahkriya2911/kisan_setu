@@ -27,12 +27,12 @@ public class UpdateUserRequestDto {
             message = "Mobile number must start with 6-9 and contain 10 digits"
     )
     private String userPhoneNumber;
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 6 characters")
-    @Pattern(
-            regexp = "^(?=.*[0-9])(?=.*[!@#$%^&*(),.?\":{}|<>]).{6,}$",
-            message = "Password must contain at least one digit and one special character"
-    )
+//    @NotBlank(message = "Password is required")
+//    @Size(min = 6, message = "Password must be at least 6 characters")
+//    @Pattern(
+//            regexp = "^(?=.*[0-9])(?=.*[!@#$%^&*(),.?\":{}|<>]).{6,}$",
+//            message = "Password must contain at least one digit and one special character"
+//    )
     private String userPassword;
 
 
