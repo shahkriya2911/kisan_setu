@@ -282,6 +282,7 @@ public class BuyerServiceImpl implements BuyerService {
                 listing.getCropName(),
                 listing.getVariety(),
                 listing.getState(),
+                listing.getUnit(),
                 listing.getPackagingType(),
                 listing.getSaleType(),
                 listing.getStorageType(),
