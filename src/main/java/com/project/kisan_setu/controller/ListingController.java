@@ -107,11 +107,32 @@ public class ListingController {
         return ResponseEntity.ok("Listing marked as SOLD successfully");
     }
 
-    @PutMapping("/{listingId},extends")
+    @PutMapping("/{listingId}/extends")
     public ResponseEntity<String> extendAuctionTime(@PathVariable Long listingId,@RequestParam Long sellerId,@RequestParam int minutes){
         listingService.extendAuctionTime(listingId,sellerId,minutes);
         return ResponseEntity.ok("Auction time extended successfully");
 
+    }
+
+    @GetMapping("/my-pending")
+    public ResponseEntity<Page<ListingResponseDto>> pendingListings(Authentication authentication, Pageable pageable){
+        Long userId = Long.parseLong(authentication.getName());
+        Page<ListingResponseDto> listings = listingService.pendingListings(userId,pageable);
+        return ResponseEntity.ok(listings);
+    }
+
+    @GetMapping("/my-sold")
+    public ResponseEntity<Page<ListingResponseDto>> soldListings(Authentication authentication, Pageable pageable){
+        Long userId = Long.parseLong(authentication.getName());
+        Page<ListingResponseDto> listings = listingService.soldListings(userId,pageable);
+        return ResponseEntity.ok(listings);
+    }
+
+    @GetMapping("/my-closed")
+    public ResponseEntity<Page<ListingResponseDto>> closedListings(Authentication authentication, Pageable pageable){
+        Long userId = Long.parseLong(authentication.getName());
+        Page<ListingResponseDto> listings = listingService.closedListings(userId,pageable);
+        return ResponseEntity.ok(listings);
     }
 
     @GetMapping("/my-active")
@@ -120,6 +141,8 @@ public class ListingController {
         Page<ListingResponseDto> listings = listingService.activeListings(userId,pageable);
         return ResponseEntity.ok(listings);
     }
+
+
     @GetMapping("/seller/requirements")
     public ResponseEntity<List<BuyingRequirementResponseDto>> getRequirementsForSeller() {
 

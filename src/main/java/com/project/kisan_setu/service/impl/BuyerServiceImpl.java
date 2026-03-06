@@ -1,6 +1,7 @@
 package com.project.kisan_setu.service.impl;
 
 import com.project.kisan_setu.dto.*;
+import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.entity.*;
 import com.project.kisan_setu.enums.BidStatus;
 import com.project.kisan_setu.enums.InquiryStatus;
@@ -14,8 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,29 +50,21 @@ public class BuyerServiceImpl implements BuyerService {
 
     // Get Active Auction Listings
     @Override
-    public List<BuyerListingResponseDto> getActiveAuctionListings() {
+    public List<BuyerListingResponseDto> getActiveAuctionListings(Long userId) {
 
-        return listingRepository.findBySaleType(SaleType.AUCTION)
+        return listingRepository.findBySaleTypeAndSellerUserIdNot(SaleType.AUCTION, userId)
                 .stream()
-                .map(listing -> {
-
-                    BigDecimal currentHighest = bidRepository
-                            .findTopByListingListingIdOrderByBuyerAmountDesc(
-                                    listing.getListingId())
-                            .map(Bid::getBuyerAmount)
-                            .orElse(listing.getPricePerKg());
-
-                    return new BuyerListingResponseDto(
-                            listing.getListingId(),
-                            listing.getCropName(),
-                            listing.getGrade(),
-                            listing.getTotalBasePrice(),
-                            currentHighest,
-                            listing.getDistrict(),
-                            listing.getAuctionEndTime()
-                    );
-                })
+                .map(this::toBuyerListingResponse)
                 .toList();
+    }
+
+    @Override
+    public BuyerListingResponseDto getAuctionListingDetail(Long listingId) {
+        Listing listing = validatorMethods.validateExists(listingId);
+        if (listing.getSaleType() != SaleType.AUCTION) {
+            throw new RuntimeException("Listing is not an auction");
+        }
+        return toBuyerListingResponse(listing);
     }
 
     // Place Bid
@@ -270,13 +265,49 @@ public class BuyerServiceImpl implements BuyerService {
         throw new RuntimeException("Invalid purchase type");
     }
 
+    private BuyerListingResponseDto toBuyerListingResponse(Listing listing) {
+        BigDecimal currentHighest = bidRepository
+                .findTopByListingListingIdOrderByBuyerAmountDesc(listing.getListingId())
+                .map(Bid::getBuyerAmount)
+                .orElse(listing.getPricePerKg());
 
-        @Override
-        public Object getBidHistory (Long listingId){
-            return null;
-        }
+        List<ProductImageResponseDto> images = listing.getImages() == null
+                ? List.of()
+                : listing.getImages().stream()
+                .map(this::toImageResponse)
+                .collect(Collectors.toList());
+
+        return new BuyerListingResponseDto(
+                listing.getListingId(),
+                listing.getCropName(),
+                listing.getVariety(),
+                listing.getState(),
+                listing.getPackagingType(),
+                listing.getSaleType(),
+                listing.getStorageType(),
+                listing.getHarvestDate(),
+                listing.getMinimumBidIncrement(),
+                listing.getGrade(),
+                listing.getTotalBasePrice(),
+                listing.getPricePerKg(),
+                listing.getPurchaseType(),
+                listing.getDistrict(),
+                listing.getAuctionEndTime(),
+                currentHighest,
+                images
+        );
     }
 
-
-
-
+    private ProductImageResponseDto toImageResponse(ListingImage image) {
+        ProductImageResponseDto dto = new ProductImageResponseDto();
+        dto.setFileName(image.getFileName());
+        dto.setFilePath(image.getFilePath());
+        dto.setFileType(image.getFileType());
+        dto.setIsPrimary(image.getIsPrimary());
+        return dto;
+    }
+    @Override
+    public Object getBidHistory(Long listingId) {
+        return null;
+    }
+}

@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,14 +39,18 @@ public class BuyerController {
     //get all auction listings
     @GetMapping("/auctions")
     public ResponseEntity<?> getAuctionListings() {
-
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
         return ResponseEntity.ok(
-                buyerService.getActiveAuctionListings()
-        );
+                buyerService.getActiveAuctionListings(userId));
+    }
+
+    @GetMapping("/auctions/{listingId}")
+    public ResponseEntity<?> getAuctionListingDetail(@PathVariable Long listingId) {
+        return ResponseEntity.ok(buyerService.getAuctionListingDetail(listingId));
     }
 
     //post a bid in a particular auction listing
-    @PostMapping("/{listingId}/actions")
+    @PostMapping("/{listingId}/auctions")
     public ResponseEntity<?> placeAction(
             @PathVariable Long listingId,
             @RequestBody PlaceBidRequestDto dto) {

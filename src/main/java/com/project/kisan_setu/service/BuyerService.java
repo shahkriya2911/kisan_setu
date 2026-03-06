@@ -9,7 +9,9 @@ public interface BuyerService {
     public BuyingRequirementResponseDto postRequirement(BuyingRequirementRequestDto dto) ;
 
 
-        List<BuyerListingResponseDto> getActiveAuctionListings();
+        List<BuyerListingResponseDto> getActiveAuctionListings(Long userId);
+
+    BuyerListingResponseDto getAuctionListingDetail(Long listingId);
 
     // Place Bid
     Object placeBid(

@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 public class PlaceBidRequestDto {
         //FIXED
     private BigDecimal quantity;
+        //AUCTION
     private BigDecimal buyerAmount;
 
 }

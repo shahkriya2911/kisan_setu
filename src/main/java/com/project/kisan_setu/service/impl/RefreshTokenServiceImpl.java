@@ -1,13 +1,11 @@
 package com.project.kisan_setu.service.impl;
 
-import com.project.kisan_setu.dto.LoginResponseDto;
 import com.project.kisan_setu.entity.RefreshToken;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.exception.UserException;
-import com.project.kisan_setu.mapper.UserMapper;
 import com.project.kisan_setu.repository.RefreshTokenRepository;
-import com.project.kisan_setu.security.JwtUtil;
 import com.project.kisan_setu.service.RefreshTokenService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,12 +16,11 @@ import java.util.UUID;
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
-    private final JwtUtil jwtUtil;
+    @Value("${jwt.refresh.expiration}")
+    private long refreshExpirationMillis;
 
-    public RefreshTokenServiceImpl(RefreshTokenRepository refreshTokenRepository,
-                                   JwtUtil jwtUtil) {
+    public RefreshTokenServiceImpl(RefreshTokenRepository refreshTokenRepository) {
         this.refreshTokenRepository = refreshTokenRepository;
-        this.jwtUtil = jwtUtil;
     }
 
     //CREATE
@@ -33,15 +30,14 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         RefreshToken token = new RefreshToken();
         token.setUser(user);
         token.setRefreshToken(UUID.randomUUID().toString());
-        token.setExpiryDate(LocalDateTime.now().plusDays(7));
+        token.setExpiryDate(LocalDateTime.now().plusNanos(refreshExpirationMillis * 1_000_000));
         token.setRevoked(false);
 
         return refreshTokenRepository.save(token);
     }
 
-    //REFRESH
     @Override
-    public LoginResponseDto refreshAccessToken(String requestToken) {
+    public RefreshToken validateRefreshToken(String requestToken) {
 
         RefreshToken refreshToken = refreshTokenRepository
                 .findByRefreshToken(requestToken)
@@ -58,19 +54,19 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         }
 
         User user = refreshToken.getUser();
+        user.getUserId(); // force lazy relation init inside transaction
+        return refreshToken;
+    }
 
-        // ROTATION
-        refreshToken.setRevoked(true);
-        refreshTokenRepository.save(refreshToken);
+    @Override
+    public RefreshToken rotateRefreshToken(String token) {
+        RefreshToken oldToken = validateRefreshToken(token);
+        User user = oldToken.getUser();
 
-        RefreshToken newRefreshToken = createRefreshToken(user);
-        String newAccessToken = jwtUtil.generateAccessToken(user.getUserId());
+        oldToken.setRevoked(true);
+        refreshTokenRepository.save(oldToken);
 
-        return new LoginResponseDto(
-                200,
-                "Token refreshed successfully",
-                UserMapper.toResponse(user)
-        );
+        return createRefreshToken(user);
     }
 
     // REVOKE ALL
