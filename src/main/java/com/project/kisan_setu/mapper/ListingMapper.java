@@ -12,11 +12,12 @@ import java.util.stream.Collectors;
 
 public class ListingMapper {
 
-    private static final String BASE_URL = "http://localhost:8080/uploads/";
+    private static final String BASE_URL = "http://localhost:8080/api/";
 
     public static ListingResponseDto toResponse(Listing listing) {
 
         ListingResponseDto dto = new ListingResponseDto();
+        dto.setListingId(listing.getListingId());
 
         dto.setCropName(listing.getCropName());
         dto.setVariety(listing.getVariety());
@@ -83,6 +84,8 @@ public class ListingMapper {
 
         //description
         dto.setDescription(listing.getDescription());
+
+        dto.setCreatedAt(listing.getCreatedAt());
 
         return dto;
     }

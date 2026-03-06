@@ -14,7 +14,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     private final Path basePath;
 
     public FileStorageServiceImpl() {
-        this.basePath = Paths.get("uploads").toAbsolutePath().normalize();
+        this.basePath = Paths.get("api").toAbsolutePath().normalize();
 
         try {
             Files.createDirectories(this.basePath);

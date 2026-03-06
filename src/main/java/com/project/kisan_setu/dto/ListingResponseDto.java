@@ -16,6 +16,8 @@ import java.util.List;
 @NoArgsConstructor
 public class ListingResponseDto {
 
+    private Long listingId;
+
     // Product Info
     private String cropName;
     private String variety;
@@ -55,4 +57,5 @@ public class ListingResponseDto {
     private QualityCertificateResponseDto certificate;
     private String description;
 
+    private LocalDateTime createdAt;
 }

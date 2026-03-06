@@ -73,6 +73,7 @@ public class ListingServiceImpl implements ListingService {
                 image.setIsPrimary(false);
                 return image;
             }).collect(Collectors.toList());
+            images.get(0).setIsPrimary(true);
         }
 
         // Map certificate
@@ -144,6 +145,7 @@ public class ListingServiceImpl implements ListingService {
                 image.setIsPrimary(false);
                 return image;
             }).collect(Collectors.toList());
+            updatedImages.get(0).setIsPrimary(true);
 
             listing.getImages().clear();
             listing.setImages(updatedImages);
@@ -228,7 +230,7 @@ public class ListingServiceImpl implements ListingService {
 
     private void deletePhysicalFile(String relativePath) {
         try {
-            Path path = Paths.get("uploads").resolve(relativePath);
+            Path path = Paths.get("api").resolve(relativePath);
             Files.deleteIfExists(path);
         } catch (IOException e) {
             logger.warn("Failed to delete file: {}", relativePath);
@@ -494,6 +496,24 @@ public class ListingServiceImpl implements ListingService {
     @Override
     public Page<ListingResponseDto> activeListings(Long sellerId, Pageable pageable) {
         Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.ACTIVE, pageable);
+        return listings.map(ListingMapper::toResponse);
+    }
+
+    @Override
+    public Page<ListingResponseDto> pendingListings(Long sellerId, Pageable pageable){
+        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.PENDING,pageable);
+        return listings.map(ListingMapper::toResponse);
+    }
+
+    @Override
+    public Page<ListingResponseDto> soldListings(Long sellerId, Pageable pageable) {
+        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.SOLD,pageable);
+        return listings.map(ListingMapper::toResponse);
+    }
+
+    @Override
+    public Page<ListingResponseDto> closedListings(Long sellerId, Pageable pageable) {
+        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.CLOSED,pageable);
         return listings.map(ListingMapper::toResponse);
     }
 

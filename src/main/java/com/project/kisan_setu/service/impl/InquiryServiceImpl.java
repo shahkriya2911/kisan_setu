@@ -64,6 +64,7 @@ public class InquiryServiceImpl implements InquiryService {
                 .buyerName(inquiry.getBuyer().getFullName())
                 .cropName(inquiry.getListing().getCropName())
                 .quantityRequested(saved.getQuantityRequested())
+                .inquiryTime(inquiry.getInquiryTime())
                 .status(InquiryStatus.valueOf(saved.getStatus().name()))
                 .remainingQuantity(remainingQuantity)
                 .build();

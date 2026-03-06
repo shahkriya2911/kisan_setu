@@ -29,7 +29,14 @@ public interface ListingService {
     void markAsSold(Long listingId,Long userId);
 
     Page<ListingResponseDto> activeListings(Long sellerId, Pageable pageable);
-    void extendAuctionTime(Long listingId,Long sellerId,int minutes);
+
+    Page<ListingResponseDto> pendingListings(Long sellerId, Pageable pageable);
+
+    Page<ListingResponseDto> soldListings(Long sellerId, Pageable pageable);
+
+    Page<ListingResponseDto> closedListings(Long sellerId, Pageable pageable);
+
+    void extendAuctionTime(Long listingId, Long sellerId, int minutes);
     List<BuyingRequirementResponseDto> getBuyerRequirementsForSeller();
     BuyerContactResponseDto getBuyerContact(Long requirementId);
     List<RecentBidResponseDto> getRecentBids();
