@@ -77,7 +77,6 @@ public class UserController {
             HttpServletRequest servletRequest,
             HttpServletResponse servletResponse,
             @RequestBody(required = false) RefreshTokenRequestDto request) {
-        logger.info("Create refresh token request attempt");
         String token = resolveRefreshToken(servletRequest, request);
         if (token == null || token.isBlank()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
@@ -220,7 +219,6 @@ public class UserController {
     }
 
     private void writeTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
-        logger.info("Writing token cookies for user...");
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
                 .httpOnly(true)
                 .secure(secureCookie)
@@ -237,13 +235,11 @@ public class UserController {
                 .sameSite("Lax")
                 .build();
 
-        logger.info("Token cookies writing successful");
         response.addHeader("Set-Cookie", accessCookie.toString());
         response.addHeader("Set-Cookie", refreshCookie.toString());
     }
 
     private void clearAuthCookies(HttpServletResponse response) {
-        logger.info("Clearing cookies for user...");
         ResponseCookie clearAccessCookie = ResponseCookie.from("accessToken", "")
                 .httpOnly(true)
                 .secure(secureCookie)
@@ -259,30 +255,25 @@ public class UserController {
                 .maxAge(0)
                 .sameSite("Lax")
                 .build();
-        logger.info("Cookies cleared successfully");
         response.addHeader("Set-Cookie", clearAccessCookie.toString());
         response.addHeader("Set-Cookie", clearRefreshCookie.toString());
     }
 
     private String resolveRefreshToken(HttpServletRequest request, RefreshTokenRequestDto requestBody) {
-        logger.info("Resolving refresh token for user...");
         if (requestBody != null
                 && requestBody.getRefreshToken() != null
                 && !requestBody.getRefreshToken().isBlank()) {
             return requestBody.getRefreshToken();
         }
-        logger.info("Refresh token resolved successfully");
         return readCookieValue(request, "refreshToken").orElse(null);
     }
 
     private Optional<String> readCookieValue(HttpServletRequest request, String cookieName) {
-        logger.info("Reading cookie values...");
         if (request.getCookies() == null) {
             return Optional.empty();
         }
         for (Cookie cookie : request.getCookies()) {
             if (cookieName.equals(cookie.getName())) {
-                logger.info("Reading cookie values successful");
                 return Optional.ofNullable(cookie.getValue());
             }
         }

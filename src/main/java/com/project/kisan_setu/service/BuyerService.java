@@ -1,6 +1,7 @@
 package com.project.kisan_setu.service;
 
 import com.project.kisan_setu.dto.*;
+import com.project.kisan_setu.entity.Bid;
 
 import java.util.List;
 
@@ -18,5 +19,5 @@ public interface BuyerService {
             Long listingId,
             PlaceBidRequestDto dto);
 
-    Object getBidHistory(Long listingId);
+    List<BidHistoryDto> getBidHistory(Long listingId);
 }
