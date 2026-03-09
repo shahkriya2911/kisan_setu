@@ -282,6 +282,7 @@ public class BuyerServiceImpl implements BuyerService {
                 listing.getCropName(),
                 listing.getVariety(),
                 listing.getState(),
+                listing.getQuantity(),
                 listing.getUnit(),
                 listing.getPackagingType(),
                 listing.getSaleType(),
@@ -309,6 +310,6 @@ public class BuyerServiceImpl implements BuyerService {
     }
     @Override
     public Object getBidHistory(Long listingId) {
-        return null;
+        return bidRepository.findByListingListingIdOrderByBuyerAmountDesc(listingId);
     }
 }

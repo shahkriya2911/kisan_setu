@@ -19,6 +19,4 @@ public interface BuyerService {
             PlaceBidRequestDto dto);
 
     Object getBidHistory(Long listingId);
-
-//    List<BidResponseDto> getBidHistory(Long listingId);
 }

@@ -33,4 +33,7 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
     Double getAveragePriceByCrop(@Param("cropName") String cropName);
 
     List<Bid> findTop5ByListingSellerUserIdAndBidStatusOrderByCreatedAtDesc(Long userId, BidStatus bidStatus);
+    @Query("SELECT COUNT(l) FROM Listing l WHERE l.saleType='AUCTION' AND l.status='ACTIVE'")
+    Long countLiveAuctions();
+    long countByListing_ListingId(Long listingId);
 }

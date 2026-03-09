@@ -24,6 +24,7 @@ public class BuyerListingResponseDto {
     private String cropName;
     private String variety;
     private String state;
+    private BigDecimal quantity;
     private String unit;
     private String packagingType;
     private SaleType saleType;

@@ -34,7 +34,7 @@ public class BuyingRequirement {
     private LocalDate deadline;
     @Enumerated(EnumType.STRING)
     private Urgency urgency;
-    private String addtionalNote;
+    private String additionalNote;
     private LocalDateTime createdAt;
     @Enumerated(EnumType.STRING)
     private RequirementStatus requirementStatus;

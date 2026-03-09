@@ -32,6 +32,8 @@ public class BuyerController {
     @PostMapping
     public BuyingRequirementResponseDto createRequirement(
             @Valid @RequestBody BuyingRequirementRequestDto dto) {
+        logger.debug("Create buyer requirement request attempt for buyer");
+        logger.info("Buyer requirement created successfully");
         return buyerService.postRequirement(dto);
     }
 
@@ -39,13 +41,17 @@ public class BuyerController {
     //get all auction listings
     @GetMapping("/auctions")
     public ResponseEntity<?> getAuctionListings() {
+        logger.info("Get all auction listings request attempt");
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        logger.info("Fetched all auction listings successfully");
         return ResponseEntity.ok(
                 buyerService.getActiveAuctionListings(userId));
     }
 
     @GetMapping("/auctions/{listingId}")
     public ResponseEntity<?> getAuctionListingDetail(@PathVariable Long listingId) {
+        logger.debug("Get listing detail request attempt for listing id : {}",listingId);
+        logger.info("Fetched listing detail successfully");
         return ResponseEntity.ok(buyerService.getAuctionListingDetail(listingId));
     }
 
@@ -54,11 +60,11 @@ public class BuyerController {
     public ResponseEntity<?> placeAction(
             @PathVariable Long listingId,
             @RequestBody PlaceBidRequestDto dto) {
-
+        logger.debug("Post bid for listing with id : {}",listingId);
 
         Object response =
                 buyerService.placeBid(listingId, dto);
-
+        logger.info("Bid placed successfully");
         return ResponseEntity.ok(response);
 
     }
@@ -67,7 +73,8 @@ public class BuyerController {
     @GetMapping("/auctions/{listingId}/bids")
     public ResponseEntity<?> getBidHistory(
             @PathVariable Long listingId) {
-
+        logger.debug("Get bid history for listing with id : {} request attempt",listingId);
+        logger.info("Fetched bid history successfully");
         return ResponseEntity.ok(
                 buyerService.getBidHistory(listingId)
         );

@@ -31,13 +31,15 @@ public class SchemeController {
 
     @GetMapping("/{id}")
     public ResponseEntity<SchemeResponseDto> getById(@PathVariable Long id) {
-        logger.info("Fetching scheme with ID: {}", id);
+        logger.debug("Get scheme with id : {} request attempt",id);
+        logger.info("Fetching scheme with ID: {} successful", id);
         return ResponseEntity.ok(schemeService.getSchemeById(id));
     }
 
     @GetMapping
     public ResponseEntity<List<SchemeResponseDto>> getAll() {
-        logger.info("Fetching all schemes");
+        logger.info("Get all schemes request attempt");
+        logger.info("Fetching all schemes successful");
         return ResponseEntity.ok(schemeService.getAllSchemes());
     }
 
@@ -52,7 +54,8 @@ public class SchemeController {
     
     @PutMapping("/{schemeId}")
     public ResponseEntity<SchemeResponseDto> updateSchemeById(@PathVariable Long schemeId,@RequestBody SchemeRequestDto dto){
-        logger.info("Updating scheme with ID: {}", schemeId);
+        logger.info("Update scheme with id : {} request attempt",schemeId);
+        logger.info("Updating scheme with ID: {} successful", schemeId);
         return ResponseEntity.ok(schemeService.updateSchemeById(schemeId, dto));
     }
 }

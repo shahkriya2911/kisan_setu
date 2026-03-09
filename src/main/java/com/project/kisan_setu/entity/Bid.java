@@ -31,6 +31,8 @@ public class Bid {
     @Enumerated(EnumType.STRING)
     private BidStatus bidStatus =  BidStatus.NEW;
 
+    private BigDecimal amountPerKg;
+
     //relationship with listing
     @ManyToOne
     @JoinColumn(name = "listing_id")

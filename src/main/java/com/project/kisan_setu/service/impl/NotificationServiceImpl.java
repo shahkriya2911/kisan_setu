@@ -6,6 +6,8 @@ import com.project.kisan_setu.repository.NotificationRepository;
 import com.project.kisan_setu.repository.UserRepository;
 import com.project.kisan_setu.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private static final Logger logger = LoggerFactory.getLogger(NotificationServiceImpl.class);
 
     public NotificationServiceImpl(NotificationRepository notificationRepository, UserRepository userRepository) {
         this.notificationRepository = notificationRepository;
@@ -23,6 +26,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void notifyBuyer(User buyer, String message) {
+        logger.info("Notifying buyer....");
         Notification notification = new Notification();
         notification.setBuyer(buyer);
         notification.setMessage(message);

@@ -9,6 +9,8 @@ import com.project.kisan_setu.service.AadhaarVerificationService;
 import com.project.kisan_setu.service.FileStorageService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,13 +23,15 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
     private final AadhaarVerificationRepository aadhaarVerificationRepository;
     private final ValidatorMethods validatorMethods;
     private final FileStorageService fileStorageService;
+    private final static Logger logger = LoggerFactory.getLogger(AadhaarVerificationServiceImpl.class);
 
     @Override
     public AadhaarResponseDto submitAadhaar(AadhaarRequestDto dto) {
+        logger.info("Validating user for submit aadhaar request...");
         Long userId = validatorMethods.getCurrentUserId();
         User user = validatorMethods.validateUserById(userId);
 
-
+        logger.info("Checking if aadhaar already exists for user in DB or not...");
         Optional<AadhaarVerification> existing =
                 aadhaarVerificationRepository.findByUserUserId(userId);
 
@@ -47,6 +51,7 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
                     .build();
         }
 
+        logger.info("Checking validity of aadhaar...");
         if (dto.getAadhaarNumber() == null || !dto.getAadhaarNumber().matches("\\d{12}")) {
             throw new RuntimeException("Invalid Aadhaar! Must be 12 digits");
         }
@@ -65,12 +70,15 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
         verification.setVerified(false);
         aadhaarVerificationRepository.save(verification);
 
+        logger.info("Aadhaar submitted success...");
         return buildResponse(verification, user,
                 "Aadhaar submitted! Wait for approval.");
 
     }
 
     private AadhaarResponseDto buildResponse(AadhaarVerification v, User user, String message) {
+        logger.info("Building response for aadhaar...");
+        logger.info("Aadhaar response generated");
         return AadhaarResponseDto.builder()
                 .userId(user.getUserId())
                 .aadhaarNumber(v.getAadhaarNumber())
@@ -88,11 +96,14 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
 
     @Override
     public AadhaarResponseDto getAadhaarStatus() {
+        logger.info("Validating user for getting aadhaar status...");
         Long userId = validatorMethods.getCurrentUserId();
         User user = validatorMethods.validateUserById(userId);
 
+        logger.info("Verifying aadhaar...");
         AadhaarVerification verification = aadhaarVerificationRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new RuntimeException("No Aadhaar submitted yet"));
+        logger.info("Aadhaar verified success...");
         return buildResponse(verification, user, verification.isVerified() ?
                 "Aadhaar verified!" :
                 "Verification pending admin approval");
@@ -101,7 +112,9 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
 
     @Override
     public AadhaarResponseDto approveAadhaar(Long userId) {
+        logger.info("Validating user for aadhaar approval...");
         User user = validatorMethods.validateUserById(userId);
+
         AadhaarVerification verification = aadhaarVerificationRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new RuntimeException("No Aadhaar found"));
 
@@ -111,11 +124,13 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
         verification.setVerified(true);
         verification.setVerifiedAt(LocalDateTime.now());
         aadhaarVerificationRepository.save(verification);
+        logger.info("aadhaar approved successfully");
         return buildResponse(verification, user, "Aadhaar approved successfully!");
     }
 
     @Override
     public AadhaarResponseDto rejectAadhaar(Long userId) {
+        logger.info("validating user for rejecting aadhaar...");
         User user = validatorMethods.validateUserById(userId);
         AadhaarVerification verification = aadhaarVerificationRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new RuntimeException("No Aadhaar found"));
@@ -125,14 +140,16 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
         verification.setAadhaarImagePath(null); // reset so user resubmits
         aadhaarVerificationRepository.save(verification);
 
-
+        logger.info("aadhaar reject success...");
         return buildResponse(verification, user, "Aadhaar rejected! Please resubmit the Detail.");
 
     }
 
     @Override
     public List<AadhaarResponseDto> getPendingVerifications() {
+        logger.info("getting pending verifications...");
         List<AadhaarVerification> pending = aadhaarVerificationRepository.findByVerified(false);
+        logger.info("fetching pending verifications success...");
         return pending.stream()
                 .map(v -> buildResponse(v, v.getUser(), "Pending verification"))
                 .toList();

@@ -16,6 +16,8 @@ import com.project.kisan_setu.service.RefreshTokenService;
 import com.project.kisan_setu.service.UserService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -38,10 +40,13 @@ public class UserServiceImpl implements UserService {
     private final JavaMailSender javaMailSender;
     private final MobileVerificationRepository mobileVerificationRepository;
     private final AadhaarVerificationRepository aadhaarVerificationRepository;
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 
     @Override
     public SignupResponseDto signup(CreateUserRequestDto dto) {
+        logger.info("Signing up for user...");
+        logger.info("Checking validations...");
         if (!dto.getPassword().equals(dto.getConfirmPassword())) {
             throw new UserException("Passwords do not match");
         }
@@ -59,6 +64,7 @@ public class UserServiceImpl implements UserService {
         user.setCreatedAt(LocalDateTime.now());
         userRepository.save(user);
         UserResponseDto userResponseDto = UserMapper.toResponse(user);
+        logger.info("Signup success...");
         return new SignupResponseDto(
                 201,
                 "Registration successful",
@@ -68,6 +74,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public LoginResponseDto login(LoginRequestDto dto) {
+        logger.info("Logging in for user...");
+        logger.info("Checking validations for user...");
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new UserException("Email not registered"));
 
@@ -75,6 +83,7 @@ public class UserServiceImpl implements UserService {
             throw new BadCredentialsException("Invalid Password");
         }
         UserResponseDto userResponseDto = UserMapper.toResponse(user);
+        logger.info("Login success...");
         return new LoginResponseDto(
                 200,
                 "Login successful",
@@ -86,6 +95,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long userId) {
+        logger.info("Getting user by id...");
+        logger.info("Fetching user by id success...");
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserException("User not found"));
     }
@@ -93,42 +104,47 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAllUsers() {
+        logger.info("Getting all users...");
+        logger.info("Fetching all users success...");
         return userRepository.findAll();
     }
 
 
     @Override
     public UserResponseDto updateUserById(Long userId, UpdateUserRequestDto dto) {
-
+        logger.info("Updating user with id...");
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException("User not found"));
 
         UserMapper.updateEntity(user, dto,passwordEncoder);
 
         User updatedUser = userRepository.save(user);
-
+        logger.info("Update user success...");
         return UserMapper.toResponse(updatedUser);
     }
 
 
     @Override
     public void deleteUserById(Long userId) {
-
+        logger.info("Deleting user by id...");
         if (!userRepository.existsById(userId)) {
             throw new UserException("User not found");
         }
-
+        logger.info("User deleted by id...");
         userRepository.deleteById(userId);
     }
 
     @Override
     public User findByEmail(String email) {
+        logger.info("Finding user by email...");
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     @Override
     public UserProfileResponseDto updateSellerProfileData(UserProfileRequestDto dto) {
+        logger.info("Updating seller profile data...");
+        logger.info("Checking user validations...");
         Long userId = validatorMethods.getCurrentUserId();
         User user = validatorMethods.validateUserById(userId);
 
@@ -137,7 +153,7 @@ public class UserServiceImpl implements UserService {
 
         User updatedUser = userRepository.findByIdWithVerifications(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
+        logger.info("Profile data updated success...");
         return UserMapper.toDto(updatedUser);
     }
 
