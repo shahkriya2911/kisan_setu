@@ -14,7 +14,7 @@ import java.time.LocalDate;
 public class BuyingRequirementRequestDto {
 
     @NotBlank(message = "Crop name is required")
-    private String cropName;
+    private String cropId;
 
     @NotBlank(message = "Variety is required")
     private String variety;
@@ -27,7 +27,7 @@ public class BuyingRequirementRequestDto {
     private BigDecimal quantityRequired;
 
     @NotBlank(message = "Unit is required")
-    private String unit;
+    private String unitId;
 
     @NotNull(message = "Minimum expected price is required")
     @Positive(message = "Minimum price must be greater than 0")
@@ -37,11 +37,9 @@ public class BuyingRequirementRequestDto {
     @Positive(message = "Maximum price must be greater than 0")
     private BigDecimal maxPrice;
 
-    @NotBlank(message = "State is required")
-    private String state;
+    private String stateId;
 
-    @NotBlank(message = "District is required")
-    private String district;
+    private String districtId;
 
     @NotBlank(message = "Delivery address is required")
     private String deliveryAddress;

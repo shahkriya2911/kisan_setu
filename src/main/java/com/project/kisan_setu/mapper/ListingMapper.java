@@ -3,7 +3,7 @@ package com.project.kisan_setu.mapper;
 import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
-import com.project.kisan_setu.entity.Listing;
+import com.project.kisan_setu.entity.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,12 +19,18 @@ public class ListingMapper {
         ListingResponseDto dto = new ListingResponseDto();
         dto.setListingId(listing.getListingId());
 
-        dto.setCropName(listing.getCropName());
+        if(listing.getCrop()!=null)
+        {
+            dto.setCropName(listing.getCrop().getCropName());
+        }
         dto.setVariety(listing.getVariety());
         dto.setGrade(listing.getGrade());
         dto.setHarvestDate(listing.getHarvestDate());
         dto.setQuantity(listing.getQuantity());
-        dto.setUnit(listing.getUnit());
+        if(listing.getUnit()!= null)
+        {
+            dto.setUnit(listing.getUnit().getUnitName());
+        }
 
         // Pricing
         dto.setPricePerKg(listing.getPricePerKg());
@@ -40,12 +46,19 @@ public class ListingMapper {
         dto.setMinimumOrderQuantity(listing.getMinimumOrderQuantity());
         dto.setMoqPricePerKg(listing.getMoqPricePerKg());
         dto.setRemainingQuantity(listing.getRemainingQuantity());
+        if (listing.getState() != null) {
+            dto.setState(listing.getState().getName());
+        }
 
-        // Location
-        dto.setState(listing.getState());
-        dto.setDistrict(listing.getDistrict());
-        dto.setPackagingType(listing.getPackagingType());
-        dto.setStorageType(listing.getStorageType());
+        if (listing.getDistrict() != null) {
+            dto.setDistrict(listing.getDistrict().getName());
+        }
+        if(listing.getPackaging()!=null){
+            dto.setPackagingType(listing.getPackaging().getPackagingType());
+        }
+        if(listing.getStorage()!=null){
+            dto.setStorageType(listing.getStorage().getStorageType());
+        }
         dto.setPickupMethod(listing.getPickupMethod());
 
         // Images
@@ -94,6 +107,12 @@ public class ListingMapper {
             ProductListingDto productDto,
             QualityPricingListingDto pricingDto,
             QualityLocationListingDto locationDto,
+            CropMaster crop,
+            UnitMaster unit,
+            StorageMaster storage,
+            PackagingMaster packaging,
+            StateMaster state,
+            DistrictMaster district,
             List<ListingImage> images,
             ListingCertificate certificate,
             String description) {
@@ -101,14 +120,14 @@ public class ListingMapper {
         Listing listing = new Listing();
 
         // Product
-        listing.setCropName(productDto.getCropName());
+        listing.setCrop(crop);
         listing.setVariety(productDto.getVariety());
         listing.setGrade(productDto.getGrade());
         listing.setHarvestDate(productDto.getHarvestDate());
 
         // Pricing
         listing.setQuantity(pricingDto.getQuantity());
-        listing.setUnit(pricingDto.getUnit());
+        listing.setUnit(unit);
         listing.setPricePerKg(pricingDto.getPricePerKg());
         listing.setTotalBasePrice(pricingDto.getTotalBasePrice());
         listing.setPurchaseType(pricingDto.getPurchaseType());
@@ -122,10 +141,10 @@ public class ListingMapper {
         listing.setMoqPricePerKg(pricingDto.getMoqPricePerKg());
 
         // Location
-        listing.setState(locationDto.getState());
-        listing.setDistrict(locationDto.getDistrict());
-        listing.setPackagingType(locationDto.getPackagingType());
-        listing.setStorageType(locationDto.getStorageType());
+        listing.setState(state);
+        listing.setDistrict(district);
+        listing.setPackaging(packaging);
+        listing.setStorage(storage);
         listing.setPickupMethod(locationDto.getPickupMethod());
 
         // Images (already mapped in service)
@@ -148,15 +167,21 @@ public class ListingMapper {
             ProductListingDto productDto,
             QualityPricingListingDto pricingDto,
             QualityLocationListingDto locationDto,
+            CropMaster crop,
+            UnitMaster unit,
+            StorageMaster storage,
+            PackagingMaster packaging,
+            StateMaster state,
+            DistrictMaster district,
             String description) {
 
-        listing.setCropName(productDto.getCropName());
+        listing.setCrop(crop);
         listing.setVariety(productDto.getVariety());
         listing.setGrade(productDto.getGrade());
         listing.setHarvestDate(productDto.getHarvestDate());
 
         listing.setQuantity(pricingDto.getQuantity());
-        listing.setUnit(pricingDto.getUnit());
+        listing.setUnit(unit);
         listing.setRemainingQuantity(pricingDto.getRemainingQuantity());
         listing.setPurchaseType(pricingDto.getPurchaseType());
         listing.setMinimumOrderQuantity(pricingDto.getMinimumOrderQuantity());
@@ -166,12 +191,10 @@ public class ListingMapper {
         listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
         listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
         listing.setSaleType(pricingDto.getSaleType());
-
-        // Location
-        listing.setState(locationDto.getState());
-        listing.setDistrict(locationDto.getDistrict());
-        listing.setPackagingType(locationDto.getPackagingType());
-        listing.setStorageType(locationDto.getStorageType());
+        listing.setState(state);
+        listing.setDistrict(district);
+        listing.setPackaging(packaging);
+        listing.setStorage(storage);
         listing.setPickupMethod(locationDto.getPickupMethod());
 
         listing.setDescription(description);

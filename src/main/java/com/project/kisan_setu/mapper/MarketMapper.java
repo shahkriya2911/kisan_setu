@@ -13,14 +13,14 @@ public class MarketMapper {
 
         return new MarketListingResponseDto(
                 listing.getListingId(),
-                listing.getCropName(),
+                listing.getCrop().getCropName(),
                 listing.getQuantity(),
-                listing.getUnit(),
+                listing.getUnit().getUnitName(),
                 listing.getSaleType(),
                 listing.getTotalBasePrice().multiply(listing.getQuantity()),
                 listing.getTotalBasePrice(),
-                listing.getDistrict(),
-                listing.getState(),
+                listing.getState() != null ? listing.getState().getName() : null,
+                listing.getDistrict() != null ? listing.getDistrict().getName() : null,
                 highestBid,
                 listing.getAuctionEndTime(),
                 "Whole Lot".equalsIgnoreCase(String.valueOf(listing.getPurchaseType()))

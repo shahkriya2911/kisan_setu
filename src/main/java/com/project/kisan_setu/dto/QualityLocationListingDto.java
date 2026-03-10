@@ -1,6 +1,7 @@
 package com.project.kisan_setu.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,14 +14,14 @@ import lombok.Setter;
 public class QualityLocationListingDto {
 
     //quality and location info
-    @NotBlank(message = "state is required")
-    private String state;
+    @NotNull(message = "state is required")
+    private Long stateId;
+    @NotNull(message = "district is required")
+    private Long districtId;
     @NotBlank(message = "packaging type is required")
-    private String packagingType;
-    @NotBlank(message = "district is required")
-    private String district;
+    private String packagingId;
     @NotBlank(message = "storage type is required")
-    private String storageType;
+    private String storageId;
     @NotBlank(message = "pickup method is required")
     private String pickupMethod;
 }

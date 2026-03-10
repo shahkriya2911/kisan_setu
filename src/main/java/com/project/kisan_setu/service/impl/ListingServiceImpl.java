@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 public class ListingServiceImpl implements ListingService {
 
     private final ListingRepository listingRepository;
-    private final BidHistoryRepository bidHistoryRepository;
     private final UserRepository userRepository;
     private final BidRepository bidRepository;
     private final NotificationService notificationService;
@@ -45,6 +44,12 @@ public class ListingServiceImpl implements ListingService {
     private final BuyerInquiryRepository buyerInquiryRepository;
     private final OrderRepository orderRepository;
     private final BuyingRequirementRepository buyingRequirementRepository;
+    private final StateRepository stateRepository;
+    private final DistrictRepository districtRepository;
+    private final CropRepository cropRepository;
+    private final UnitRepository unitRepository;
+    private final StorageRepository storageRepository;
+    private final PackagingRepository packagingRepository;
     private static final Logger logger = LoggerFactory.getLogger(ListingServiceImpl.class);
 
 
@@ -56,10 +61,17 @@ public class ListingServiceImpl implements ListingService {
         ProductListingDto productDto = request.getProduct();
         QualityPricingListingDto pricingDto = request.getPricing();
         QualityLocationListingDto locationDto = request.getLocation();
+        CropMaster crop = validatorMethods.validateCrop(Long.valueOf(productDto.getCropId()));
+        UnitMaster unit = validatorMethods.validateUnit(Long.valueOf(pricingDto.getUnitId()));
+        StateMaster state = validatorMethods.validateState(locationDto.getStateId());
+        DistrictMaster district = validatorMethods.validateDistrict(locationDto.getDistrictId());
+        PackagingMaster packaging = validatorMethods.validatePackaging(Long.valueOf(locationDto.getPackagingId()));
+        StorageMaster storage = validatorMethods.validateStorage(Long.valueOf(locationDto.getStorageId()));
 
         validatePricing(pricingDto);
 
-        logger.info("Creating listing for product: {}", productDto.getCropName());
+
+        logger.info("Creating listing for product: {}", productDto.getCropId());
 
         // Map images
         List<ListingImage> images = null;
@@ -88,7 +100,9 @@ public class ListingServiceImpl implements ListingService {
 
         String description = request.getDescription();
 
-        Listing listing = ListingMapper.toEntity(productDto, pricingDto, locationDto, images, certificate, description);
+        Listing listing = ListingMapper.toEntity(productDto, pricingDto, locationDto,crop,unit,storage,packaging,state,district, images, certificate, description);
+        listing.setState(state);
+        listing.setDistrict(district);
         Long userId = validatorMethods.getCurrentUserId();
         User seller = validatorMethods.validateUserById(userId);
         listing.setSeller(seller);
@@ -125,14 +139,21 @@ public class ListingServiceImpl implements ListingService {
 
         Listing listing = validatorMethods.validateExists(listingId);
 
+
         ProductListingDto productDto = request.getProduct();
         QualityPricingListingDto pricingDto = request.getPricing();
         QualityLocationListingDto locationDto = request.getLocation();
+        CropMaster crop = validatorMethods.validateCrop(Long.valueOf(productDto.getCropId()));
+        UnitMaster unit = validatorMethods.validateUnit(Long.valueOf(pricingDto.getUnitId()));
+        StateMaster state = validatorMethods.validateState(locationDto.getStateId());
+        DistrictMaster district = validatorMethods.validateDistrict(locationDto.getDistrictId());
+        PackagingMaster packaging = validatorMethods.validatePackaging(Long.valueOf(locationDto.getPackagingId()));
+        StorageMaster storage = validatorMethods.validateStorage(Long.valueOf(locationDto.getStorageId()));
 
         // Validate pricing (includes sale type validation)
         validatePricing(pricingDto);
         String description = request.getDescription();
-        ListingMapper.updateEntity(listing, productDto, pricingDto, locationDto, description);
+        ListingMapper.updateEntity(listing, productDto, pricingDto, locationDto, crop,unit,storage,packaging,state,district,description);
 
         // Update images if new files provided
         if (imageFiles != null && !imageFiles.isEmpty()) {
@@ -263,11 +284,11 @@ public class ListingServiceImpl implements ListingService {
     }
 
 
-    public BidHistory placeBid(Long listingId, BigDecimal buyerAmount, Long userId) {
+    public Bid placeBid(Long listingId, BigDecimal buyerAmount, Long userId) {
         Listing listing = validatorMethods.validateExists(listingId);
         BigDecimal totalBasePrice = listing.getTotalBasePrice();
         BigDecimal minimumBidIncrement = listing.getMinimumBidIncrement();
-        long totalBids = bidHistoryRepository.countByListing_ListingId(listingId);
+        long totalBids = bidRepository.countByListing_ListingId(listingId);
         BigDecimal lastbuyerAmount;
 
         if (totalBids > 0) {
@@ -299,12 +320,12 @@ public class ListingServiceImpl implements ListingService {
                 );
             }
         }
-        BidHistory newBid = new BidHistory();
+        Bid newBid = new Bid();
         newBid.setListing(listing);
-        newBid.setAmountPerKg(buyerAmount);
+        newBid.setBuyerAmount(buyerAmount);
         newBid.setBidTime(LocalDateTime.now());
 
-        BidHistory saved = bidHistoryRepository.save(newBid);
+        Bid saved = bidRepository.save(newBid);
         logger.info("Bid saved — Round: {}, UserID: {}, Amount: ₹{}", totalBids + 1, userId, buyerAmount);
         return saved;
     }
@@ -339,16 +360,14 @@ public class ListingServiceImpl implements ListingService {
 
             return new SellerListingDto(
                     listing.getListingId(),
-                    listing.getCropName(),
+                    listing.getCrop().getCropName(),
                     listing.getVariety(),
                     listing.getGrade(),
                     listing.getQuantity(),
                     listing.getPricePerKg(),
-                    listing.getUnit(),
+                    listing.getUnit().getUnitName(),
                     listing.getTotalBasePrice(),
                     listing.getMinimumBidIncrement(),
-                    listing.getState(),
-                    listing.getDistrict(),
                     totalBids,
                     activeBidders,
                     listing.getStatus(),
@@ -368,7 +387,7 @@ public class ListingServiceImpl implements ListingService {
                             inquiry.getInquiryId(),
                             inquiry.getListing().getListingId(),
                             inquiry.getBuyer().getFullName(),
-                            inquiry.getListing().getCropName(),
+                            inquiry.getListing().getCrop().getCropName(),
                             inquiry.getQuantityRequested(),
                             inquiry.getInquiryTime(),
                             inquiry.getStatus(),
@@ -378,16 +397,14 @@ public class ListingServiceImpl implements ListingService {
             long totalInquires = inquiries.size();
             return new SellerListingDto(
                     listing.getListingId(),
-                    listing.getCropName(),
+                    listing.getCrop().getCropName(),
                     listing.getVariety(),
                     listing.getGrade(),
                     listing.getQuantity(),
                     listing.getPricePerKg(),
-                    listing.getUnit(),
+                    listing.getUnit().getUnitName(),
                     listing.getTotalBasePrice(),
                     null,
-                    listing.getState(),
-                    listing.getDistrict(),
                     null,
                     null,
                     listing.getStatus(),
@@ -542,7 +559,7 @@ public class ListingServiceImpl implements ListingService {
             List<BuyingRequirement> requirement =
                     buyingRequirementRepository
                             .findByCropNameIgnoreCase(
-                                    listing.getCropName());
+                                    listing.getCrop().getCropName());
 
             requirements.addAll(requirement);
             for (BuyingRequirement req : requirements) {
@@ -604,7 +621,7 @@ public class ListingServiceImpl implements ListingService {
             response.add(RecentBidResponseDto.builder()
                     .bidderId(bid.getBidId())
                     .bidderName(bid.getBuyer().getFullName())
-                    .cropListing(bid.getListing().getCropName())
+                    .cropListing(bid.getListing().getCrop().getCropName())
                     .bidAmount(bid.getBuyerAmount())
                     .timestamp(bid.getCreatedAt())
                     .bidStatus(bid.getBidStatus().name())

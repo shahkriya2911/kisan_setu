@@ -24,7 +24,7 @@ public class QualityPricingListingDto {
     @NotNull(message = "quantity is required")
     private BigDecimal quantity;
     @NotNull(message = "unit is required")
-    private String unit;
+    private String unitId;
     @NotNull(message = "price per kg is required")
     private BigDecimal pricePerKg;
     @NotNull(message = "total base price is required")

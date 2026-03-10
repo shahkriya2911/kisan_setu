@@ -30,6 +30,8 @@ public class BuyerServiceImpl implements BuyerService {
     private final ValidatorMethods validatorMethods;
     private final BuyerInquiryRepository buyerInquiryRepository;
     private final BuyingRequirementRepository buyingRequirementRepository;
+    private final StateRepository stateRepository;
+    private final DistrictRepository districtRepository;
 
 
     // Post Requirement
@@ -38,9 +40,17 @@ public class BuyerServiceImpl implements BuyerService {
 
        Long userId = validatorMethods.getCurrentUserId();
         User buyer = validatorMethods.validateUserById(userId);
+        CropMaster crop = validatorMethods.validateCrop(Long.valueOf(dto.getCropId()));
+        UnitMaster unit = validatorMethods.validateUnit(Long.valueOf(dto.getUnitId()));
+        StateMaster state = validatorMethods.validateState(Long.valueOf(dto.getStateId()));
+        DistrictMaster district = validatorMethods.validateDistrict(Long.valueOf(dto.getDistrictId()));
 
         BuyingRequirement requirement=
-                BuyingRequirementMapper.toEntity(dto, buyer);
+                BuyingRequirementMapper.toEntity(dto, buyer,crop,unit,state,district);
+
+        requirement.setState(state);
+        requirement.setDistrict(district);
+
         BuyingRequirement saved =
                 buyingRequirementRepository.save(requirement);
 
@@ -157,7 +167,7 @@ public class BuyerServiceImpl implements BuyerService {
                     inquiry.getInquiryId(),
                     listing.getListingId(),
                     inquiry.getBuyer().getFullName(),
-                    inquiry.getListing().getCropName(),
+                    inquiry.getListing().getCrop().getCropName(),
                     inquiry.getQuantityRequested(),
                     inquiry.getInquiryTime(),
                     inquiry.getStatus(),
@@ -279,20 +289,20 @@ public class BuyerServiceImpl implements BuyerService {
 
         return new BuyerListingResponseDto(
                 listing.getListingId(),
-                listing.getCropName(),
+                listing.getCrop().getCropName(),
                 listing.getVariety(),
-                listing.getState(),
-                listing.getUnit(),
-                listing.getPackagingType(),
+                listing.getState() != null ? listing.getState().getName() : null,
+                listing.getUnit().getUnitName(),
+                listing.getPackaging().getPackagingType(),
                 listing.getSaleType(),
-                listing.getStorageType(),
+                listing.getStorage().getStorageType(),
                 listing.getHarvestDate(),
                 listing.getMinimumBidIncrement(),
                 listing.getGrade(),
                 listing.getTotalBasePrice(),
                 listing.getPricePerKg(),
                 listing.getPurchaseType(),
-                listing.getDistrict(),
+                listing.getDistrict() != null ? listing.getDistrict().getName() : null,
                 listing.getAuctionEndTime(),
                 currentHighest,
                 images

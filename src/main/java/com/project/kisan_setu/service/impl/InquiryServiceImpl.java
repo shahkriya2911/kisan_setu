@@ -62,7 +62,7 @@ public class InquiryServiceImpl implements InquiryService {
                 .inquiryId(inquiry.getInquiryId())
                 .listingId(listing.getListingId())
                 .buyerName(inquiry.getBuyer().getFullName())
-                .cropName(inquiry.getListing().getCropName())
+                .cropName(inquiry.getListing().getCrop().getCropName())
                 .quantityRequested(saved.getQuantityRequested())
                 .inquiryTime(inquiry.getInquiryTime())
                 .status(InquiryStatus.valueOf(saved.getStatus().name()))
@@ -84,7 +84,7 @@ public class InquiryServiceImpl implements InquiryService {
                         inq.getInquiryId(),
                         inq.getListing().getListingId(),
                         inq.getBuyer().getFullName(),
-                        inq.getListing().getCropName(),
+                        inq.getListing().getCrop().getCropName(),
                         inq.getQuantityRequested(),
                         inq.getInquiryTime(),
                         inq.getStatus(),

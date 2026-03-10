@@ -28,8 +28,6 @@ public class BuyingRequirement {
     private String unit;
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
-    private String state;
-    private String district;
     private String deliveryAddress;
     private LocalDate deadline;
     @Enumerated(EnumType.STRING)
@@ -43,4 +41,12 @@ public class BuyingRequirement {
     @ManyToOne
     @JoinColumn(name = "buyer_id")
     private User buyer;
+
+    @ManyToOne()
+    @JoinColumn(name = "state_id")
+    private StateMaster state;
+
+    @ManyToOne()
+    @JoinColumn(name = "district_id")
+    private DistrictMaster district;
 }

@@ -8,10 +8,11 @@ import lombok.Setter;
 @Setter
 public class MarketFilterRequestDto {
 
-    private String cropType;
+    private String cropId;
     private Double minPrice;
     private Double maxPrice;
-    private String location;
+    private Long stateId;
+    private Long districtId;
     private Integer minQuantity;
     private SaleType saleType;
 }

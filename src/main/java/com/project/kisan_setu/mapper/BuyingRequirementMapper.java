@@ -2,8 +2,7 @@ package com.project.kisan_setu.mapper;
 
 import com.project.kisan_setu.dto.BuyingRequirementRequestDto;
 import com.project.kisan_setu.dto.BuyingRequirementResponseDto;
-import com.project.kisan_setu.entity.BuyingRequirement;
-import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.entity.*;
 import com.project.kisan_setu.enums.RequirementStatus;
 
 import java.time.LocalDateTime;
@@ -11,18 +10,16 @@ import java.time.LocalDateTime;
 public class BuyingRequirementMapper {
 
     public static BuyingRequirement toEntity(
-            BuyingRequirementRequestDto dto, User buyer) {
+            BuyingRequirementRequestDto dto, User buyer, CropMaster crop, UnitMaster unit, StateMaster state,DistrictMaster district) {
 
         BuyingRequirement br = new BuyingRequirement();
-        br.setCropName(dto.getCropName());
+        br.setCropName(String.valueOf(crop));
         br.setVariety(dto.getVariety());
         br.setGrade(dto.getGrade());
         br.setQuantityRequired(dto.getQuantityRequired());
-        br.setUnit(dto.getUnit());
+        br.setUnit(String.valueOf(unit));
         br.setMinPrice(dto.getMinPrice());
         br.setMaxPrice(dto.getMaxPrice());
-        br.setState(dto.getState());
-        br.setDistrict(dto.getDistrict());
         br.setDeliveryAddress(dto.getDeliveryAddress());
         br.setDeadline(dto.getDeadline());
         br.setUrgency(dto.getUrgency());
@@ -44,8 +41,8 @@ public class BuyingRequirementMapper {
                 br.getUnit(),
                 br.getMinPrice(),
                 br.getMaxPrice(),
-                br.getState(),
-                br.getDistrict(),
+                br.getState().getName(),
+                br.getDistrict().getName(),
                 br.getDeliveryAddress(),
                 br.getDeadline(),
                 br.getUrgency(),

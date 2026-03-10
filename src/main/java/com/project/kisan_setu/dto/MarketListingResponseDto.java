@@ -1,5 +1,7 @@
 package com.project.kisan_setu.dto;
 
+import com.project.kisan_setu.entity.DistrictMaster;
+import com.project.kisan_setu.entity.StateMaster;
 import com.project.kisan_setu.enums.SaleType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,4 +31,6 @@ public class MarketListingResponseDto {
     private LocalDateTime auctionEndTime;
 
     private Boolean wholeLot;
+
+
 }

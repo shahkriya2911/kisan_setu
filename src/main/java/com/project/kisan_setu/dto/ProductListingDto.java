@@ -18,7 +18,7 @@ public class ProductListingDto {
 
     // Product Info
     @NotBlank(message = "crop name is required")
-    private String cropName;
+    private String cropId;
     @NotBlank(message = "variety is required")
     private String variety;
     @NotBlank(message = "grade is required")

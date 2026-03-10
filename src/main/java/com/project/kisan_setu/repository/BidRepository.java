@@ -12,8 +12,6 @@ import java.util.Optional;
 
 public interface BidRepository extends JpaRepository<Bid, Long> {
 
-    List<Bid> findByListingListingIdOrderByBuyerAmountDesc(Long listingId);
-
     Optional<Bid> findTopByListingListingIdOrderByBuyerAmountDesc(Long listingId);
 
     List<Bid> findTop5ByListingListingIdOrderByBuyerAmountDesc(Long listingId);
@@ -29,8 +27,10 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
 
     List<Bid> findByListing(Listing listing);
 
-    @Query("SELECT COALESCE(AVG(b.buyerAmount), 0) FROM Bid b WHERE b.listing.cropName = :cropName")
-    Double getAveragePriceByCrop(@Param("cropName") String cropName);
+    @Query("SELECT AVG(l.pricePerKg) FROM Listing l WHERE l.crop.cropName = :crop")
+    Double getAveragePriceByCrop(@Param("crop") String crop);
 
     List<Bid> findTop5ByListingSellerUserIdAndBidStatusOrderByCreatedAtDesc(Long userId, BidStatus bidStatus);
+
+    long countByListing_ListingId(Long listingId);
 }

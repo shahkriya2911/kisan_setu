@@ -1,5 +1,7 @@
 package com.project.kisan_setu.dto;
 
+import com.project.kisan_setu.entity.DistrictMaster;
+import com.project.kisan_setu.entity.StateMaster;
 import com.project.kisan_setu.enums.Urgency;
 import lombok.*;
 
@@ -35,4 +37,6 @@ public class BuyingRequirementResponseDto {
     private String additionalNotes;
 
     private String buyerName;
+
+
 }

@@ -33,7 +33,6 @@ public class Listing {
     private Long listingId;
 
     // Product Info
-    private String cropName;
     private String variety;
     private String grade;
     private LocalDate harvestDate;
@@ -43,7 +42,6 @@ public class Listing {
     // Quantity
     private BigDecimal quantity;
     private BigDecimal remainingQuantity;
-    private String unit;
 
     // Pricing & Purchase Type
     private BigDecimal pricePerKg;
@@ -68,12 +66,6 @@ public class Listing {
     // Partial order
     private BigDecimal minimumOrderQuantity;
     private BigDecimal moqPricePerKg;
-
-
-    private String state;
-    private String packagingType;
-    private String district;
-    private String storageType;
     private String pickupMethod;
 
     // Auction status
@@ -114,6 +106,29 @@ public class Listing {
     @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL)
     private List<Bid> bids = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "crop_id")
+    private CropMaster crop;
+
+    @ManyToOne
+    @JoinColumn(name = "packaging_id")
+    private PackagingMaster packaging;
+
+    @ManyToOne
+    @JoinColumn(name = "storage_id")
+    private StorageMaster storage;
+
+    @ManyToOne
+    @JoinColumn(name = "unit_id")
+    private UnitMaster unit;
+
+    @ManyToOne()
+    @JoinColumn(name = "state_id")
+    private StateMaster state;
+
+    @ManyToOne()
+    @JoinColumn(name = "district_id")
+    private DistrictMaster district;
 
 
 
