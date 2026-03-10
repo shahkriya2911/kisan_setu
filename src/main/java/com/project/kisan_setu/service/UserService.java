@@ -15,7 +15,7 @@ public interface UserService {
     UserResponseDto updateUserById(Long userId, UpdateUserRequestDto dto);
     void deleteUserById(Long userId);
     User findByEmail(String email);
-    UserProfileResponseDto updateSellerProfileData(UserProfileRequestDto dto);
+    UserProfileResponseDto updateUserProfileData(UserProfileRequestDto dto);
 
 
 
