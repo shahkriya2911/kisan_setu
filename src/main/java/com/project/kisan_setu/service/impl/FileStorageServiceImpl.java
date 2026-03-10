@@ -1,6 +1,8 @@
 package com.project.kisan_setu.service.impl;
 
 import com.project.kisan_setu.service.FileStorageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,6 +14,7 @@ import java.util.UUID;
 public class FileStorageServiceImpl implements FileStorageService {
 
     private final Path basePath;
+    private static final Logger logger = LoggerFactory.getLogger(FileStorageServiceImpl.class);
 
     public FileStorageServiceImpl() {
         this.basePath = Paths.get("api").toAbsolutePath().normalize();
@@ -25,6 +28,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     @Override
     public String storeFile(MultipartFile file, String folderName) {
+        logger.info("Storing file in folder path...");
         String originalName = file.getOriginalFilename();
         String extension = originalName.substring(originalName.lastIndexOf("."));
         String fileName = UUID.randomUUID() + extension;
@@ -38,8 +42,10 @@ public class FileStorageServiceImpl implements FileStorageService {
                     StandardCopyOption.REPLACE_EXISTING);
 
             // Return relative path for DB
+            logger.info("File stored success...");
             return folderName + "/" + fileName;
         } catch (IOException e) {
+            logger.error("File stored failure...");
             throw new RuntimeException("File upload failed", e);
         }
     }

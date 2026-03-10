@@ -13,6 +13,8 @@ import com.project.kisan_setu.repository.ListingRepository;
 import com.project.kisan_setu.service.MarketService;
 import com.project.kisan_setu.specification.ListingSpecification;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,16 +29,17 @@ public class MarketServiceImpl implements MarketService {
     private final ListingRepository listingRepository;
     private final BidRepository bidRepository;
     private final MarketMapper marketMapper;
+    private static final Logger logger = LoggerFactory.getLogger(MarketServiceImpl.class);
 
     @Override
     public Page<MarketListingResponseDto> getLiveListings(
             MarketFilterRequestDto filter,
             Pageable pageable) {
-
+        logger.info("Getting live listings...");
         Specification<Listing> spec = ListingSpecification.filterListings(filter);
 
         Page<Listing> listings = listingRepository.findAll(spec, pageable);
-
+        logger.info("Fetching live listings success...");
         return listings.map(listing -> {
 
             BigDecimal highestBid = null;
@@ -54,12 +57,13 @@ public class MarketServiceImpl implements MarketService {
 
     @Override
     public MarketInsightDto getMarketInsights() {
-
+        logger.info("Getting market insights...");
         Double avgWheat = bidRepository.getAveragePriceByCrop("Wheat");
         Long liveAuctions = listingRepository.countBySaleTypeAndStatus(
                 SaleType.AUCTION,
                 AuctionStatus.ACTIVE
         );
+        logger.info("Market insights fetched success...");
         return new MarketInsightDto(
                 avgWheat,
                 liveAuctions,

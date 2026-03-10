@@ -9,6 +9,8 @@ import com.project.kisan_setu.service.EmailService;
 import com.project.kisan_setu.service.MobileVerificationService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,11 +22,14 @@ public class MobileVerificationServiceImpl implements MobileVerificationService 
     private final ValidatorMethods validatorMethods;
     private final MobileVerificationRepository mobileVerificationRepository;
     private final EmailService emailService;
+    private static final Logger logger = LoggerFactory.getLogger(MobileVerificationServiceImpl.class);
     @Override
     public MobileOtpVerificationResponseDto sendOtp() {
+        logger.info("Validating user to send otp...");
         Long userId = validatorMethods.getCurrentUserId();
         User user = validatorMethods.validateUserById(userId);
         //check verified or not
+        logger.info("Checking is mobile is verified or not...");
         Optional<MobileVerification> existing =mobileVerificationRepository.findByUserUserId(userId);
 
         if(existing.isPresent() && existing.get().isVerified())
@@ -53,6 +58,7 @@ public class MobileVerificationServiceImpl implements MobileVerificationService 
         mobileVerificationRepository.save(verification);
 
         emailService.sendOtpEmail(user.getEmail(),otp);
+        logger.info("Mobile otp sent success...");
         return MobileOtpVerificationResponseDto.builder()
                 .userId(user.getUserId())
                 .mobileNumber(user.getMobileNumber())
@@ -67,10 +73,11 @@ public class MobileVerificationServiceImpl implements MobileVerificationService 
 
     @Override
     public MobileOtpVerificationResponseDto verifyOtp(MobileOtpVerificationDto dto) {
+        logger.info("Validating user to verify otp...");
         Long userId = validatorMethods.getCurrentUserId();
         User user = validatorMethods.validateUserById(userId);
 
-
+        logger.info("Checking is otp is sent or not...");
         MobileVerification verification = mobileVerificationRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Please send OTP first"));
 
@@ -95,6 +102,7 @@ public class MobileVerificationServiceImpl implements MobileVerificationService 
         verification.setVerifiedAt(LocalDateTime.now());
         mobileVerificationRepository.save(verification);
 
+        logger.info("Mobile verified success...");
         return MobileOtpVerificationResponseDto.builder()
                 .userId(user.getUserId())
                 .mobileNumber(verification.getMobileNumber())

@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -292,10 +293,11 @@ public class BuyerServiceImpl implements BuyerService {
                 listing.getCrop().getCropName(),
                 listing.getVariety(),
                 listing.getState() != null ? listing.getState().getName() : null,
+                listing.getQuantity(), // ✔ quantity added
                 listing.getUnit().getUnitName(),
-                listing.getPackaging().getPackagingType(),
+                listing.getPackaging() != null ? listing.getPackaging().getPackagingType() : null,
                 listing.getSaleType(),
-                listing.getStorage().getStorageType(),
+                listing.getStorage() != null ? listing.getStorage().getStorageType() : null,
                 listing.getHarvestDate(),
                 listing.getMinimumBidIncrement(),
                 listing.getGrade(),
@@ -318,7 +320,18 @@ public class BuyerServiceImpl implements BuyerService {
         return dto;
     }
     @Override
-    public Object getBidHistory(Long listingId) {
-        return null;
+    public List<BidHistoryDto> getBidHistory(Long listingId) {
+        List<Bid> bids =  bidRepository.findByListingListingIdOrderByBuyerAmountDesc(listingId);
+        return IntStream.range(0,bids.size()).mapToObj(i -> {
+            Bid bid = bids.get(i);
+            BidHistoryDto dto = new BidHistoryDto();
+            dto.setBidId(bid.getBidId());
+            dto.setBuyerAmount(bid.getBuyerAmount());
+            dto.setBidTime(bid.getBidTime());
+            dto.setBidderName(bid.getBuyer().getFullName());
+
+            dto.setBidHistoryStatus(i==0 ? "LEADING" : "OUTBID");
+            return dto;
+        }).toList();
     }
 }

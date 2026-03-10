@@ -9,7 +9,10 @@ import com.project.kisan_setu.service.BankAccountVerificationService;
 import com.project.kisan_setu.service.FileStorageService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,10 +24,14 @@ public class BankAccountVerificationServiceImpl implements BankAccountVerificati
     private final BankAccountVerificationRepository bankAccountVerificationRepository;
     private final ValidatorMethods validatorMethods;
     private final FileStorageService fileStorageService;
+    private static final Logger logger = LoggerFactory.getLogger(BankAccountVerificationServiceImpl.class);
     @Override
     public BankAccountResponseDto submitBankAccount(BankAccountRequestDto dto) {
+        logger.info("Validating user for submitting bank account...");
         Long userId = validatorMethods.getCurrentUserId();
         User user = validatorMethods.validateUserById(userId);
+
+        logger.info("Checking if bank account exists in DB or not...");
         Optional<BankAccountVerification> existing =
                 bankAccountVerificationRepository.findByUserUserId(userId);
 
@@ -32,20 +39,22 @@ public class BankAccountVerificationServiceImpl implements BankAccountVerificati
             return buildResponse(existing.get(), user,
                     "Bank account already verified!");
         }
+
+        logger.info("Validating bank account...");
         if (dto.getAccountNumber() == null || dto.getAccountNumber().isEmpty()) {
             throw new RuntimeException("Account number is required");
         }
         if (dto.getIfscCode() == null || !dto.getIfscCode().matches("[A-Z]{4}0[A-Z0-9]{6}")) {
             throw new RuntimeException("Invalid IFSC code! Format: SBIN0001234");
         }
-        if(dto.getAadhaarNumber() == null || dto.getAadhaarNumber().isEmpty()){
+        if(dto.getAadhaarCard() == null || dto.getAadhaarCard().isEmpty()){
             throw new UserException("Bank Document Aadhaar Required");
         }
         if(dto.getPanCard() == null || dto.getPanCard().isEmpty()){
             throw new UserException("Bank Document Pan card required ");
         }
         String aadhaar = fileStorageService.storeFile(
-                dto.getAadhaarNumber(), "aadhaar");
+                dto.getAadhaarCard(), "aadhaar");
 
         String pan = fileStorageService.storeFile(
                 dto.getPanCard(), "pan card");BankAccountVerification verification =
@@ -61,6 +70,7 @@ public class BankAccountVerificationServiceImpl implements BankAccountVerificati
         verification.setVerified(false);
         bankAccountVerificationRepository.save(verification);
 
+        logger.info("Bank account details submitted success...");
         return buildResponse(verification, user,
                 "Bank details submitted! Pending admin approval.");
 
@@ -68,20 +78,25 @@ public class BankAccountVerificationServiceImpl implements BankAccountVerificati
 
     @Override
     public BankAccountResponseDto getStatus() {
+        logger.info("Validating user to get bank account status...");
         Long userId = validatorMethods.getCurrentUserId();
         User user = validatorMethods.validateUserById(userId);
 
+        logger.info("Checking if bank account details exists in DB or not...");
         BankAccountVerification verification = bankAccountVerificationRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new RuntimeException("No bank details submitted yet"));
 
+        logger.info("Bank account verified success...");
         return buildResponse(verification, user,
                 verification.isVerified() ? "Bank account verified!" : "Verification pending admin approval");
     }
 
     @Override
     public BankAccountResponseDto approveBank(Long userId) {
+        logger.info("Validating user to for bank account approval");
         User user = validatorMethods.validateUserById(userId);
 
+        logger.info("Checking if bank account details exits in DB and is bank account verified or not...");
         BankAccountVerification verification = bankAccountVerificationRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new RuntimeException("No bank details found"));
 
@@ -92,13 +107,15 @@ public class BankAccountVerificationServiceImpl implements BankAccountVerificati
         verification.setVerified(true);
         verification.setVerifiedAt(LocalDateTime.now());
         bankAccountVerificationRepository.save(verification);
-
+        logger.info("Bank account approval success...");
         return buildResponse(verification, user, "Bank account approved successfully!");
     }
     @Override
     public BankAccountResponseDto rejectBank(Long userId) {
+        logger.info("Validating user to reject bank account details...");
         User user = validatorMethods.validateUserById(userId);
 
+        logger.info("Checking if bank account exists in DB and is verified...");
         BankAccountVerification verification = bankAccountVerificationRepository
                 .findByUserUserId(userId)
                 .orElseThrow(() -> new RuntimeException(
@@ -110,21 +127,25 @@ public class BankAccountVerificationServiceImpl implements BankAccountVerificati
         verification.setPanCardPath(null);
         bankAccountVerificationRepository.save(verification);
 
+        logger.info("Bank account rejection success");
         return buildResponse(verification, user,
                 "Bank account rejected! Please resubmit.");
     }
 
     @Override
     public List<BankAccountResponseDto> getPendingVerifications() {
+        logger.info("Getting pending verifications...");
         List<BankAccountVerification> pending =
                 bankAccountVerificationRepository.findByVerified(false);
-
+        logger.info("Fetching pending verifications success...");
         return pending.stream().map(v -> buildResponse(v, v.getUser(),
                         "Pending verification"))
                 .toList();
     }
 
     private BankAccountResponseDto buildResponse(BankAccountVerification v, User user, String message) {
+        logger.info("Building bank account details response...");
+        logger.info("Bank account details response generated...");
         return BankAccountResponseDto .builder()
                 .userId(user.getUserId())
                 .bankName(v.getBankName())

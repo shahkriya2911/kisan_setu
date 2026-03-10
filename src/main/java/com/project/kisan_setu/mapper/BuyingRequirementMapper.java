@@ -23,7 +23,7 @@ public class BuyingRequirementMapper {
         br.setDeliveryAddress(dto.getDeliveryAddress());
         br.setDeadline(dto.getDeadline());
         br.setUrgency(dto.getUrgency());
-        br.setAddtionalNote(dto.getAdditionalNotes());
+        br.setAdditionalNote(dto.getAdditionalNotes());
         br.setBuyer(buyer);
         br.setCreatedAt(LocalDateTime.now());
         br.setRequirementStatus(RequirementStatus.ACTIVE);
@@ -46,7 +46,7 @@ public class BuyingRequirementMapper {
                 br.getDeliveryAddress(),
                 br.getDeadline(),
                 br.getUrgency(),
-                br.getAddtionalNote(),
+                br.getAdditionalNote(),
                 br.getBuyer().getFullName()
         );
     }

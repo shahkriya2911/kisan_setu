@@ -1,14 +1,21 @@
 package com.project.kisan_setu.dto;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class BidHistoryDto {
-
-    private String buyerName;
-    private BigDecimal buyerAmountPerKg;
-    private BigDecimal totalbuyerAmount;
+    private Long bidId;
+    private BigDecimal buyerAmount;
     private LocalDateTime bidTime;
+    private String bidderName;
+    private String bidHistoryStatus;
 }

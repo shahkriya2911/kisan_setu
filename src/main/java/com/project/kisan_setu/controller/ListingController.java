@@ -45,10 +45,10 @@ public class ListingController {
             @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
             @RequestPart(value = "certificateFile", required = false) MultipartFile certificateFile
     ) throws JsonProcessingException {
-
+        logger.debug("Create listing request attempt by user");
         CreateListingRequest request = objectMapper.readValue(requestJson, CreateListingRequest.class);
         Long sellerId = validatorMethods.getCurrentUserId();
-
+        logger.info("listing created successfully for user with id : {}",sellerId);
         return ResponseEntity.ok(listingService.createListing(request, imageFiles, certificateFile));
     }
 
@@ -59,22 +59,30 @@ public class ListingController {
             @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
             @RequestPart(value = "certificateFile", required = false) MultipartFile certificateFile
     ) {
+        logger.debug("Update listing request attempt for listing with id : {}",listingId);
+        logger.info("Update listing successful for listing with id : {}",listingId);
         return ResponseEntity.ok(listingService.updateListing(listingId, request, imageFiles, certificateFile));
     }
 
     @GetMapping
     public ResponseEntity<List<ListingResponseDto>> getAllListings() {
+        logger.info("Get all listings request attempt");
+        logger.info("Fetched all listings successfully");
         return ResponseEntity.ok(listingService.getAllListings());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ListingResponseDto> getListingById(@PathVariable Long id) {
+        logger.debug("Get listing by id attempt for listing with id : {}",id);
+        logger.info("Listing with id : {} fetched successfully",id);
         return ResponseEntity.ok(listingService.getListingById(id));
     }
 
     @DeleteMapping("/{listingId}")
     public ResponseEntity<String> deleteListing(@PathVariable Long listingId,@RequestParam Long sellerId) {
+        logger.debug("Delete listing with id request attempt for listing with id : {} by user with id : {}",listingId,sellerId);
         listingService.deleteListing(listingId,sellerId);
+        logger.info("Delete listing with id : {} successful",listingId);
         return ResponseEntity.ok("Listing Deleted Successfully");
 
     }
@@ -82,19 +90,25 @@ public class ListingController {
     @GetMapping("/{listingId}/top-5")
     public ResponseEntity<SellerListingDto> getListingDetail(
             @PathVariable Long listingId) {
+        logger.debug("Get top 5 bids for listing with id : {} request attempt",listingId);
         Long sellerId = validatorMethods.getCurrentUserId();
+        logger.info("Fetched top 5 bids successfully for listing with id : {}",listingId);
         return ResponseEntity.ok(listingService.getSellerListingDetail(listingId));
     }
 
     @PutMapping("{inquiryId}/accept")
     public ResponseEntity<String> acceptInquiry(@PathVariable Long inquiryId){
+        logger.debug("Accept inquiry attempt for inquiry with id : {}",inquiryId);
         Long userId = validatorMethods.getCurrentUserId();
         listingService.acceptInqury(inquiryId,userId);
+        logger.info("Inquiry accepted successfully");
         return ResponseEntity.ok("Inquiry accepted successfully");
     }
 
     @GetMapping("/dashboard")
     public ResponseEntity<DashboardDto> getSellerOverView(){
+        logger.info("Get seller overview request");
+        logger.info("Seller overview fetched successfully");
         return ResponseEntity.ok(listingService.getSellerOverview());
     }
 
@@ -103,49 +117,62 @@ public class ListingController {
     public ResponseEntity<String> markAsSold(
             @PathVariable Long listingId,
             @RequestParam Long sellerId) {
+        logger.debug("Listing marked as sold request attempt for listing with id : {}",listingId);
         listingService.markAsSold(listingId, sellerId);
+        logger.info("Listing marked as sold successfully");
         return ResponseEntity.ok("Listing marked as SOLD successfully");
     }
 
     @PutMapping("/{listingId}/extends")
     public ResponseEntity<String> extendAuctionTime(@PathVariable Long listingId,@RequestParam Long sellerId,@RequestParam int minutes){
+        logger.debug("Extend auction time request attempt for listing with id : {}",listingId);
         listingService.extendAuctionTime(listingId,sellerId,minutes);
+        logger.info("Auction time extended successfully");
         return ResponseEntity.ok("Auction time extended successfully");
 
     }
 
     @GetMapping("/my-pending")
     public ResponseEntity<Page<ListingResponseDto>> pendingListings(Authentication authentication, Pageable pageable){
+        logger.debug("Get all pending listings for user with id : {}",Long.parseLong(authentication.getName()));
         Long userId = Long.parseLong(authentication.getName());
         Page<ListingResponseDto> listings = listingService.pendingListings(userId,pageable);
+        logger.info("Fetched all pending listings for user with id : {} successfully",userId);
         return ResponseEntity.ok(listings);
     }
 
     @GetMapping("/my-sold")
     public ResponseEntity<Page<ListingResponseDto>> soldListings(Authentication authentication, Pageable pageable){
+        logger.debug("Get all sold listings for user with id : {}",Long.parseLong(authentication.getName()));
         Long userId = Long.parseLong(authentication.getName());
         Page<ListingResponseDto> listings = listingService.soldListings(userId,pageable);
+        logger.info("Fetched all sold listings for user with id : {} successfully",userId);
         return ResponseEntity.ok(listings);
     }
 
     @GetMapping("/my-closed")
     public ResponseEntity<Page<ListingResponseDto>> closedListings(Authentication authentication, Pageable pageable){
+        logger.debug("Get all closed listings for user with id : {}",Long.parseLong(authentication.getName()));
         Long userId = Long.parseLong(authentication.getName());
         Page<ListingResponseDto> listings = listingService.closedListings(userId,pageable);
+        logger.info("Fetched all closed listings for user with id : {} successfully",userId);
         return ResponseEntity.ok(listings);
     }
 
     @GetMapping("/my-active")
     public ResponseEntity<Page<ListingResponseDto>> activeListings(Authentication authentication, Pageable pageable){
+        logger.debug("Get all active listings for user with id : {}",Long.parseLong(authentication.getName()));
         Long userId = Long.parseLong(authentication.getName());
         Page<ListingResponseDto> listings = listingService.activeListings(userId,pageable);
+        logger.info("Fetched all active listings for user with id : {} successfully",userId);
         return ResponseEntity.ok(listings);
     }
 
 
     @GetMapping("/seller/requirements")
     public ResponseEntity<List<BuyingRequirementResponseDto>> getRequirementsForSeller() {
-
+        logger.info("Get buyer requirements for seller");
+        logger.info("Buyer requirements for seller fetched successfully");
         return ResponseEntity.ok(
                 listingService.getBuyerRequirementsForSeller()
         );
@@ -153,21 +180,28 @@ public class ListingController {
     @GetMapping("/requirements/contact/{requirementId}")
     public BuyerContactResponseDto getBuyerContact(
             @PathVariable Long requirementId) {
-
+        logger.debug("Get buyer contact for buyer with requirement id : {}",requirementId);
+        logger.info("Buyer contact fetched successfully");
         return listingService.getBuyerContact(requirementId);
     }
     @GetMapping("/recent-bids")
     public ResponseEntity<List<RecentBidResponseDto>> getRecentBids() {
+        logger.info("Get recent bids request attempt");
+        logger.info("Recent bids fetched successfully");
         return ResponseEntity.ok(listingService.getRecentBids());
     }
 
     @PutMapping("/recent-bids/{bidId}/accept")
     public ResponseEntity<String> acceptBid(@PathVariable Long bidId) {
+        logger.debug("Accept bid request attempt for bid with id : {} ",bidId);
+        logger.info("Bid accepted by user successfully");
         return ResponseEntity.ok(listingService.acceptBid(bidId));
     }
 
     @PutMapping("/recent-bids/{bidId}/reject")
     public ResponseEntity<String> rejectBid(@PathVariable Long bidId) {
+        logger.debug("Reject bid request attempt for bid with id : {}",bidId);
+        logger.info("Bid rejected bu user successfully");
         return ResponseEntity.ok(listingService.rejectBid(bidId));
     }
 

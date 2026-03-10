@@ -11,6 +11,8 @@ import com.project.kisan_setu.repository.ListingRepository;
 import com.project.kisan_setu.service.InquiryService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,8 +25,10 @@ public class InquiryServiceImpl implements InquiryService {
     private final ValidatorMethods validatorMethods;
     private final BuyerInquiryRepository buyerInquiryRepository;
     private final ListingRepository listingRepository;
+    private static final Logger logger = LoggerFactory.getLogger(InquiryServiceImpl.class);
     @Override
     public InquiryResponseDto createInquiry(InquiryRequestDto request, Long userId) {
+        logger.info("Validating user for creating inquiry...");
         User buyer = validatorMethods.validateUserById(userId);
         Listing listing = validatorMethods.validateExists(request.getListingId());
 
@@ -35,6 +39,7 @@ public class InquiryServiceImpl implements InquiryService {
         System.out.println("Requested Quantity: " + request.getQuantityRequested());
         System.out.println("=================================");
 
+        logger.info("Checking inquiry validations...");
         if (listing.getSeller().getUserId().equals(buyer.getUserId())) {
             throw new RuntimeException("You cannot send inquiry to your own listing");
         }
@@ -58,6 +63,7 @@ public class InquiryServiceImpl implements InquiryService {
         inquiry.setRemainingQuantity(remainingQuantity);
         BuyerInquiry saved = buyerInquiryRepository.save(inquiry);
 
+        logger.info("Inquiry creation success...");
         return InquiryResponseDto.builder()
                 .inquiryId(inquiry.getInquiryId())
                 .listingId(listing.getListingId())
@@ -72,13 +78,15 @@ public class InquiryServiceImpl implements InquiryService {
 
     @Override
     public List<InquiryResponseDto> getSellerInquiries(Long userId) {
-
+        logger.info("Validating user to get seller inquiries");
         User seller = validatorMethods.validateUserById(userId);
 
+        logger.info("Checking if inquires exists in DB or not...");
         List<BuyerInquiry> inquiries = buyerInquiryRepository
                 .findByListingSellerUserId(seller.getUserId());
 
         // Map entity → DTO
+        logger.info("Fetching seller inquires success...");
         return inquiries.stream()
                 .map(inq -> new InquiryResponseDto(
                         inq.getInquiryId(),

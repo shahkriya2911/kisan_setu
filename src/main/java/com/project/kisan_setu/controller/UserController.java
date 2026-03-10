@@ -77,7 +77,6 @@ public class UserController {
             HttpServletRequest servletRequest,
             HttpServletResponse servletResponse,
             @RequestBody(required = false) RefreshTokenRequestDto request) {
-
         String token = resolveRefreshToken(servletRequest, request);
         if (token == null || token.isBlank()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
@@ -93,7 +92,7 @@ public class UserController {
                     jwtUtil.generateAccessToken(user.getUserId()),
                     newRefreshToken.getRefreshToken()
             );
-
+            logger.info("Token refresh successfully for user with id : {}",user.getUserId());
             return ResponseEntity.ok(
                     new LoginResponseDto(
                             HttpStatus.OK.value(),
@@ -113,7 +112,7 @@ public class UserController {
             HttpServletRequest servletRequest,
             HttpServletResponse servletResponse,
             @RequestBody(required = false) RefreshTokenRequestDto request) {
-
+        logger.debug("logout request attempt for user");
         String token = resolveRefreshToken(servletRequest, request);
         if (token != null && !token.isBlank()) {
             try {
@@ -123,7 +122,8 @@ public class UserController {
             }
         }
         clearAuthCookies(servletResponse);
-        return ResponseEntity.ok("Logged out successfully");
+        logger.info("User logged out successfully");
+        return ResponseEntity.ok("Logged out user successfully");
     }
 
     @GetMapping
@@ -161,8 +161,10 @@ public class UserController {
 
     @GetMapping("/session")
     public ResponseEntity<ApiResponseDto<UserResponseDto>> getSession(Authentication authentication) {
+        logger.debug("Get session for user with id : {}",Long.parseLong(authentication.getName()));
         Long userId = Long.parseLong(authentication.getName());
         User user = userService.getUserById(userId);
+        logger.info("Session active successfully");
         return ResponseEntity.ok(
                 new ApiResponseDto<>(
                         HttpStatus.OK.value(),
@@ -186,7 +188,7 @@ public class UserController {
                 updatedUser
         );
 
-        logger.info("User updated successfully");
+        logger.info("User with id {} updated successfully",userId);
         return ResponseEntity.ok(response);
     }
 
@@ -200,13 +202,15 @@ public class UserController {
                 "User deleted successfully",
                 null
         );
-        logger.info("User deleted successfully");
+        logger.info("User with id {} deleted successfully",userId);
         return ResponseEntity.ok(response);
     }
 
     private void issueLoginCookies(HttpServletResponse response, User user) {
+        logger.debug("Issuing login cookies for user... with id : {}",user.getUserId());
         refreshTokenService.revokeAllUserTokens(user);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+        logger.info("Login cookies issued successfully");
         writeTokenCookies(
                 response,
                 jwtUtil.generateAccessToken(user.getUserId()),
@@ -251,7 +255,6 @@ public class UserController {
                 .maxAge(0)
                 .sameSite("Lax")
                 .build();
-
         response.addHeader("Set-Cookie", clearAccessCookie.toString());
         response.addHeader("Set-Cookie", clearRefreshCookie.toString());
     }
