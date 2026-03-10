@@ -206,6 +206,11 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/updateProfile")
+    public ResponseEntity<UserProfileResponseDto> updateProfile(@RequestBody UserProfileRequestDto dto) {
+        UserProfileResponseDto response = userService.updateUserProfileData(dto);
+        return ResponseEntity.ok(response);}
+
     private void issueLoginCookies(HttpServletResponse response, User user) {
         logger.debug("Issuing login cookies for user... with id : {}",user.getUserId());
         refreshTokenService.revokeAllUserTokens(user);

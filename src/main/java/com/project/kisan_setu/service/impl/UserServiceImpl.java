@@ -142,8 +142,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserProfileResponseDto updateSellerProfileData(UserProfileRequestDto dto) {
-        logger.info("Updating seller profile data...");
+    public UserProfileResponseDto updateUserProfileData(UserProfileRequestDto dto) {
+        logger.info("Updating User profile data...");
         logger.info("Checking user validations...");
         Long userId = validatorMethods.getCurrentUserId();
         User user = validatorMethods.validateUserById(userId);
