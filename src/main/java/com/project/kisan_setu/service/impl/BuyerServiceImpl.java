@@ -13,11 +13,13 @@ import com.project.kisan_setu.service.BuyerService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -81,10 +83,12 @@ public class BuyerServiceImpl implements BuyerService {
     // Place Bid
 
     @Override
+    @Transactional
     public Object placeBid(Long listingId, PlaceBidRequestDto dto) {
 
-        Listing listing = validatorMethods.validateExists(listingId);
         Long userId = validatorMethods.getCurrentUserId();
+        Listing listing = listingRepository.findByIdForUpdate(listingId)
+                .orElseThrow(() -> new RuntimeException("Listing not found"));
         User buyer = validatorMethods.validateUserById(userId);
 
         // Initialize remaining quantity if null
@@ -188,6 +192,18 @@ public class BuyerServiceImpl implements BuyerService {
             throw new RuntimeException("Auction Time Ended");
         }
 
+        Optional<Bid> latestBidOpt =
+                bidRepository.findTopByListingListingIdOrderByBidIdDesc(listingId);
+        if (latestBidOpt.isPresent()) {
+            Bid latestBid = latestBidOpt.get();
+            if (latestBid.getBuyer() != null
+                    && latestBid.getBuyer().getUserId().equals(buyer.getUserId())) {
+                throw new RuntimeException(
+                        "You must wait for another buyer to place a bid before bidding again."
+                );
+            }
+        }
+
         // PARTIAL ORDER AUCTION
         if (listing.getPurchaseType() == PurchaseType.PARTIAL_ORDER_ALLOWS) {
 
@@ -229,27 +245,33 @@ public class BuyerServiceImpl implements BuyerService {
         // WHOLE LOT AUCTION
         if (listing.getPurchaseType() == PurchaseType.WHOLE_LOT_ONLY) {
 
-            BigDecimal basePrice =
-                    listing.getPricePerKg()
-                            .multiply(listing.getQuantity());
-
-            BigDecimal currentHighest = bidRepository
-                    .findTopByListingListingIdOrderByBuyerAmountDesc(listingId)
-                    .map(Bid::getBuyerAmount)
-                    .orElse(basePrice);
-
-            if (listing.getMinimumBidIncrement() == null) {
-                throw new RuntimeException("Minimum bid increment not set");
+            if (dto.getBuyerAmount() == null) {
+                throw new RuntimeException("Bid amount required");
             }
 
-            BigDecimal expectedNextBid =
-                    currentHighest.add(listing.getMinimumBidIncrement());
+            BigDecimal basePrice = listing.getTotalBasePrice();
+            if (basePrice == null) {
+                basePrice = listing.getPricePerKg()
+                        .multiply(listing.getQuantity());
+            }
 
-            if (dto.getBuyerAmount()
-                    .compareTo(expectedNextBid) != 0) {
+            Optional<Bid> highestBidOpt = bidRepository
+                    .findTopByListingListingIdOrderByBuyerAmountDesc(listingId);
 
+            BigDecimal expectedNextBid;
+            if (highestBidOpt.isPresent()) {
+                if (listing.getMinimumBidIncrement() == null) {
+                    throw new RuntimeException("Minimum bid increment not set");
+                }
+                BigDecimal currentHighest = highestBidOpt.get().getBuyerAmount();
+                expectedNextBid = currentHighest.add(listing.getMinimumBidIncrement());
+            } else {
+                expectedNextBid = basePrice;
+            }
+
+            if (dto.getBuyerAmount().compareTo(expectedNextBid) != 0) {
                 throw new RuntimeException(
-                        "Bid must be exactly last bid + minimum increment: "
+                        "Bid must be exactly "
                                 + expectedNextBid
                 );
             }
