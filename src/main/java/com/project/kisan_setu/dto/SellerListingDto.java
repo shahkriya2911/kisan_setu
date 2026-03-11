@@ -5,6 +5,7 @@ import com.project.kisan_setu.enums.SaleType;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class SellerListingDto {
     private String grade;
     private BigDecimal quantity;
     private BigDecimal pricePerKg;
-    private String unit;
+    private String unitId;
 
     private BigDecimal totalBasePrice;
     private BigDecimal minimumBidIncrement;
@@ -34,7 +35,15 @@ public class SellerListingDto {
     private PurchaseType purchaseType;
     private SaleType saleType;
     private LocalDateTime postedOn;
+    private String state;
+    private String district;
+    private String pickupMethod;
+    private String storage;
 
     private List<BidResponseDto> top5Bids;
     private Long totalInquires;
+    private List<ProductImageResponseDto> images;
+    private LocalDate harvestDate;
+    private String packagingType;
+    private BigDecimal remainingQuantity;
 }

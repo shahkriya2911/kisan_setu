@@ -235,7 +235,7 @@ public class ListingMapper {
         return dto;
     }
 
-    private static List<ProductImageResponseDto> mapImages(Listing listing) {
+    public static List<ProductImageResponseDto> mapImages(Listing listing) {
         if (listing.getImages() == null || listing.getImages().isEmpty()) {
             return null;
         }

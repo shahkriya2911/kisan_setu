@@ -409,8 +409,16 @@ public class ListingServiceImpl implements ListingService {
                     listing.getPurchaseType(),
                     listing.getSaleType(),
                     listing.getPostedOn(),
+                    listing.getState().getName(),
+                    listing.getDistrict().getName(),
+                    listing.getPickupMethod(),
+                    listing.getStorage().getStorageType(),
                     top5Bids,
-                    null
+                    null,
+                    ListingMapper.mapImages(listing),
+                    listing.getHarvestDate(),
+                    listing.getPackaging().getPackagingType(),
+                    listing.getRemainingQuantity()
             );
         } else {
             List<BuyerInquiry> inquiries = buyerInquiryRepository.findByListingListingId(listingId);
@@ -447,8 +455,16 @@ public class ListingServiceImpl implements ListingService {
                     listing.getPurchaseType(),
                     listing.getSaleType(),
                     listing.getPostedOn(),
+                    listing.getState().getName(),
+                    listing.getDistrict().getName(),
+                    listing.getPickupMethod(),
+                    listing.getStorage().getStorageType(),
                     null,
-                    totalInquires
+                    totalInquires,
+                    ListingMapper.mapImages(listing),
+                    listing.getHarvestDate(),
+                    listing.getPackaging().getPackagingType(),
+                    listing.getRemainingQuantity()
             );
 
 
@@ -598,7 +614,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public void extendAuctionTime(Long listingId, Long sellerId, int minutes) {
-        validatorMethods.validateUserAccess();
+//        validatorMethods.validateUserAccess();
         logger.info("Extending auction time...");
         Listing listing = validatorMethods.validateExists(listingId);
         validatorMethods.checkStatus(listing, AuctionStatus.ACTIVE);
