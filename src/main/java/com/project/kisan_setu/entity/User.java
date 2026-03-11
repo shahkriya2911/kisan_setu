@@ -65,4 +65,10 @@ public class User {
 
 
 
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReturnAndShipping> returnAndShippings = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ChangingLanguage changingLanguage;
 }

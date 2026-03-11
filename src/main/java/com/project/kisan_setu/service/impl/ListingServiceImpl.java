@@ -557,6 +557,15 @@ public class ListingServiceImpl implements ListingService {
 
     }
 
+
+    @Override
+    public Page<ListingResponseDto> myListings(Long userId, Pageable pageable) {
+        logger.info("Getting all my listings...");
+        Page<Listing> listings = listingRepository.findBySeller_UserId(userId,pageable);
+        logger.info("Fetching my listings success...");
+        return listings.map(ListingMapper::toResponse);
+    }
+
     @Override
     public Page<ListingResponseDto> activeListings(Long sellerId, Pageable pageable) {
         logger.info("Getting active listings...");

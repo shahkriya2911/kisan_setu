@@ -51,4 +51,6 @@ public interface ListingService {
     Page<ListingSummaryResponseDto> soldSummaryListings(Long sellerId, Pageable pageable);
 
     Page<ListingSummaryResponseDto> closedSummaryListings(Long sellerId, Pageable pageable);
+
+    Page<ListingResponseDto> myListings(Long userId, Pageable pageable);
 }
