@@ -21,6 +21,7 @@ public interface UserService {
     AccountSettingResponseDto getAccountSettings();
     AccountSettingResponseDto updateAccountSettings(AccountSettingRequestDto dto);
     ChangePasswordResponseDto changePassword(ChangePasswordRequestDto dto);
+    KycStatusResponseDto getKycStatus();
 
 
 

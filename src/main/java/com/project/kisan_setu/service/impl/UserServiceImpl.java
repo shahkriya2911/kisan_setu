@@ -1,17 +1,11 @@
 package com.project.kisan_setu.service.impl;
 
 import com.project.kisan_setu.dto.*;
-import com.project.kisan_setu.entity.AadhaarVerification;
-import com.project.kisan_setu.entity.MobileVerification;
-import com.project.kisan_setu.entity.RefreshToken;
-import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.entity.*;
 import com.project.kisan_setu.enums.Role;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.UserMapper;
-import com.project.kisan_setu.repository.AadhaarVerificationRepository;
-import com.project.kisan_setu.repository.MobileVerificationRepository;
-import com.project.kisan_setu.repository.RefreshTokenRepository;
-import com.project.kisan_setu.repository.UserRepository;
+import com.project.kisan_setu.repository.*;
 import com.project.kisan_setu.security.JwtUtil;
 import com.project.kisan_setu.service.RefreshTokenService;
 import com.project.kisan_setu.service.UserService;
@@ -44,10 +38,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ValidatorMethods validatorMethods;
-    private final JwtUtil jwtUtil;
+    private final BankAccountVerificationRepository bankAccountVerificationRepository;
     private final RefreshTokenService refreshTokenService;
-    private final JavaMailSender javaMailSender;
-    private final MobileVerificationRepository mobileVerificationRepository;
+    private final PanCardVerificationRepository panCardVerificationRepository;
     private final AadhaarVerificationRepository aadhaarVerificationRepository;
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private static final long   MAX_SIZE  = 5 * 1024 * 1024L;
@@ -316,6 +309,45 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .passwordChangedAt(LocalDateTime.now())
                 .build();
+    }
+
+    @Override
+    public KycStatusResponseDto getKycStatus() {
+        logger.info("Fetching KYC Status...");
+        Long userId = validatorMethods.getCurrentUserId();
+        validatorMethods.validateUserById(userId);
+
+        Optional<AadhaarVerification> aadhaar = aadhaarVerificationRepository.findByUserUserId(userId);
+        boolean aadhaarVerified = aadhaar.isPresent() && aadhaar.get().isVerified();
+        String aadhaarNumber = aadhaar.map(AadhaarVerification::getAadhaarNumber).orElse("Aadhaar Not Submitted");
+
+        Optional<PanCardVerification> panCard = panCardVerificationRepository.findByUserUserId(userId);
+        boolean panCardVerified = panCard.isPresent() && panCard.get().isVerified();
+        String panNumber = panCard.map(PanCardVerification::getPanNumber).orElse("PanCard not Submitted");
+
+        Optional<BankAccountVerification> bank =
+                bankAccountVerificationRepository.findByUserUserId(userId);
+        boolean bankVerified = bank.isPresent() && bank.get().isVerified();
+        String bankAccountStatus = bankVerified ? "Verified and linked" : "Pending";
+
+        boolean fullyVerified = aadhaarVerified && panCardVerified && bankVerified;
+        String overallMessage = fullyVerified
+                ? "Your account is verified"
+                : "Some documents are pending verification";
+
+        logger.info("KYC status fetched successfully for userId: {}", userId);
+
+        return KycStatusResponseDto.builder()
+                .fullyVerified(fullyVerified)
+                .overallMessage(overallMessage)
+                .aadhaarVerified(aadhaarVerified)
+                .aadhaarNumber(aadhaarNumber)
+                .panVerified(panCardVerified)
+                .panNumber(panNumber)
+                .bankVerified(bankVerified)
+                .bankAccountStatus(bankAccountStatus)
+                .build();
+
     }
 
 }

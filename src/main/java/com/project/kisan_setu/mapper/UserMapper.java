@@ -1,10 +1,7 @@
 package com.project.kisan_setu.mapper;
 
 import com.project.kisan_setu.dto.*;
-import com.project.kisan_setu.entity.AadhaarVerification;
-import com.project.kisan_setu.entity.BankAccountVerification;
-import com.project.kisan_setu.entity.MobileVerification;
-import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.entity.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.format.DateTimeFormatter;
@@ -48,6 +45,7 @@ public class UserMapper {
         MobileVerification mobile = user.getMobileVerification();
         AadhaarVerification aadhaar = user.getAadhaarVerification();
         BankAccountVerification bank = user.getBankAccountVerification();
+        PanCardVerification pan = user.getPanCardVerification();
 
         return UserProfileResponseDto.builder()
                 .userId(user.getUserId())
@@ -67,6 +65,7 @@ public class UserMapper {
                 .mobileVerified(mobile != null && mobile.isVerified() ? true : null)
                 .aadhaarVerified(aadhaar != null && aadhaar.isVerified() ? true : null)
                 .bankAccountVerified(bank != null && bank.isVerified() ? true : null)
+                .panCardVerified(pan != null && pan.isVerified() ? true : null )
                 .build();
     }
     public static void updateUserEntity(User user, UserProfileRequestDto request) {

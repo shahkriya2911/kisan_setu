@@ -240,6 +240,12 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/kyc-status")
+    public ResponseEntity<KycStatusResponseDto> getKycStatus(){
+        logger.debug("KYC status request attempt");
+        return ResponseEntity.ok(userService.getKycStatus());
+    }
+
     private void issueLoginCookies(HttpServletResponse response, User user) {
         logger.debug("Issuing login cookies for user... with id : {}",user.getUserId());
         refreshTokenService.revokeAllUserTokens(user);

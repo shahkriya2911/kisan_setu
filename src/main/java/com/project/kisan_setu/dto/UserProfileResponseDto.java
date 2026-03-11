@@ -32,9 +32,11 @@ public class UserProfileResponseDto {
         private Boolean mobileVerified;
         private Boolean aadhaarVerified;
         private Boolean bankAccountVerified;
+        private Boolean panCardVerified;
         private LocalDateTime mobileVerifiedAt;
         private LocalDateTime aadhaarVerifiedAt;
         private LocalDateTime bankAccountVerifiedAt;
+        private LocalDateTime panCardVerifiedAt;
 
 }
 

@@ -1,5 +1,6 @@
 package com.project.kisan_setu.entity;
 import com.project.kisan_setu.enums.Role;
+import com.project.kisan_setu.service.PanCardVerificationService;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -58,6 +59,9 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private MobileVerification mobileVerification;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private PanCardVerification panCardVerification;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

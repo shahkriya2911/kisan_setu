@@ -73,7 +73,6 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
         logger.info("Aadhaar submitted success...");
         return buildResponse(verification, user,
                 "Aadhaar submitted! Wait for approval.");
-
     }
 
     private AadhaarResponseDto buildResponse(AadhaarVerification v, User user, String message) {
@@ -91,7 +90,6 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
                 .verifiedAt(v.getVerifiedAt())
                 .message(message)
                 .build();
-
     }
 
     @Override
@@ -107,7 +105,6 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
         return buildResponse(verification, user, verification.isVerified() ?
                 "Aadhaar verified!" :
                 "Verification pending admin approval");
-
     }
 
     @Override
@@ -128,7 +125,6 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
         logger.info("aadhaar approved successfully");
         return buildResponse(verification, user, "Aadhaar approved successfully!");
     }
-
     @Override
     public AadhaarResponseDto rejectAadhaar(Long userId) {
         validatorMethods.validateAdminAccess();
@@ -146,7 +142,6 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
         return buildResponse(verification, user, "Aadhaar rejected! Please resubmit the Detail.");
 
     }
-
     @Override
     public List<AadhaarResponseDto> getPendingVerifications() {
         validatorMethods.validateAdminAccess();
