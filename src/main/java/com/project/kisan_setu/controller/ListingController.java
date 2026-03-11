@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -165,6 +166,15 @@ public class ListingController {
         Long userId = Long.parseLong(authentication.getName());
         Page<ListingResponseDto> listings = listingService.activeListings(userId,pageable);
         logger.info("Fetched all active listings for user with id : {} successfully",userId);
+        return ResponseEntity.ok(listings);
+    }
+
+    @GetMapping("my-listings")
+    public ResponseEntity<Page<ListingResponseDto>> myListings(Authentication authentication,Pageable pageable){
+        logger.debug("Get all my listings for user with id : {}",Long.parseLong(authentication.getName()));
+        Long userId = Long.parseLong(authentication.getName());
+        Page<ListingResponseDto> listings = listingService.myListings(userId,pageable);
+        logger.info("Fetched all my listings for user with id : {} successfully",userId);
         return ResponseEntity.ok(listings);
     }
 

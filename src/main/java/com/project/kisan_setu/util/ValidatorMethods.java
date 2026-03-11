@@ -11,6 +11,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 public class ValidatorMethods {
@@ -22,6 +24,7 @@ public class ValidatorMethods {
     private final DistrictRepository districtRepository;
     private final PackagingRepository packagingRepository;
     private final StorageRepository storageRepository;
+    private final ReturnAndShippingRepository returnAndShippingRepository;
 
     public Listing validateExists(Long listingId){
         return listingRepository.findById(listingId)
@@ -91,4 +94,8 @@ public class ValidatorMethods {
         }
     }
 
+    public ReturnAndShipping getReturnAndShippingById(Long returnAndShippingId) {
+        return returnAndShippingRepository.findById(returnAndShippingId)
+                .orElseThrow(()->new RuntimeException("Return and Shipping not found"));
+    }
 }

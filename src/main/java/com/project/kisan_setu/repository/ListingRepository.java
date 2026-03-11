@@ -34,4 +34,6 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT l FROM Listing l WHERE l.listingId = :listingId")
     Optional<Listing> findByIdForUpdate(@Param("listingId") Long listingId);
+
+    Page<Listing> findBySeller_UserId(Long userId, Pageable pageable);
 }
