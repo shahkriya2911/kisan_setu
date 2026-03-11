@@ -737,6 +737,38 @@ public class ListingServiceImpl implements ListingService {
         logger.info("Bid rejected success...");
         return "Bid Rejected Successfully";
     }
+
+    @Override
+    public Page<ListingSummaryResponseDto> activeSummaryListings(Long sellerId, Pageable pageable) {
+        logger.info("Getting active listings...");
+        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.ACTIVE, pageable);
+        logger.info("Fetching active listings success...");
+        return listings.map(ListingMapper::toSummaryResponse);
+    }
+
+    @Override
+    public Page<ListingSummaryResponseDto> pendingSummaryListings(Long sellerId, Pageable pageable){
+        logger.info("Getting pending listings...");
+        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.PENDING,pageable);
+        logger.info("Fetching pending listings success...");
+        return listings.map(ListingMapper::toSummaryResponse);
+    }
+
+    @Override
+    public Page<ListingSummaryResponseDto> soldSummaryListings(Long sellerId, Pageable pageable) {
+        logger.info("Getting sold closed listings...");
+        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.SOLD,pageable);
+        logger.info("Fetching sold listing success...");
+        return listings.map(ListingMapper::toSummaryResponse);
+    }
+
+    @Override
+    public Page<ListingSummaryResponseDto> closedSummaryListings(Long sellerId, Pageable pageable) {
+        logger.info("Getting closed listings...");
+        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.CLOSED,pageable);
+        logger.info("Fetching closed listings success...");
+        return listings.map(ListingMapper::toSummaryResponse);
+    }
 }
 
 
