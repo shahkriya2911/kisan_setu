@@ -1,4 +1,5 @@
 package com.project.kisan_setu.entity;
+import com.project.kisan_setu.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,6 +39,8 @@ public class User {
     private String primaryCrops;
     private String farmLocation;
     private Integer yearsOfExperience;
+    @Column(name = "profile_photo")
+    private String profilePhoto;
 
 
 
@@ -55,4 +58,11 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private MobileVerification mobileVerification;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.USER;  // default everyone is USER
+
+
+
 }

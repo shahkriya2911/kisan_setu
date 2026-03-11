@@ -2,6 +2,7 @@ package com.project.kisan_setu.service;
 
 import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.entity.User;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +16,10 @@ public interface UserService {
     UserResponseDto updateUserById(Long userId, UpdateUserRequestDto dto);
     void deleteUserById(Long userId);
     User findByEmail(String email);
-    UserProfileResponseDto updateUserProfileData(UserProfileRequestDto dto);
+    UserProfileResponseDto completeUserProfileData(UserProfileRequestDto dto);
+    UserProfileResponseDto uploadProfilePhoto(MultipartFile file);
+    AccountSettingResponseDto getAccountSettings();
+    AccountSettingResponseDto updateAccountSettings(AccountSettingRequestDto dto);
 
 
 

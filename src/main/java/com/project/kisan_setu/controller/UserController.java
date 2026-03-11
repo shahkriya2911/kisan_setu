@@ -18,10 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -206,10 +208,29 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/updateProfile")
-    public ResponseEntity<UserProfileResponseDto> updateProfile(@RequestBody UserProfileRequestDto dto) {
-        UserProfileResponseDto response = userService.updateUserProfileData(dto);
+    @PutMapping(value = "/updateProfile",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserProfileResponseDto> completeUserProfile(@ModelAttribute UserProfileRequestDto dto) {
+        UserProfileResponseDto response = userService.completeUserProfileData(dto);
         return ResponseEntity.ok(response);}
+
+    @PostMapping(value = "/profile-photo",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserProfileResponseDto> uploadProfilePhoto(
+            @RequestParam("file") MultipartFile file) {
+
+        UserProfileResponseDto response = userService.uploadProfilePhoto(file);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/account-settings")
+    public ResponseEntity<AccountSettingResponseDto> getAccountSettings() {
+        AccountSettingResponseDto response = userService.getAccountSettings();
+        return ResponseEntity.ok(response);
+    }
+    @PutMapping(value = "/account-settings", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<AccountSettingResponseDto> updateAccountSettings(
+            @ModelAttribute AccountSettingRequestDto dto) {
+        AccountSettingResponseDto response = userService.updateAccountSettings(dto);
+        return ResponseEntity.ok(response);
+    }
 
     private void issueLoginCookies(HttpServletResponse response, User user) {
         logger.debug("Issuing login cookies for user... with id : {}",user.getUserId());

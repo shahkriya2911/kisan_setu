@@ -93,6 +93,7 @@ public class BankAccountVerificationServiceImpl implements BankAccountVerificati
 
     @Override
     public BankAccountResponseDto approveBank(Long userId) {
+        validatorMethods.validateAdminAccess();
         logger.info("Validating user to for bank account approval");
         User user = validatorMethods.validateUserById(userId);
 
@@ -112,6 +113,7 @@ public class BankAccountVerificationServiceImpl implements BankAccountVerificati
     }
     @Override
     public BankAccountResponseDto rejectBank(Long userId) {
+        validatorMethods.validateAdminAccess();
         logger.info("Validating user to reject bank account details...");
         User user = validatorMethods.validateUserById(userId);
 

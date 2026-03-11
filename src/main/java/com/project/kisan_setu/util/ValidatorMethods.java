@@ -2,6 +2,7 @@ package com.project.kisan_setu.util;
 
 import com.project.kisan_setu.entity.*;
 import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.enums.Role;
 import com.project.kisan_setu.exception.ResourceNotFoundException;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.repository.*;
@@ -73,6 +74,21 @@ public class ValidatorMethods {
     public StorageMaster validateStorage(Long storageId) {
         return storageRepository.findById(storageId)
                 .orElseThrow(() -> new RuntimeException("Storage not found"));
+    }
+
+    public void validateAdminAccess() {
+        Long userId = getCurrentUserId();
+        User user = validateUserById(userId);
+        if (user.getRole() != Role.ADMIN) {
+            throw new RuntimeException("Access denied! Admin only.");
+        }
+    }
+    public void validateUserAccess() {
+        Long userId = getCurrentUserId();
+        User user = validateUserById(userId);
+        if (user.getRole() != Role.USER) {
+            throw new RuntimeException("Access denied! Not allowed for admin.");
+        }
     }
 
 }

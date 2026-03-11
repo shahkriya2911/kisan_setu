@@ -51,6 +51,7 @@ public class UserMapper {
         return UserProfileResponseDto.builder()
                 .userId(user.getUserId())
                 .fullName(user.getFullName())
+                .profilePhotoUrl(user.getProfilePhoto())
                 .email(user.getEmail())
                 .dateOfBirth(user.getDateOfBirth())
                 .mobileNumber(user.getMobileNumber())
@@ -62,14 +63,9 @@ public class UserMapper {
                 .farmLocation(user.getFarmLocation())
                 .yearsOfExperience(user.getYearsOfExperience())
 
-                .mobileVerified(mobile != null && mobile.isVerified())
-                .mobileVerifiedAt(mobile != null ? mobile.getVerifiedAt() : null)
-
-                .aadhaarVerified(aadhaar != null && aadhaar.isVerified())
-                .aadhaarVerifiedAt(aadhaar != null ? aadhaar.getVerifiedAt() : null)
-
-                .bankAccountVerified(bank != null && bank.isVerified())
-                .bankAccountVerifiedAt(bank != null ? bank.getVerifiedAt() : null)
+                .mobileVerified(mobile != null && mobile.isVerified() ? true : null)
+                .aadhaarVerified(aadhaar != null && aadhaar.isVerified() ? true : null)
+                .bankAccountVerified(bank != null && bank.isVerified() ? true : null)
                 .build();
     }
     public static void updateUserEntity(User user, UserProfileRequestDto request) {
@@ -92,4 +88,18 @@ public class UserMapper {
         if (request.getYearsOfExperience() != null)
             user.setYearsOfExperience(request.getYearsOfExperience());
     }
+
+    public static AccountSettingResponseDto toAccountSettingDto(User user) {
+
+        return AccountSettingResponseDto.builder()
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .mobileNumber(user.getMobileNumber())
+                .profilePhotoUrl(user.getProfilePhoto())
+                .farmLocation(user.getFarmLocation())
+                .build();
+    }
+
+
 }

@@ -4,6 +4,7 @@ import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.PurchaseType;
+import com.project.kisan_setu.enums.Role;
 import com.project.kisan_setu.enums.SaleType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -129,6 +130,7 @@ public class Listing {
     @ManyToOne()
     @JoinColumn(name = "district_id")
     private DistrictMaster district;
+
 
 
 

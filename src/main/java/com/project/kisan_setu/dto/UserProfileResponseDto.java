@@ -1,5 +1,6 @@
 package com.project.kisan_setu.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,9 +13,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserProfileResponseDto {
         private Long userId;
         private String fullName;
+        private String profilePhotoUrl;
         private String email;
         private String mobileNumber;
         private String dateOfBirth;
@@ -26,9 +29,9 @@ public class UserProfileResponseDto {
         private String primaryCrops;
         private String farmLocation;
         private Integer yearsOfExperience;
-        private boolean mobileVerified;
-        private boolean aadhaarVerified;
-        private boolean bankAccountVerified;
+        private Boolean mobileVerified;
+        private Boolean aadhaarVerified;
+        private Boolean bankAccountVerified;
         private LocalDateTime mobileVerifiedAt;
         private LocalDateTime aadhaarVerifiedAt;
         private LocalDateTime bankAccountVerifiedAt;

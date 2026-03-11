@@ -112,6 +112,7 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
 
     @Override
     public AadhaarResponseDto approveAadhaar(Long userId) {
+        validatorMethods.validateAdminAccess();
         logger.info("Validating user for aadhaar approval...");
         User user = validatorMethods.validateUserById(userId);
 
@@ -130,6 +131,7 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
 
     @Override
     public AadhaarResponseDto rejectAadhaar(Long userId) {
+        validatorMethods.validateAdminAccess();
         logger.info("validating user for rejecting aadhaar...");
         User user = validatorMethods.validateUserById(userId);
         AadhaarVerification verification = aadhaarVerificationRepository.findByUserUserId(userId)
@@ -147,6 +149,7 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
 
     @Override
     public List<AadhaarResponseDto> getPendingVerifications() {
+        validatorMethods.validateAdminAccess();
         logger.info("getting pending verifications...");
         List<AadhaarVerification> pending = aadhaarVerificationRepository.findByVerified(false);
         logger.info("fetching pending verifications success...");

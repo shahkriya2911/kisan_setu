@@ -43,4 +43,5 @@ public class CreateUserRequestDto {
     @NotBlank(message = "Confirm password is required")
     private String confirmPassword;
     private String userCreatedAt; // ISO_LOCAL_DATE_TIME format
+    private String adminSecret;
 }

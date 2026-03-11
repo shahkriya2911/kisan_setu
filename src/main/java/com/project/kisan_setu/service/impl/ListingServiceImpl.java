@@ -58,6 +58,7 @@ public class ListingServiceImpl implements ListingService {
     public ListingResponseDto createListing(CreateListingRequest request,
                                             List<MultipartFile> imageFiles,
                                             MultipartFile certificateFile) {
+        validatorMethods.validateUserAccess();  //admin cant create
         logger.info("Creating listing...");
         ProductListingDto productDto = request.getProduct();
         QualityPricingListingDto pricingDto = request.getPricing();
@@ -138,6 +139,7 @@ public class ListingServiceImpl implements ListingService {
                                             CreateListingRequest request,
                                             List<MultipartFile> imageFiles,
                                             MultipartFile certificateFile) {
+        validatorMethods.validateUserAccess();
         logger.info("Updating listing...");
         logger.info("Validating listing...");
         Listing listing = validatorMethods.validateExists(listingId);
@@ -264,6 +266,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public List<ListingResponseDto> getAllListings() {
+        validatorMethods.validateAdminAccess();
         logger.info("Getting all listings...");
         logger.info("Fetching all listings success...");
         return listingRepository.findAll().stream()
@@ -273,6 +276,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public ListingResponseDto getListingById(Long id) {
+        validatorMethods.validateUserAccess();
         logger.info("Get listing by id...");
         logger.info("Validating listing...");
         Listing listing = validatorMethods.validateExists(id);
@@ -282,6 +286,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public void deleteListing(Long listingId, Long sellerId) {
+        validatorMethods.validateUserAccess();
         logger.info("Deleting listing....");
         logger.info("Validating listing...");
         Listing listing = validatorMethods.validateExists(listingId);
@@ -297,6 +302,7 @@ public class ListingServiceImpl implements ListingService {
 
 
     public Bid placeBid(Long listingId, BigDecimal buyerAmount, Long userId) {
+        validatorMethods.validateUserAccess();
         logger.info("Placing bid for listing....");
         logger.info("Validating listing...");
         Listing listing = validatorMethods.validateExists(listingId);
@@ -359,6 +365,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public SellerListingDto getSellerListingDetail(Long listingId) {
+        validatorMethods.validateUserAccess();
         logger.info("Getting seller listing detail...");
         logger.info("Validating listing...");
         Listing listing = validatorMethods.validateExists(listingId);
@@ -468,6 +475,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public Order acceptInqury(Long inquiryId, Long userId) {
+        validatorMethods.validateUserAccess();
         logger.info("Accepting inquiry...");
         //convert email to user
         logger.info("Validating user...");
@@ -501,6 +509,7 @@ public class ListingServiceImpl implements ListingService {
 
 
     public void markAsSold(Long listingId, Long sellerId) {
+        validatorMethods.validateUserAccess();
         logger.info("Marking listing as sold...");
         logger.info("Validating listing...");
         Listing listing = validatorMethods.validateExists(listingId);
@@ -585,6 +594,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public void extendAuctionTime(Long listingId, Long sellerId, int minutes) {
+        validatorMethods.validateUserAccess();
         logger.info("Extending auction time...");
         logger.info("Validating listing...");
         Listing listing = validatorMethods.validateExists(listingId);
@@ -603,6 +613,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public List<BuyingRequirementResponseDto> getBuyerRequirementsForSeller() {
+        validatorMethods.validateUserAccess();
         logger.info("Getting buyer requirements for seller...");
         logger.info("Validating user...");
         Long userId = validatorMethods.getCurrentUserId();
@@ -648,6 +659,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public BuyerContactResponseDto getBuyerContact(Long requirementId) {
+        validatorMethods.validateUserAccess();
         logger.info("Getting buyer contact...");
         BuyingRequirement requirement =
                 buyingRequirementRepository.findById(requirementId)
