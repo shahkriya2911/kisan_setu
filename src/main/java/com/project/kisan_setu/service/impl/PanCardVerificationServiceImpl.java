@@ -6,6 +6,7 @@ import com.project.kisan_setu.entity.PanCardVerification;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.repository.PanCardVerificationRepository;
 import com.project.kisan_setu.service.FileStorageService;
+import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.service.PanCardVerificationService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class PanCardVerificationServiceImpl implements PanCardVerificationServic
     private final PanCardVerificationRepository panCardVerificationRepository;
     private final ValidatorMethods validatorMethods;
     private final FileStorageService fileStorageService;
+    private final NotificationService notificationService;
     private static final Logger logger = LoggerFactory.getLogger(PanCardVerificationServiceImpl.class);
     @Override
     public PanCardResponseDto submitPan(PanCardRequestDto dto) {
@@ -90,6 +92,7 @@ public class PanCardVerificationServiceImpl implements PanCardVerificationServic
         verification.setVerified(true);
         verification.setVerifiedAt(LocalDateTime.now());
         panCardVerificationRepository.save(verification);
+        notificationService.notifyUser(user, " Your PAN card has been verified successfully!");
 
         logger.info("PAN approved successfully for userId: {}...", userId);
         return buildResponse(verification, user, "PAN approved successfully!");

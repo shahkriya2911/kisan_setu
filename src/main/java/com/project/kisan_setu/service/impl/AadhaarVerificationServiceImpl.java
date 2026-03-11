@@ -7,6 +7,7 @@ import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.repository.AadhaarVerificationRepository;
 import com.project.kisan_setu.service.AadhaarVerificationService;
 import com.project.kisan_setu.service.FileStorageService;
+import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
     private final AadhaarVerificationRepository aadhaarVerificationRepository;
     private final ValidatorMethods validatorMethods;
     private final FileStorageService fileStorageService;
+    private final NotificationService notificationService;
     private final static Logger logger = LoggerFactory.getLogger(AadhaarVerificationServiceImpl.class);
 
     @Override
@@ -122,6 +124,7 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
         verification.setVerified(true);
         verification.setVerifiedAt(LocalDateTime.now());
         aadhaarVerificationRepository.save(verification);
+        notificationService.notifyUser(user, " Your Aadhaar card has been verified successfully!");
         logger.info("aadhaar approved successfully");
         return buildResponse(verification, user, "Aadhaar approved successfully!");
     }
@@ -137,6 +140,7 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
         verification.setVerifiedAt(null);
         verification.setAadhaarImagePath(null); // reset so user resubmits
         aadhaarVerificationRepository.save(verification);
+        notificationService.notifyUser(user, "Your Aadhaar card has been Rejected...!");
 
         logger.info("aadhaar reject success...");
         return buildResponse(verification, user, "Aadhaar rejected! Please resubmit the Detail.");

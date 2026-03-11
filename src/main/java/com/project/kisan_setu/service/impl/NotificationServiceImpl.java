@@ -25,15 +25,15 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void notifyBuyer(User buyer, String message) {
+    public void notifyUser(User user, String message) {
         logger.info("Notifying buyer....");
         Notification notification = new Notification();
-        notification.setBuyer(buyer);
+        notification.setBuyer(user);
+        notification.setIsRead(false);
         notification.setMessage(message);
-        notification.setBuyer(buyer);
         notificationRepository.save(notification);
         //print in console
-        System.out.println("Notification to"+buyer.getFullName()+" : "+message);
+        System.out.println("Notification to"+user.getFullName()+" : "+message);
 
     }
     public List<Notification> getBuyerNotifications(User buyer) {

@@ -7,6 +7,7 @@ import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.repository.BankAccountVerificationRepository;
 import com.project.kisan_setu.service.BankAccountVerificationService;
 import com.project.kisan_setu.service.FileStorageService;
+import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ public class BankAccountVerificationServiceImpl implements BankAccountVerificati
     private final BankAccountVerificationRepository bankAccountVerificationRepository;
     private final ValidatorMethods validatorMethods;
     private final FileStorageService fileStorageService;
+    private final NotificationService notificationService;
     private static final Logger logger = LoggerFactory.getLogger(BankAccountVerificationServiceImpl.class);
     @Override
     public BankAccountResponseDto submitBankAccount(BankAccountRequestDto dto) {
@@ -108,6 +110,7 @@ public class BankAccountVerificationServiceImpl implements BankAccountVerificati
         verification.setVerified(true);
         verification.setVerifiedAt(LocalDateTime.now());
         bankAccountVerificationRepository.save(verification);
+        notificationService.notifyUser(user, "Your bank account has been verified and linked successfully!");
         logger.info("Bank account approval success...");
         return buildResponse(verification, user, "Bank account approved successfully!");
     }
@@ -128,6 +131,7 @@ public class BankAccountVerificationServiceImpl implements BankAccountVerificati
         verification.setAadhaarPath(null);
         verification.setPanCardPath(null);
         bankAccountVerificationRepository.save(verification);
+        notificationService.notifyUser(user, "Your bank account has been verified and linked Rejected!");
 
         logger.info("Bank account rejection success");
         return buildResponse(verification, user,

@@ -7,6 +7,7 @@ import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.UserMapper;
 import com.project.kisan_setu.repository.*;
 import com.project.kisan_setu.security.JwtUtil;
+import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.service.RefreshTokenService;
 import com.project.kisan_setu.service.UserService;
 import com.project.kisan_setu.util.ValidatorMethods;
@@ -42,6 +43,7 @@ public class UserServiceImpl implements UserService {
     private final RefreshTokenService refreshTokenService;
     private final PanCardVerificationRepository panCardVerificationRepository;
     private final AadhaarVerificationRepository aadhaarVerificationRepository;
+    private final NotificationService notificationService;
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private static final long   MAX_SIZE  = 5 * 1024 * 1024L;
     private static final String[] ALLOWED  = {"image/jpeg", "image/png", "image/jpg"};
@@ -315,7 +317,7 @@ public class UserServiceImpl implements UserService {
     public KycStatusResponseDto getKycStatus() {
         logger.info("Fetching KYC Status...");
         Long userId = validatorMethods.getCurrentUserId();
-        validatorMethods.validateUserById(userId);
+        User user = validatorMethods.validateUserById(userId);
 
         Optional<AadhaarVerification> aadhaar = aadhaarVerificationRepository.findByUserUserId(userId);
         boolean aadhaarVerified = aadhaar.isPresent() && aadhaar.get().isVerified();
@@ -334,6 +336,11 @@ public class UserServiceImpl implements UserService {
         String overallMessage = fullyVerified
                 ? "Your account is verified"
                 : "Some documents are pending verification";
+
+        if (fullyVerified) {
+            notificationService.notifyUser(user,
+                    " KYC Verification Complete! All documents verified.");
+        }
 
         logger.info("KYC status fetched successfully for userId: {}", userId);
 
