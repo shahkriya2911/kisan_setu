@@ -288,5 +288,35 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toAccountSettingDto(user);
     }
 
+    @Override
+    public ChangePasswordResponseDto changePassword(ChangePasswordRequestDto dto) {
+        Long userId = validatorMethods.getCurrentUserId();
+        User user=validatorMethods.validateUserById(userId);
+        logger.info("Changing/Updating Password...");
+
+        if(!passwordEncoder.matches(dto.getCurrentPassword(),user.getPassword())){
+            throw new UserException("Current Password is Incorrect");
+        }
+        if (!dto.getNewPassword().equals(dto.getConfirmNewPassword())) {
+            throw new UserException("New password and confirm password do not match");
+        }
+        if (passwordEncoder.matches(dto.getNewPassword(), user.getPassword())) {
+            throw new UserException("New password cannot be same as current password");
+        }
+        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        userRepository.save(user);
+
+        logger.info("Password changed successfully for userId: {}", userId);
+
+        return ChangePasswordResponseDto.builder()
+                .status(200)
+                .message("Password changed successfully")
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .passwordChangedAt(LocalDateTime.now())
+                .build();
+    }
+
 }
 

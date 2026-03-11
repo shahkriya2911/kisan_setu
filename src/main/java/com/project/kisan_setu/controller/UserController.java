@@ -232,6 +232,14 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/change-password")
+    public ResponseEntity<ChangePasswordResponseDto> changePassword(
+            @Valid @RequestBody ChangePasswordRequestDto dto) {
+
+        ChangePasswordResponseDto response = userService.changePassword(dto);
+        return ResponseEntity.ok(response);
+    }
+
     private void issueLoginCookies(HttpServletResponse response, User user) {
         logger.debug("Issuing login cookies for user... with id : {}",user.getUserId());
         refreshTokenService.revokeAllUserTokens(user);

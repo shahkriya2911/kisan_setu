@@ -39,6 +39,7 @@ public class UserMapper {
         if (user.getCreatedAt() != null) {
             dto.setUserCreatedAt(user.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         }
+        dto.setRole(user.getRole());
         return dto;
     }
 

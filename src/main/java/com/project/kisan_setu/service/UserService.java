@@ -20,6 +20,7 @@ public interface UserService {
     UserProfileResponseDto uploadProfilePhoto(MultipartFile file);
     AccountSettingResponseDto getAccountSettings();
     AccountSettingResponseDto updateAccountSettings(AccountSettingRequestDto dto);
+    ChangePasswordResponseDto changePassword(ChangePasswordRequestDto dto);
 
 
 

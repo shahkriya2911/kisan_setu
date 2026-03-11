@@ -34,11 +34,11 @@ public class CreateUserRequestDto {
     )
     private String mobileNumber;
     @NotBlank(message = "Password is required")
-//    @Size(min = 6, message = "Password must be at least 6 characters")
-//    @Pattern(
-//            regexp = "^(?=.*[0-9])(?=.*[!@#$%^&*(),.?\":{}|<>]).{6,}$",
-//            message = "Password must contain at least one digit and one special character"
-//    )
+    @Size(min = 6, message = "Password must be at least 6 characters")
+    @Pattern(
+            regexp = "^(?=.*[0-9])(?=.*[!@#$%^&*(),.?\":{}|<>]).{6,}$",
+            message = "Password must contain at least one digit and one special character"
+    )
     private String password;
     @NotBlank(message = "Confirm password is required")
     private String confirmPassword;
