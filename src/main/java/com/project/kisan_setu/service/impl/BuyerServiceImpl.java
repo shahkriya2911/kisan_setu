@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -28,14 +27,9 @@ import java.util.stream.IntStream;
 public class BuyerServiceImpl implements BuyerService {
     private final ListingRepository listingRepository;
     private final BidRepository bidRepository;
-    private final UserRepository userRepository;
-    private final OrderRepository orderRepository;
     private final ValidatorMethods validatorMethods;
     private final BuyerInquiryRepository buyerInquiryRepository;
     private final BuyingRequirementRepository buyingRequirementRepository;
-    private final StateRepository stateRepository;
-    private final DistrictRepository districtRepository;
-
 
     // Post Requirement
     @Override
@@ -117,7 +111,7 @@ public class BuyerServiceImpl implements BuyerService {
                 throw new RuntimeException("Not enough quantity available");
             }
 
-            // WHOLE LOT
+            // LOT
             if (listing.getPurchaseType() == PurchaseType.WHOLE_LOT_ONLY) {
                 if (dto.getQuantity().compareTo(listing.getRemainingQuantity()) != 0) {
                     throw new RuntimeException(
@@ -242,7 +236,7 @@ public class BuyerServiceImpl implements BuyerService {
             );
         }
 
-        // WHOLE LOT AUCTION
+        //  LOT AUCTION
         if (listing.getPurchaseType() == PurchaseType.WHOLE_LOT_ONLY) {
 
             if (dto.getBuyerAmount() == null) {

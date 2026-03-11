@@ -367,7 +367,6 @@ public class ListingServiceImpl implements ListingService {
     public SellerListingDto getSellerListingDetail(Long listingId) {
         validatorMethods.validateUserAccess();
         logger.info("Getting seller listing detail...");
-        logger.info("Validating listing...");
         Listing listing = validatorMethods.validateExists(listingId);
 
         if (listing.getSaleType() == SaleType.AUCTION) {
@@ -460,7 +459,6 @@ public class ListingServiceImpl implements ListingService {
     @Override
     public DashboardDto getSellerOverview() {
         logger.info("Getting seller overview...");
-        logger.info("Validating user...");
         Long userId = validatorMethods.getCurrentUserId();
         User seller = validatorMethods.validateUserById(userId);
 
@@ -511,7 +509,6 @@ public class ListingServiceImpl implements ListingService {
     public void markAsSold(Long listingId, Long sellerId) {
         validatorMethods.validateUserAccess();
         logger.info("Marking listing as sold...");
-        logger.info("Validating listing...");
         Listing listing = validatorMethods.validateExists(listingId);
         // Check seller ownership
         if (!listing.getSeller().getUserId().equals(sellerId)) {
@@ -564,7 +561,6 @@ public class ListingServiceImpl implements ListingService {
     public Page<ListingResponseDto> activeListings(Long sellerId, Pageable pageable) {
         logger.info("Getting active listings...");
         Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.ACTIVE, pageable);
-        logger.info("Fetching active listings success...");
         return listings.map(ListingMapper::toResponse);
     }
 
