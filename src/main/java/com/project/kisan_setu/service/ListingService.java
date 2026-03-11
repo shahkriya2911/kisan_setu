@@ -44,4 +44,11 @@ public interface ListingService {
     String acceptBid(Long bidId);
     String rejectBid(Long bidId);
 
+    Page<ListingSummaryResponseDto> activeSummaryListings(Long sellerId, Pageable pageable);
+
+    Page<ListingSummaryResponseDto> pendingSummaryListings(Long sellerId, Pageable pageable);
+
+    Page<ListingSummaryResponseDto> soldSummaryListings(Long sellerId, Pageable pageable);
+
+    Page<ListingSummaryResponseDto> closedSummaryListings(Long sellerId, Pageable pageable);
 }

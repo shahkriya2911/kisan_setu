@@ -199,4 +199,58 @@ public class ListingMapper {
 
         listing.setDescription(description);
     }
+
+    public static ListingSummaryResponseDto toSummaryResponse(Listing listing) {
+
+        ListingSummaryResponseDto dto = new ListingSummaryResponseDto();
+        dto.setListingId(listing.getListingId());
+
+        if (listing.getCrop() != null) {
+            dto.setCropId(listing.getCrop().getCropName());
+        }
+        dto.setVariety(listing.getVariety());
+        dto.setGrade(listing.getGrade());
+        dto.setQuantity(listing.getQuantity());
+        if (listing.getUnit() != null) {
+            dto.setUnitId(listing.getUnit().getUnitName());
+        }
+
+        dto.setPricePerKg(listing.getPricePerKg());
+        dto.setTotalBasePrice(listing.getTotalBasePrice());
+        dto.setPurchaseType(listing.getPurchaseType());
+        dto.setSaleType(listing.getSaleType() != null
+                ? listing.getSaleType().name()
+                : null);
+        dto.setAuctionEndTime(listing.getAuctionEndTime());
+
+        if (listing.getState() != null) {
+            dto.setStateId(listing.getState().getName());
+        }
+        if (listing.getDistrict() != null) {
+            dto.setDistrictId(listing.getDistrict().getName());
+        }
+
+        dto.setImages(mapImages(listing));
+
+        return dto;
+    }
+
+    private static List<ProductImageResponseDto> mapImages(Listing listing) {
+        if (listing.getImages() == null || listing.getImages().isEmpty()) {
+            return null;
+        }
+
+        return listing.getImages().stream()
+                .filter(ListingImage::getIsPrimary)
+                .findFirst()
+                .map(img -> {
+                    ProductImageResponseDto dto = new ProductImageResponseDto();
+                    dto.setFileName(img.getFileName());
+                    dto.setFilePath(img.getFilePath());
+                    dto.setFileType(img.getFileType());
+                    dto.setIsPrimary(img.getIsPrimary());
+                    return List.of(dto);
+                })
+                .orElse(null);
+    }
 }

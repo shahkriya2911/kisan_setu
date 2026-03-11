@@ -205,4 +205,40 @@ public class ListingController {
         return ResponseEntity.ok(listingService.rejectBid(bidId));
     }
 
+    @GetMapping("/my-pending-summary")
+    public ResponseEntity<Page<ListingSummaryResponseDto>> pendingSummaryListings(Authentication authentication, Pageable pageable){
+        logger.debug("Get all pending listings for user with id : {}",Long.parseLong(authentication.getName()));
+        Long userId = Long.parseLong(authentication.getName());
+        Page<ListingSummaryResponseDto> listings = listingService.pendingSummaryListings(userId,pageable);
+        logger.info("Fetched all pending listings for user with id : {} successfully",userId);
+        return ResponseEntity.ok(listings);
+    }
+
+    @GetMapping("/my-sold-summary")
+    public ResponseEntity<Page<ListingSummaryResponseDto>> soldSummaryListings(Authentication authentication, Pageable pageable){
+        logger.debug("Get all sold listings for user with id : {}",Long.parseLong(authentication.getName()));
+        Long userId = Long.parseLong(authentication.getName());
+        Page<ListingSummaryResponseDto> listings = listingService.soldSummaryListings(userId,pageable);
+        logger.info("Fetched all sold listings for user with id : {} successfully",userId);
+        return ResponseEntity.ok(listings);
+    }
+
+    @GetMapping("/my-closed-summary")
+    public ResponseEntity<Page<ListingSummaryResponseDto>> closedSummaryListings(Authentication authentication, Pageable pageable){
+        logger.debug("Get all closed listings for user with id : {}",Long.parseLong(authentication.getName()));
+        Long userId = Long.parseLong(authentication.getName());
+        Page<ListingSummaryResponseDto> listings = listingService.closedSummaryListings(userId,pageable);
+        logger.info("Fetched all closed listings for user with id : {} successfully",userId);
+        return ResponseEntity.ok(listings);
+    }
+
+    @GetMapping("/my-active-summary")
+    public ResponseEntity<Page<ListingSummaryResponseDto>> activeSummaryListings(Authentication authentication, Pageable pageable){
+        logger.debug("Get all active listings for user with id : {}",Long.parseLong(authentication.getName()));
+        Long userId = Long.parseLong(authentication.getName());
+        Page<ListingSummaryResponseDto> listings = listingService.activeSummaryListings(userId,pageable);
+        logger.info("Fetched all active listings for user with id : {} successfully",userId);
+        return ResponseEntity.ok(listings);
+    }
+
 }
