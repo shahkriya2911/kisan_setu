@@ -11,6 +11,7 @@ import com.project.kisan_setu.enums.InquiryStatus;
 import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.SaleType;
 import com.project.kisan_setu.mapper.BuyingRequirementMapper;
+import com.project.kisan_setu.mapper.ListingMapper;
 import com.project.kisan_setu.repository.*;
 import com.project.kisan_setu.service.BuyerService;
 import com.project.kisan_setu.util.ValidatorMethods;
@@ -63,6 +64,14 @@ public class BuyerServiceImpl implements BuyerService {
     public List<BuyerListingResponseDto> getActiveAuctionListings(Long userId) {
 
         return listingRepository.findBySaleTypeAndSellerUserIdNot(SaleType.AUCTION, userId)
+                .stream()
+                .map(this::toBuyerListingResponse)
+                .toList();
+    }
+
+    @Override
+    public List<BuyerListingResponseDto> getActiveFixedListings(Long userId) {
+        return listingRepository.findBySaleTypeAndSellerUserIdNot(SaleType.FIXED, userId)
                 .stream()
                 .map(this::toBuyerListingResponse)
                 .toList();
@@ -247,29 +256,38 @@ public class BuyerServiceImpl implements BuyerService {
             }
 
             BigDecimal basePrice = listing.getTotalBasePrice();
-            if (basePrice == null) {
+            if (basePrice == null && listing.getPricePerKg() != null && listing.getQuantity() != null) {
                 basePrice = listing.getPricePerKg()
                         .multiply(listing.getQuantity());
+            }
+            if (basePrice == null) {
+                throw new RuntimeException("Base price not set");
             }
 
             Optional<Bid> highestBidOpt = bidRepository
                     .findTopByListingListingIdOrderByBuyerAmountDesc(listingId);
 
             BigDecimal expectedNextBid;
-            if (highestBidOpt.isPresent()) {
+
+            if (highestBidOpt.isEmpty()) {
                 if (listing.getMinimumBidIncrement() == null) {
                     throw new RuntimeException("Minimum bid increment not set");
                 }
+                // First bid must be base price + increment
+                expectedNextBid = basePrice.add(listing.getMinimumBidIncrement());
+            } else {
+                // Subsequent bids
+                if (listing.getMinimumBidIncrement() == null) {
+                    throw new RuntimeException("Minimum bid increment not set");
+                }
+
                 BigDecimal currentHighest = highestBidOpt.get().getBuyerAmount();
                 expectedNextBid = currentHighest.add(listing.getMinimumBidIncrement());
-            } else {
-                expectedNextBid = basePrice;
             }
 
             if (dto.getBuyerAmount().compareTo(expectedNextBid) != 0) {
                 throw new RuntimeException(
-                        "Bid must be exactly "
-                                + expectedNextBid
+                        "Bid must be exactly " + expectedNextBid
                 );
             }
 
@@ -296,10 +314,21 @@ public class BuyerServiceImpl implements BuyerService {
     }
 
     private BuyerListingResponseDto toBuyerListingResponse(Listing listing) {
+        BigDecimal basePrice = listing.getTotalBasePrice();
+        if (basePrice == null && listing.getPricePerKg() != null && listing.getQuantity() != null) {
+            basePrice = listing.getPricePerKg()
+                    .multiply(listing.getQuantity());
+        }
+
+        BigDecimal resolvedBasePrice = basePrice != null ? basePrice : listing.getPricePerKg();
+        BigDecimal noBidHighest = listing.getPurchaseType() == PurchaseType.WHOLE_LOT_ONLY
+                ? resolvedBasePrice
+                : listing.getPricePerKg();
+
         BigDecimal currentHighest = bidRepository
                 .findTopByListingListingIdOrderByBuyerAmountDesc(listing.getListingId())
                 .map(Bid::getBuyerAmount)
-                .orElse(listing.getPricePerKg());
+                .orElse(noBidHighest);
 
         List<ProductImageResponseDto> images = listing.getImages() == null
                 ? List.of()
@@ -320,7 +349,7 @@ public class BuyerServiceImpl implements BuyerService {
                 listing.getHarvestDate(),
                 listing.getMinimumBidIncrement(),
                 listing.getGrade(),
-                listing.getTotalBasePrice(),
+                resolvedBasePrice,
                 listing.getPricePerKg(),
                 listing.getPurchaseType(),
                 listing.getDistrict() != null ? listing.getDistrict().getName() : null,
@@ -352,5 +381,30 @@ public class BuyerServiceImpl implements BuyerService {
             dto.setBidHistoryStatus(i==0 ? "LEADING" : "OUTBID");
             return dto;
         }).toList();
+    }
+
+    @Override
+    public ListingSummaryResponseDto getListingSummary(Long listingId) {
+        Listing listing = validatorMethods.validateExists(listingId);
+        ListingSummaryResponseDto dto = ListingMapper.toSummaryResponse(listing);
+        dto.setCurrentHighestBid(resolveCurrentHighestBid(listing));
+        return dto;
+    }
+
+    private BigDecimal resolveCurrentHighestBid(Listing listing) {
+        BigDecimal basePrice = listing.getTotalBasePrice();
+        if (basePrice == null && listing.getPricePerKg() != null && listing.getQuantity() != null) {
+            basePrice = listing.getPricePerKg().multiply(listing.getQuantity());
+        }
+
+        BigDecimal resolvedBasePrice = basePrice != null ? basePrice : listing.getPricePerKg();
+        BigDecimal fallback = listing.getPurchaseType() == PurchaseType.WHOLE_LOT_ONLY
+                ? resolvedBasePrice
+                : listing.getPricePerKg();
+
+        return bidRepository
+                .findTopByListingListingIdOrderByBuyerAmountDesc(listing.getListingId())
+                .map(Bid::getBuyerAmount)
+                .orElse(fallback);
     }
 }

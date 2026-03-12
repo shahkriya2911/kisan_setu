@@ -3,6 +3,7 @@ package com.project.kisan_setu.controller;
 import com.project.kisan_setu.dto.RequestDto.BuyingRequirementRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
 import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.ListingSummaryResponseDto;
 import com.project.kisan_setu.service.BuyerService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import jakarta.validation.Valid;
@@ -42,6 +43,16 @@ public class BuyerController {
                 buyerService.getActiveAuctionListings(userId));
     }
 
+    //get all fixed listings
+    @GetMapping("/fixed")
+    public ResponseEntity<?> getFixedListings() {
+        logger.info("Get all auction listings request attempt");
+        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        logger.info("Fetched all auction listings successfully");
+        return ResponseEntity.ok(
+                buyerService.getActiveFixedListings(userId));
+    }
+
     @GetMapping("/auctions/{listingId}")
     public ResponseEntity<?> getAuctionListingDetail(@PathVariable Long listingId) {
         logger.debug("Get listing detail request attempt for listing id : {}",listingId);
@@ -72,5 +83,13 @@ public class BuyerController {
         return ResponseEntity.ok(
                 buyerService.getBidHistory(listingId)
         );
+    }
+
+    @GetMapping("/listings/{listingId}/summary")
+    public ResponseEntity<ListingSummaryResponseDto> getListingSummary(
+            @PathVariable Long listingId) {
+        logger.debug("Get listing summary for listing with id : {}", listingId);
+        logger.info("Listing summary fetched successfully");
+        return ResponseEntity.ok(buyerService.getListingSummary(listingId));
     }
 }

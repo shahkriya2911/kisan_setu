@@ -1,10 +1,12 @@
 package com.project.kisan_setu.service;
 
+import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.dto.RequestDto.BidHistoryDto;
 import com.project.kisan_setu.dto.RequestDto.BuyingRequirementRequestDto;
 import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyerListingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ListingSummaryResponseDto;
 
 import java.util.List;
 
@@ -15,6 +17,8 @@ public interface BuyerService {
 
         List<BuyerListingResponseDto> getActiveAuctionListings(Long userId);
 
+    List<BuyerListingResponseDto> getActiveFixedListings(Long userId);
+
     BuyerListingResponseDto getAuctionListingDetail(Long listingId);
 
     // Place Bid
@@ -23,4 +27,6 @@ public interface BuyerService {
             PlaceBidRequestDto dto);
 
     List<BidHistoryDto> getBidHistory(Long listingId);
+
+    ListingSummaryResponseDto getListingSummary(Long listingId);
 }

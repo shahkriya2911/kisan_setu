@@ -23,12 +23,14 @@ public class ListingSummaryResponseDto {
 
     private BigDecimal pricePerKg;
     private BigDecimal totalBasePrice;
+    private BigDecimal currentHighestBid;
     private PurchaseType purchaseType;
     private String saleType;
     private LocalDateTime auctionEndTime;
 
     private String stateId;
     private String districtId;
+    private String sellerName;
 
     private List<ProductImageResponseDto> images;
 }

@@ -410,8 +410,16 @@ public class ListingServiceImpl implements ListingService {
                     listing.getPurchaseType(),
                     listing.getSaleType(),
                     listing.getPostedOn(),
+                    listing.getState().getName(),
+                    listing.getDistrict().getName(),
+                    listing.getPickupMethod(),
+                    listing.getStorage().getStorageType(),
                     top5Bids,
-                    null
+                    null,
+                    ListingMapper.mapImages(listing),
+                    listing.getHarvestDate(),
+                    listing.getPackaging().getPackagingType(),
+                    listing.getRemainingQuantity()
             );
         } else {
             List<BuyerInquiry> inquiries = buyerInquiryRepository.findByListingListingId(listingId);
@@ -448,8 +456,16 @@ public class ListingServiceImpl implements ListingService {
                     listing.getPurchaseType(),
                     listing.getSaleType(),
                     listing.getPostedOn(),
+                    listing.getState().getName(),
+                    listing.getDistrict().getName(),
+                    listing.getPickupMethod(),
+                    listing.getStorage().getStorageType(),
                     null,
-                    totalInquires
+                    totalInquires,
+                    ListingMapper.mapImages(listing),
+                    listing.getHarvestDate(),
+                    listing.getPackaging().getPackagingType(),
+                    listing.getRemainingQuantity()
             );
 
 
@@ -599,7 +615,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public void extendAuctionTime(Long listingId, Long sellerId, int minutes) {
-        validatorMethods.validateUserAccess();
+//        validatorMethods.validateUserAccess();
         logger.info("Extending auction time...");
         Listing listing = validatorMethods.validateExists(listingId);
         validatorMethods.checkStatus(listing, AuctionStatus.ACTIVE);
@@ -759,7 +775,11 @@ public class ListingServiceImpl implements ListingService {
         logger.info("Getting active listings...");
         Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.ACTIVE, pageable);
         logger.info("Fetching active listings success...");
-        return listings.map(ListingMapper::toSummaryResponse);
+        return listings.map(listing -> {
+            ListingSummaryResponseDto dto = ListingMapper.toSummaryResponse(listing);
+            dto.setCurrentHighestBid(resolveCurrentHighestBid(listing));
+            return dto;
+        });
     }
 
     @Override
@@ -767,7 +787,11 @@ public class ListingServiceImpl implements ListingService {
         logger.info("Getting pending listings...");
         Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.PENDING,pageable);
         logger.info("Fetching pending listings success...");
-        return listings.map(ListingMapper::toSummaryResponse);
+        return listings.map(listing -> {
+            ListingSummaryResponseDto dto = ListingMapper.toSummaryResponse(listing);
+            dto.setCurrentHighestBid(resolveCurrentHighestBid(listing));
+            return dto;
+        });
     }
 
     @Override
@@ -775,7 +799,11 @@ public class ListingServiceImpl implements ListingService {
         logger.info("Getting sold closed listings...");
         Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.SOLD,pageable);
         logger.info("Fetching sold listing success...");
-        return listings.map(ListingMapper::toSummaryResponse);
+        return listings.map(listing -> {
+            ListingSummaryResponseDto dto = ListingMapper.toSummaryResponse(listing);
+            dto.setCurrentHighestBid(resolveCurrentHighestBid(listing));
+            return dto;
+        });
     }
 
     @Override
@@ -783,7 +811,28 @@ public class ListingServiceImpl implements ListingService {
         logger.info("Getting closed listings...");
         Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.CLOSED,pageable);
         logger.info("Fetching closed listings success...");
-        return listings.map(ListingMapper::toSummaryResponse);
+        return listings.map(listing -> {
+            ListingSummaryResponseDto dto = ListingMapper.toSummaryResponse(listing);
+            dto.setCurrentHighestBid(resolveCurrentHighestBid(listing));
+            return dto;
+        });
+    }
+
+    private BigDecimal resolveCurrentHighestBid(Listing listing) {
+        BigDecimal basePrice = listing.getTotalBasePrice();
+        if (basePrice == null && listing.getPricePerKg() != null && listing.getQuantity() != null) {
+            basePrice = listing.getPricePerKg().multiply(listing.getQuantity());
+        }
+
+        BigDecimal resolvedBasePrice = basePrice != null ? basePrice : listing.getPricePerKg();
+        BigDecimal fallback = listing.getPurchaseType() == PurchaseType.WHOLE_LOT_ONLY
+                ? resolvedBasePrice
+                : listing.getPricePerKg();
+
+        return bidRepository
+                .findTopByListingListingIdOrderByBuyerAmountDesc(listing.getListingId())
+                .map(Bid::getBuyerAmount)
+                .orElse(fallback);
     }
 }
 

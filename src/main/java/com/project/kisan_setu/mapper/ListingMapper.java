@@ -104,6 +104,7 @@ public class ListingMapper {
         dto.setDescription(listing.getDescription());
 
         dto.setCreatedAt(listing.getCreatedAt());
+        dto.setAuctionStatus(listing.getStatus());
 
         return dto;
     }
@@ -234,13 +235,16 @@ public class ListingMapper {
         if (listing.getDistrict() != null) {
             dto.setDistrictId(listing.getDistrict().getName());
         }
+        if (listing.getSeller() != null) {
+            dto.setSellerName(listing.getSeller().getFullName());
+        }
 
         dto.setImages(mapImages(listing));
 
         return dto;
     }
 
-    private static List<ProductImageResponseDto> mapImages(Listing listing) {
+    public static List<ProductImageResponseDto> mapImages(Listing listing) {
         if (listing.getImages() == null || listing.getImages().isEmpty()) {
             return null;
         }
