@@ -78,7 +78,7 @@ public class AuctionNotificationScheduler {
                 .collect(Collectors.toSet());
 
         for (User buyer : buyers) {
-            notificationService.notifyBuyer(buyer, message);
+            notificationService.notifyUser(buyer, message);
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.project.kisan_setu.service.impl;
 
-import com.project.kisan_setu.dto.SchemeRequestDto;
-import com.project.kisan_setu.dto.SchemeResponseDto;
+import com.project.kisan_setu.dto.RequestDto.SchemeRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.SchemeResponseDto;
 import com.project.kisan_setu.entity.Scheme;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.SchemeMapper;
@@ -21,7 +21,6 @@ public class SchemeServiceImpl implements SchemeService {
 
     private final SchemeRepository schemeRepository;
     private static final Logger logger = LoggerFactory.getLogger(SchemeServiceImpl.class);
-
 
     @Override
     public SchemeResponseDto createScheme(SchemeRequestDto dto) {
@@ -85,7 +84,6 @@ public class SchemeServiceImpl implements SchemeService {
         return SchemeMapper.toDto(updated);
 
     }
-
 
     @Override
     public void deleteScheme(Long schemeId) {

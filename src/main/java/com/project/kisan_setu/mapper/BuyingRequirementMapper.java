@@ -1,7 +1,7 @@
 package com.project.kisan_setu.mapper;
 
-import com.project.kisan_setu.dto.BuyingRequirementRequestDto;
-import com.project.kisan_setu.dto.BuyingRequirementResponseDto;
+import com.project.kisan_setu.dto.RequestDto.BuyingRequirementRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
 import com.project.kisan_setu.entity.*;
 import com.project.kisan_setu.enums.RequirementStatus;
 

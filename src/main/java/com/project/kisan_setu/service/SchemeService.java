@@ -1,8 +1,7 @@
 package com.project.kisan_setu.service;
 
-import com.project.kisan_setu.dto.SchemeRequestDto;
-import com.project.kisan_setu.dto.SchemeResponseDto;
-import com.project.kisan_setu.entity.Scheme;
+import com.project.kisan_setu.dto.RequestDto.SchemeRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.SchemeResponseDto;
 
 import java.util.List;
 

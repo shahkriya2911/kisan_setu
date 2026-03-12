@@ -1,6 +1,6 @@
 package com.project.kisan_setu.service.impl;
-import com.project.kisan_setu.dto.BankAccountRequestDto;
-import com.project.kisan_setu.dto.BankAccountResponseDto;
+import com.project.kisan_setu.dto.RequestDto.BankAccountRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.BankAccountResponseDto;
 import com.project.kisan_setu.entity.BankAccountVerification;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.exception.UserException;
@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;

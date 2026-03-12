@@ -1,7 +1,7 @@
 package com.project.kisan_setu.service.impl;
 
 import com.project.kisan_setu.dto.IdNameDto;
-import com.project.kisan_setu.dto.MasterDataResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.MasterDataResponseDto;
 import com.project.kisan_setu.mapper.MasterMapper;
 import com.project.kisan_setu.repository.*;
 import com.project.kisan_setu.service.MasterService;

@@ -1,9 +1,8 @@
 package com.project.kisan_setu.controller;
 
-import com.project.kisan_setu.dto.MobileOtpVerificationDto;
-import com.project.kisan_setu.dto.MobileOtpVerificationResponseDto;
+import com.project.kisan_setu.dto.RequestDto.MobileOtpVerificationDto;
+import com.project.kisan_setu.dto.ResponseDto.MobileOtpVerificationResponseDto;
 import com.project.kisan_setu.service.MobileVerificationService;
-import com.project.kisan_setu.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

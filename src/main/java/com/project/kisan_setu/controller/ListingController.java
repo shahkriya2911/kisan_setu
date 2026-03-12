@@ -2,13 +2,9 @@ package com.project.kisan_setu.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.kisan_setu.dto.CreateListingRequest;
-import com.project.kisan_setu.dto.DashboardDto;
-import com.project.kisan_setu.dto.ListingResponseDto;
-import com.project.kisan_setu.dto.SellerListingDto;
-import com.project.kisan_setu.dto.*;
-import com.project.kisan_setu.entity.User;
-import com.project.kisan_setu.enums.BidStatus;
+import com.project.kisan_setu.dto.RequestDto.CreateListingRequest;
+import com.project.kisan_setu.dto.ResponseDto.DashboardDto;
+import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.UserService;
 import com.project.kisan_setu.util.ValidatorMethods;
@@ -21,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 

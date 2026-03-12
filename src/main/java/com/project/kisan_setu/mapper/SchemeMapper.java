@@ -1,7 +1,7 @@
 package com.project.kisan_setu.mapper;
 
-import com.project.kisan_setu.dto.SchemeRequestDto;
-import com.project.kisan_setu.dto.SchemeResponseDto;
+import com.project.kisan_setu.dto.RequestDto.SchemeRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.SchemeResponseDto;
 import com.project.kisan_setu.entity.Scheme;
 
 public class SchemeMapper {

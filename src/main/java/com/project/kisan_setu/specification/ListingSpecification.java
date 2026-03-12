@@ -1,6 +1,6 @@
 package com.project.kisan_setu.specification;
 
-import com.project.kisan_setu.dto.MarketFilterRequestDto;
+import com.project.kisan_setu.dto.RequestDto.MarketFilterRequestDto;
 import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.enums.AuctionStatus;
 import jakarta.persistence.criteria.Predicate;

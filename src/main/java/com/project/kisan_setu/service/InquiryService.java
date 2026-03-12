@@ -1,9 +1,7 @@
 package com.project.kisan_setu.service;
 
-import com.project.kisan_setu.dto.InquiryRequestDto;
-import com.project.kisan_setu.dto.InquiryResponseDto;
-import com.project.kisan_setu.entity.BuyerInquiry;
-import com.project.kisan_setu.enums.InquiryStatus;
+import com.project.kisan_setu.dto.RequestDto.InquiryRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.InquiryResponseDto;
 
 import java.util.List;
 

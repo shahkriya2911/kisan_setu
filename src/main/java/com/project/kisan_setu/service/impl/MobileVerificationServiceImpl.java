@@ -1,7 +1,7 @@
 package com.project.kisan_setu.service.impl;
 
-import com.project.kisan_setu.dto.MobileOtpVerificationDto;
-import com.project.kisan_setu.dto.MobileOtpVerificationResponseDto;
+import com.project.kisan_setu.dto.RequestDto.MobileOtpVerificationDto;
+import com.project.kisan_setu.dto.ResponseDto.MobileOtpVerificationResponseDto;
 import com.project.kisan_setu.entity.MobileVerification;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.repository.MobileVerificationRepository;

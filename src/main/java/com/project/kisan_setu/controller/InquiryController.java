@@ -1,9 +1,7 @@
 package com.project.kisan_setu.controller;
 
-import com.project.kisan_setu.dto.InquiryRequestDto;
-import com.project.kisan_setu.dto.InquiryResponseDto;
-import com.project.kisan_setu.entity.BuyerInquiry;
-import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.dto.RequestDto.InquiryRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.InquiryResponseDto;
 import com.project.kisan_setu.service.InquiryService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import jakarta.validation.Valid;

@@ -1,6 +1,6 @@
 package com.project.kisan_setu.exception;
 
-import com.project.kisan_setu.dto.ApiErrorResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ApiErrorResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

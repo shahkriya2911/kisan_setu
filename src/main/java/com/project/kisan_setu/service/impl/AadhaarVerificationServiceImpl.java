@@ -1,7 +1,7 @@
 package com.project.kisan_setu.service.impl;
 
-import com.project.kisan_setu.dto.AadhaarRequestDto;
-import com.project.kisan_setu.dto.AadhaarResponseDto;
+import com.project.kisan_setu.dto.RequestDto.AadhaarRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.AadhaarResponseDto;
 import com.project.kisan_setu.entity.AadhaarVerification;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.repository.AadhaarVerificationRepository;

@@ -1,7 +1,6 @@
 package com.project.kisan_setu.controller;
-import com.project.kisan_setu.dto.BankAccountRequestDto;
-import com.project.kisan_setu.dto.BankAccountResponseDto;
-import com.project.kisan_setu.repository.BankAccountVerificationRepository;
+import com.project.kisan_setu.dto.RequestDto.BankAccountRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.BankAccountResponseDto;
 import com.project.kisan_setu.service.BankAccountVerificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

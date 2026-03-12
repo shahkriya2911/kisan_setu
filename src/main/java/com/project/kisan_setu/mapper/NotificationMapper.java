@@ -1,6 +1,6 @@
 package com.project.kisan_setu.mapper;
 
-import com.project.kisan_setu.dto.NotificationResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.NotificationResponseDto;
 import com.project.kisan_setu.entity.Notification;
 
 public class NotificationMapper {

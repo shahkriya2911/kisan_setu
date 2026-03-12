@@ -1,6 +1,6 @@
 package com.project.kisan_setu.controller;
-import com.project.kisan_setu.dto.PanCardRequestDto;
-import com.project.kisan_setu.dto.PanCardResponseDto;
+import com.project.kisan_setu.dto.RequestDto.PanCardRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.PanCardResponseDto;
 import com.project.kisan_setu.service.PanCardVerificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

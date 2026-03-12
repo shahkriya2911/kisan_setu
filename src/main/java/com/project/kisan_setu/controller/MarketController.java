@@ -1,8 +1,8 @@
 package com.project.kisan_setu.controller;
 
-import com.project.kisan_setu.dto.MarketFilterRequestDto;
-import com.project.kisan_setu.dto.MarketInsightDto;
-import com.project.kisan_setu.dto.MarketListingResponseDto;
+import com.project.kisan_setu.dto.RequestDto.MarketFilterRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.MarketInsightDto;
+import com.project.kisan_setu.dto.ResponseDto.MarketListingResponseDto;
 import com.project.kisan_setu.service.MarketService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

@@ -1,6 +1,6 @@
 package com.project.kisan_setu.service.impl;
 
-import com.project.kisan_setu.dto.TermsAndPoliciesResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.TermsAndPoliciesResponseDto;
 import com.project.kisan_setu.entity.TermsAndPolicies;
 import com.project.kisan_setu.mapper.TermsAndPoliciesMapper;
 import com.project.kisan_setu.repository.TermsAndPoliciesRepository;

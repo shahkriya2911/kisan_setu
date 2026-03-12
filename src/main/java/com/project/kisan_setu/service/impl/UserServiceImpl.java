@@ -1,12 +1,11 @@
 package com.project.kisan_setu.service.impl;
-
-import com.project.kisan_setu.dto.*;
+import com.project.kisan_setu.dto.RequestDto.*;
+import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.entity.*;
 import com.project.kisan_setu.enums.Role;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.UserMapper;
 import com.project.kisan_setu.repository.*;
-import com.project.kisan_setu.security.JwtUtil;
 import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.service.RefreshTokenService;
 import com.project.kisan_setu.service.UserService;
@@ -15,13 +14,10 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,8 +51,6 @@ public class UserServiceImpl implements UserService {
 
     @Value("${app.admin.secret}")
     private String adminSecret;
-
-
 
     @Override
     public SignupResponseDto signup(CreateUserRequestDto dto) {
@@ -112,8 +106,6 @@ public class UserServiceImpl implements UserService {
         );
     }
 
-
-
     @Override
     public User getUserById(Long userId) {
         logger.info("Getting user by id...");
@@ -122,14 +114,12 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserException("User not found"));
     }
 
-
     @Override
     public List<User> getAllUsers() {
         logger.info("Getting all users...");
         logger.info("Fetching all users success...");
         return userRepository.findAll();
     }
-
 
     @Override
     public UserResponseDto updateUserById(Long userId, UpdateUserRequestDto dto) {
@@ -143,7 +133,6 @@ public class UserServiceImpl implements UserService {
         logger.info("Update user success...");
         return UserMapper.toResponse(updatedUser);
     }
-
 
     @Override
     public void deleteUserById(Long userId) {
@@ -225,7 +214,6 @@ public class UserServiceImpl implements UserService {
         throw new IllegalArgumentException("Only JPEG, PNG, JPG, WEBP images are allowed");
 
     }
-
     private String buildFilename(Long userId, String original) {
         String ext = (original != null && original.contains("."))
                 ? original.substring(original.lastIndexOf("."))

@@ -1,7 +1,7 @@
 package com.project.kisan_setu.service;
 
-import com.project.kisan_setu.dto.ReturnAndShippingRequestDto;
-import com.project.kisan_setu.dto.ReturnAndShippingResponseDto;
+import com.project.kisan_setu.dto.RequestDto.ReturnAndShippingRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.ReturnAndShippingResponseDto;
 
 import java.util.List;
 

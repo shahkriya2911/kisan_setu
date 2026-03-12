@@ -1,6 +1,6 @@
 package com.project.kisan_setu.controller;
-import com.project.kisan_setu.dto.AadhaarRequestDto;
-import com.project.kisan_setu.dto.AadhaarResponseDto;
+import com.project.kisan_setu.dto.RequestDto.AadhaarRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.AadhaarResponseDto;
 import com.project.kisan_setu.service.AadhaarVerificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

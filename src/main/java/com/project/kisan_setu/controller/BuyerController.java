@@ -1,13 +1,9 @@
 package com.project.kisan_setu.controller;
 
-import com.project.kisan_setu.dto.BuyingRequirementRequestDto;
-import com.project.kisan_setu.dto.BuyingRequirementResponseDto;
-import com.project.kisan_setu.dto.PlaceBidRequestDto;
-import com.project.kisan_setu.entity.BuyingRequirement;
-import com.project.kisan_setu.entity.User;
-import com.project.kisan_setu.mapper.BuyingRequirementMapper;
+import com.project.kisan_setu.dto.RequestDto.BuyingRequirementRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
+import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
 import com.project.kisan_setu.service.BuyerService;
-import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("api/buyers")

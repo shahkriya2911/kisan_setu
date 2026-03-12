@@ -1,6 +1,6 @@
 package com.project.kisan_setu.controller;
 
-import com.project.kisan_setu.dto.ChangingLanguageRequestDto;
+import com.project.kisan_setu.dto.RequestDto.ChangingLanguageRequestDto;
 import com.project.kisan_setu.service.ChangingLanguageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,11 +1,11 @@
 package com.project.kisan_setu.service;
 
-import com.project.kisan_setu.dto.*;
+import com.project.kisan_setu.dto.RequestDto.*;
+import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
 

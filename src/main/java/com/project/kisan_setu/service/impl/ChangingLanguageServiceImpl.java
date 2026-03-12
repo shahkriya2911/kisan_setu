@@ -1,7 +1,7 @@
 package com.project.kisan_setu.service.impl;
 
-import com.project.kisan_setu.dto.ChangingLanguageRequestDto;
-import com.project.kisan_setu.dto.ChangingLanguageResponseDto;
+import com.project.kisan_setu.dto.RequestDto.ChangingLanguageRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.ChangingLanguageResponseDto;
 import com.project.kisan_setu.entity.ChangingLanguage;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.exception.UserException;
