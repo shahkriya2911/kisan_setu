@@ -1,6 +1,7 @@
 package com.project.kisan_setu.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.PurchaseType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -58,4 +59,5 @@ public class ListingResponseDto {
     private String description;
 
     private LocalDateTime createdAt;
+    private AuctionStatus auctionStatus;
 }

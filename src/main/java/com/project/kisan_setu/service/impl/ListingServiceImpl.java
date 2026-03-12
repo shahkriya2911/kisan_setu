@@ -774,7 +774,11 @@ public class ListingServiceImpl implements ListingService {
         logger.info("Getting active listings...");
         Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.ACTIVE, pageable);
         logger.info("Fetching active listings success...");
-        return listings.map(ListingMapper::toSummaryResponse);
+        return listings.map(listing -> {
+            ListingSummaryResponseDto dto = ListingMapper.toSummaryResponse(listing);
+            dto.setCurrentHighestBid(resolveCurrentHighestBid(listing));
+            return dto;
+        });
     }
 
     @Override
@@ -782,7 +786,11 @@ public class ListingServiceImpl implements ListingService {
         logger.info("Getting pending listings...");
         Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.PENDING,pageable);
         logger.info("Fetching pending listings success...");
-        return listings.map(ListingMapper::toSummaryResponse);
+        return listings.map(listing -> {
+            ListingSummaryResponseDto dto = ListingMapper.toSummaryResponse(listing);
+            dto.setCurrentHighestBid(resolveCurrentHighestBid(listing));
+            return dto;
+        });
     }
 
     @Override
@@ -790,7 +798,11 @@ public class ListingServiceImpl implements ListingService {
         logger.info("Getting sold closed listings...");
         Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.SOLD,pageable);
         logger.info("Fetching sold listing success...");
-        return listings.map(ListingMapper::toSummaryResponse);
+        return listings.map(listing -> {
+            ListingSummaryResponseDto dto = ListingMapper.toSummaryResponse(listing);
+            dto.setCurrentHighestBid(resolveCurrentHighestBid(listing));
+            return dto;
+        });
     }
 
     @Override
@@ -798,7 +810,28 @@ public class ListingServiceImpl implements ListingService {
         logger.info("Getting closed listings...");
         Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.CLOSED,pageable);
         logger.info("Fetching closed listings success...");
-        return listings.map(ListingMapper::toSummaryResponse);
+        return listings.map(listing -> {
+            ListingSummaryResponseDto dto = ListingMapper.toSummaryResponse(listing);
+            dto.setCurrentHighestBid(resolveCurrentHighestBid(listing));
+            return dto;
+        });
+    }
+
+    private BigDecimal resolveCurrentHighestBid(Listing listing) {
+        BigDecimal basePrice = listing.getTotalBasePrice();
+        if (basePrice == null && listing.getPricePerKg() != null && listing.getQuantity() != null) {
+            basePrice = listing.getPricePerKg().multiply(listing.getQuantity());
+        }
+
+        BigDecimal resolvedBasePrice = basePrice != null ? basePrice : listing.getPricePerKg();
+        BigDecimal fallback = listing.getPurchaseType() == PurchaseType.WHOLE_LOT_ONLY
+                ? resolvedBasePrice
+                : listing.getPricePerKg();
+
+        return bidRepository
+                .findTopByListingListingIdOrderByBuyerAmountDesc(listing.getListingId())
+                .map(Bid::getBuyerAmount)
+                .orElse(fallback);
     }
 }
 

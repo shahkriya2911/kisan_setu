@@ -99,6 +99,7 @@ public class ListingMapper {
         dto.setDescription(listing.getDescription());
 
         dto.setCreatedAt(listing.getCreatedAt());
+        dto.setAuctionStatus(listing.getStatus());
 
         return dto;
     }
@@ -228,6 +229,9 @@ public class ListingMapper {
         }
         if (listing.getDistrict() != null) {
             dto.setDistrictId(listing.getDistrict().getName());
+        }
+        if (listing.getSeller() != null) {
+            dto.setSellerName(listing.getSeller().getFullName());
         }
 
         dto.setImages(mapImages(listing));

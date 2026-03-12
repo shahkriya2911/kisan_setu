@@ -30,7 +30,8 @@ INSERT INTO unit_master (unit_name) VALUES
 
 -- Area Based
 ('Per Acre'),
-('Per Hectare');
+('Per Hectare')
+ON CONFLICT (unit_name) DO NOTHING;
 
 -- =====================
 -- PACKAGING MASTER
@@ -63,7 +64,8 @@ INSERT INTO packaging_master (packaging_type) VALUES
 ('Thermocol Box'),
 ('Bamboo Basket'),
 ('Plastic Drum'),
-('Tin Container');
+('Tin Container')
+ON CONFLICT (packaging_type) DO NOTHING;
 
 -- =====================
 -- STORAGE MASTER
@@ -134,8 +136,8 @@ INSERT INTO storage_master (storage_type) VALUES
 ('Covered Shed'),
 ('Tarpaulin Covered Storage'),
 ('Temporary Shed'),
-('Permanent RCC Shed');
-
+('Permanent RCC Shed')
+ON CONFLICT (storage_type) DO NOTHING;
 -- =====================
 -- STATE MASTER (28 States + 8 UTs)
 -- =====================
@@ -175,7 +177,8 @@ INSERT INTO state_master (name) VALUES
 ('Jammu and Kashmir'),     -- 33
 ('Ladakh'),                -- 34
 ('Lakshadweep'),           -- 35
-('Puducherry');            -- 36
+('Puducherry')             -- 36
+ON CONFLICT (name) DO NOTHING;
 
 -- =====================
 -- DISTRICT MASTER
@@ -189,7 +192,8 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Kurnool', 1),('Nandyal', 1),('NTR', 1),('Palnadu', 1),
 ('Parvathipuram Manyam', 1),('Prakasam', 1),('Sri Potti Sriramulu Nellore', 1),('Sri Sathya Sai', 1),
 ('Srikakulam', 1),('Tirupati', 1),('Visakhapatnam', 1),('Vizianagaram', 1),
-('West Godavari', 1),('YSR Kadapa', 1);
+('West Godavari', 1),('YSR Kadapa', 1)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Arunachal Pradesh (state_id = 2)
 INSERT INTO district_master (name, state_id) VALUES
@@ -199,7 +203,8 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Lower Siang', 2),('Lower Subansiri', 2),('Namsai', 2),('Pakke Kessang', 2),
 ('Papum Pare', 2),('Shi Yomi', 2),('Siang', 2),('Tawang', 2),
 ('Tirap', 2),('Upper Siang', 2),('Upper Subansiri', 2),('West Kameng', 2),
-('West Siang', 2);
+('West Siang', 2)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Assam (state_id = 3)
 INSERT INTO district_master (name, state_id) VALUES
@@ -211,7 +216,8 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Karbi Anglong', 3),('Karimganj', 3),('Kokrajhar', 3),('Lakhimpur', 3),
 ('Majuli', 3),('Morigaon', 3),('Nagaon', 3),('Nalbari', 3),
 ('Sivasagar', 3),('Sonitpur', 3),('South Salmara-Mankachar', 3),('Tinsukia', 3),
-('Udalguri', 3),('West Karbi Anglong', 3);
+('Udalguri', 3),('West Karbi Anglong', 3)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Bihar (state_id = 4)
 INSERT INTO district_master (name, state_id) VALUES
@@ -224,7 +230,8 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Nawada', 4),('Patna', 4),('Purnia', 4),('Rohtas', 4),
 ('Saharsa', 4),('Samastipur', 4),('Saran', 4),('Sheikhpura', 4),
 ('Sheohar', 4),('Sitamarhi', 4),('Siwan', 4),('Supaul', 4),
-('Vaishali', 4),('West Champaran', 4);
+('Vaishali', 4),('West Champaran', 4)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Chhattisgarh (state_id = 5)
 INSERT INTO district_master (name, state_id) VALUES
@@ -236,11 +243,12 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Mahasamund', 5),('Manendragarh', 5),('Mohla-Manpur', 5),('Mungeli', 5),
 ('Narayanpur', 5),('Raigarh', 5),('Raipur', 5),('Rajnandgaon', 5),
 ('Sakti', 5),('Sarangarh-Bilaigarh', 5),('Sukma', 5),('Surajpur', 5),
-('Surguja', 5);
-
+('Surguja', 5)
+ON CONFLICT (name,state_id) DO NOTHING;
 -- Goa (state_id = 6)
 INSERT INTO district_master (name, state_id) VALUES
-('North Goa', 6),('South Goa', 6);
+('North Goa', 6),('South Goa', 6)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Gujarat (state_id = 7)
 INSERT INTO district_master (name, state_id) VALUES
@@ -252,7 +260,8 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Morbi', 7),('Narmada', 7),('Navsari', 7),('Panchmahal', 7),
 ('Patan', 7),('Porbandar', 7),('Rajkot', 7),('Sabarkantha', 7),
 ('Surat', 7),('Surendranagar', 7),('Tapi', 7),('Vadodara', 7),
-('Valsad', 7);
+('Valsad', 7)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Haryana (state_id = 8)
 INSERT INTO district_master (name, state_id) VALUES
@@ -261,13 +270,15 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Jind', 8),('Kaithal', 8),('Karnal', 8),('Kurukshetra', 8),
 ('Mahendragarh', 8),('Nuh', 8),('Palwal', 8),('Panchkula', 8),
 ('Panipat', 8),('Rewari', 8),('Rohtak', 8),('Sirsa', 8),
-('Sonipat', 8),('Yamunanagar', 8);
+('Sonipat', 8),('Yamunanagar', 8)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Himachal Pradesh (state_id = 9)
 INSERT INTO district_master (name, state_id) VALUES
 ('Bilaspur', 9),('Chamba', 9),('Hamirpur', 9),('Kangra', 9),
 ('Kinnaur', 9),('Kullu', 9),('Lahaul and Spiti', 9),('Mandi', 9),
-('Shimla', 9),('Sirmaur', 9),('Solan', 9),('Una', 9);
+('Shimla', 9),('Sirmaur', 9),('Solan', 9),('Una', 9)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Jharkhand (state_id = 10)
 INSERT INTO district_master (name, state_id) VALUES
@@ -276,7 +287,8 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Godda', 10),('Gumla', 10),('Hazaribagh', 10),('Jamtara', 10),
 ('Khunti', 10),('Koderma', 10),('Latehar', 10),('Lohardaga', 10),
 ('Pakur', 10),('Palamu', 10),('Ramgarh', 10),('Ranchi', 10),
-('Sahebganj', 10),('Seraikela Kharsawan', 10),('Simdega', 10),('West Singhbhum', 10);
+('Sahebganj', 10),('Seraikela Kharsawan', 10),('Simdega', 10),('West Singhbhum', 10)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Karnataka (state_id = 11)
 INSERT INTO district_master (name, state_id) VALUES
@@ -287,14 +299,16 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Kalaburagi', 11),('Kodagu', 11),('Kolar', 11),('Koppal', 11),
 ('Mandya', 11),('Mysuru', 11),('Raichur', 11),('Ramanagara', 11),
 ('Shivamogga', 11),('Tumakuru', 11),('Udupi', 11),('Uttara Kannada', 11),
-('Vijayanagara', 11),('Vijayapura', 11),('Yadgir', 11);
+('Vijayanagara', 11),('Vijayapura', 11),('Yadgir', 11)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Kerala (state_id = 12)
 INSERT INTO district_master (name, state_id) VALUES
 ('Alappuzha', 12),('Ernakulam', 12),('Idukki', 12),('Kannur', 12),
 ('Kasaragod', 12),('Kollam', 12),('Kottayam', 12),('Kozhikode', 12),
 ('Malappuram', 12),('Palakkad', 12),('Pathanamthitta', 12),('Thiruvananthapuram', 12),
-('Thrissur', 12),('Wayanad', 12);
+('Thrissur', 12),('Wayanad', 12)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Madhya Pradesh (state_id = 13)
 INSERT INTO district_master (name, state_id) VALUES
@@ -310,7 +324,8 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Ratlam', 13),('Rewa', 13),('Sagar', 13),('Satna', 13),
 ('Sehore', 13),('Seoni', 13),('Shahdol', 13),('Shajapur', 13),
 ('Sheopur', 13),('Shivpuri', 13),('Sidhi', 13),('Singrauli', 13),
-('Tikamgarh', 13),('Ujjain', 13),('Umaria', 13),('Vidisha', 13);
+('Tikamgarh', 13),('Ujjain', 13),('Umaria', 13),('Vidisha', 13)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Maharashtra (state_id = 14)
 INSERT INTO district_master (name, state_id) VALUES
@@ -322,33 +337,38 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Nandurbar', 14),('Nashik', 14),('Osmanabad', 14),('Palghar', 14),
 ('Parbhani', 14),('Pune', 14),('Raigad', 14),('Ratnagiri', 14),
 ('Sangli', 14),('Satara', 14),('Sindhudurg', 14),('Solapur', 14),
-('Thane', 14),('Wardha', 14),('Washim', 14),('Yavatmal', 14);
+('Thane', 14),('Wardha', 14),('Washim', 14),('Yavatmal', 14)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Manipur (state_id = 15)
 INSERT INTO district_master (name, state_id) VALUES
 ('Bishnupur', 15),('Chandel', 15),('Churachandpur', 15),('Imphal East', 15),
 ('Imphal West', 15),('Jiribam', 15),('Kakching', 15),('Kamjong', 15),
 ('Kangpokpi', 15),('Noney', 15),('Pherzawl', 15),('Senapati', 15),
-('Tamenglong', 15),('Tengnoupal', 15),('Thoubal', 15),('Ukhrul', 15);
+('Tamenglong', 15),('Tengnoupal', 15),('Thoubal', 15),('Ukhrul', 15)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Meghalaya (state_id = 16)
 INSERT INTO district_master (name, state_id) VALUES
 ('East Garo Hills', 16),('East Jaintia Hills', 16),('East Khasi Hills', 16),('Eastern West Khasi Hills', 16),
 ('North Garo Hills', 16),('Ri Bhoi', 16),('South Garo Hills', 16),('South West Garo Hills', 16),
-('South West Khasi Hills', 16),('West Garo Hills', 16),('West Jaintia Hills', 16),('West Khasi Hills', 16);
+('South West Khasi Hills', 16),('West Garo Hills', 16),('West Jaintia Hills', 16),('West Khasi Hills', 16)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Mizoram (state_id = 17)
 INSERT INTO district_master (name, state_id) VALUES
 ('Aizawl', 17),('Champhai', 17),('Hnahthial', 17),('Khawzawl', 17),
 ('Kolasib', 17),('Lawngtlai', 17),('Lunglei', 17),('Mamit', 17),
-('Saiha', 17),('Saitual', 17),('Serchhip', 17);
+('Saiha', 17),('Saitual', 17),('Serchhip', 17)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Nagaland (state_id = 18)
 INSERT INTO district_master (name, state_id) VALUES
 ('Chumoukedima', 18),('Dimapur', 18),('Kiphire', 18),('Kohima', 18),
 ('Longleng', 18),('Mokokchung', 18),('Mon', 18),('Niuland', 18),
 ('Noklak', 18),('Peren', 18),('Phek', 18),('Shamator', 18),
-('Tseminyu', 18),('Tuensang', 18),('Wokha', 18),('Zunheboto', 18);
+('Tseminyu', 18),('Tuensang', 18),('Wokha', 18),('Zunheboto', 18)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Odisha (state_id = 19)
 INSERT INTO district_master (name, state_id) VALUES
@@ -359,7 +379,8 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Kendrapara', 19),('Kendujhar', 19),('Khordha', 19),('Koraput', 19),
 ('Malkangiri', 19),('Mayurbhanj', 19),('Nabarangpur', 19),('Nayagarh', 19),
 ('Nuapada', 19),('Puri', 19),('Rayagada', 19),('Sambalpur', 19),
-('Subarnapur', 19),('Sundargarh', 19);
+('Subarnapur', 19),('Sundargarh', 19)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Punjab (state_id = 20)
 INSERT INTO district_master (name, state_id) VALUES
@@ -368,7 +389,8 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Hoshiarpur', 20),('Jalandhar', 20),('Kapurthala', 20),('Ludhiana', 20),
 ('Malerkotla', 20),('Mansa', 20),('Moga', 20),('Mohali', 20),
 ('Muktsar', 20),('Nawanshahr', 20),('Pathankot', 20),('Patiala', 20),
-('Rupnagar', 20),('Sangrur', 20),('Tarn Taran', 20);
+('Rupnagar', 20),('Sangrur', 20),('Tarn Taran', 20)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Rajasthan (state_id = 21)
 INSERT INTO district_master (name, state_id) VALUES
@@ -380,12 +402,14 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Jhunjhunu', 21),('Jodhpur', 21),('Karauli', 21),('Kota', 21),
 ('Nagaur', 21),('Pali', 21),('Pratapgarh', 21),('Rajsamand', 21),
 ('Sawai Madhopur', 21),('Sikar', 21),('Sirohi', 21),('Tonk', 21),
-('Udaipur', 21);
+('Udaipur', 21)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Sikkim (state_id = 22)
 INSERT INTO district_master (name, state_id) VALUES
 ('East Sikkim', 22),('North Sikkim', 22),('Pakyong', 22),('Soreng', 22),
-('South Sikkim', 22),('West Sikkim', 22);
+('South Sikkim', 22),('West Sikkim', 22)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Tamil Nadu (state_id = 23)
 INSERT INTO district_master (name, state_id) VALUES
@@ -398,7 +422,8 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Thanjavur', 23),('Theni', 23),('Thoothukudi', 23),('Tiruchirappalli', 23),
 ('Tirunelveli', 23),('Tirupathur', 23),('Tiruppur', 23),('Tiruvallur', 23),
 ('Tiruvannamalai', 23),('Tiruvarur', 23),('Vellore', 23),('Viluppuram', 23),
-('Virudhunagar', 23);
+('Virudhunagar', 23)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Telangana (state_id = 24)
 INSERT INTO district_master (name, state_id) VALUES
@@ -410,12 +435,14 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Nirmal', 24),('Nizamabad', 24),('Peddapalli', 24),('Rajanna Sircilla', 24),
 ('Rangareddy', 24),('Sangareddy', 24),('Siddipet', 24),('Suryapet', 24),
 ('Vikarabad', 24),('Wanaparthy', 24),('Warangal Rural', 24),('Warangal Urban', 24),
-('Yadadri Bhuvanagiri', 24);
+('Yadadri Bhuvanagiri', 24)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Tripura (state_id = 25)
 INSERT INTO district_master (name, state_id) VALUES
 ('Dhalai', 25),('Gomati', 25),('Khowai', 25),('North Tripura', 25),
-('Sepahijala', 25),('South Tripura', 25),('Unakoti', 25),('West Tripura', 25);
+('Sepahijala', 25),('South Tripura', 25),('Unakoti', 25),('West Tripura', 25)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Uttar Pradesh (state_id = 26)
 INSERT INTO district_master (name, state_id) VALUES
@@ -437,14 +464,16 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Prayagraj', 26),('Raebareli', 26),('Rampur', 26),('Saharanpur', 26),
 ('Sambhal', 26),('Sant Kabir Nagar', 26),('Shahjahanpur', 26),('Shamli', 26),
 ('Shravasti', 26),('Siddharthnagar', 26),('Sitapur', 26),('Sonbhadra', 26),
-('Sultanpur', 26),('Unnao', 26),('Varanasi', 26);
+('Sultanpur', 26),('Unnao', 26),('Varanasi', 26)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Uttarakhand (state_id = 27)
 INSERT INTO district_master (name, state_id) VALUES
 ('Almora', 27),('Bageshwar', 27),('Chamoli', 27),('Champawat', 27),
 ('Dehradun', 27),('Haridwar', 27),('Nainital', 27),('Pauri Garhwal', 27),
 ('Pithoragarh', 27),('Rudraprayag', 27),('Tehri Garhwal', 27),('Udham Singh Nagar', 27),
-('Uttarkashi', 27);
+('Uttarkashi', 27)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- West Bengal (state_id = 28)
 INSERT INTO district_master (name, state_id) VALUES
@@ -453,25 +482,30 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Jalpaiguri', 28),('Jhargram', 28),('Kalimpong', 28),('Kolkata', 28),
 ('Malda', 28),('Murshidabad', 28),('Nadia', 28),('North 24 Parganas', 28),
 ('Paschim Bardhaman', 28),('Paschim Medinipur', 28),('Purba Bardhaman', 28),('Purba Medinipur', 28),
-('Purulia', 28),('South 24 Parganas', 28),('Uttar Dinajpur', 28);
+('Purulia', 28),('South 24 Parganas', 28),('Uttar Dinajpur', 28)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Andaman and Nicobar Islands (state_id = 29)
 INSERT INTO district_master (name, state_id) VALUES
-('Nicobar', 29),('North and Middle Andaman', 29),('South Andaman', 29);
+('Nicobar', 29),('North and Middle Andaman', 29),('South Andaman', 29)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Chandigarh (state_id = 30)
 INSERT INTO district_master (name, state_id) VALUES
-('Chandigarh', 30);
+('Chandigarh', 30)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Dadra and Nagar Haveli and Daman and Diu (state_id = 31)
 INSERT INTO district_master (name, state_id) VALUES
-('Dadra and Nagar Haveli', 31),('Daman', 31),('Diu', 31);
+('Dadra and Nagar Haveli', 31),('Daman', 31),('Diu', 31)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Delhi (state_id = 32)
 INSERT INTO district_master (name, state_id) VALUES
 ('Central Delhi', 32),('East Delhi', 32),('New Delhi', 32),('North Delhi', 32),
 ('North East Delhi', 32),('North West Delhi', 32),('Shahdara', 32),('South Delhi', 32),
-('South East Delhi', 32),('South West Delhi', 32),('West Delhi', 32);
+('South East Delhi', 32),('South West Delhi', 32),('West Delhi', 32)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Jammu and Kashmir (state_id = 33)
 INSERT INTO district_master (name, state_id) VALUES
@@ -479,40 +513,49 @@ INSERT INTO district_master (name, state_id) VALUES
 ('Doda', 33),('Ganderbal', 33),('Jammu', 33),('Kathua', 33),
 ('Kishtwar', 33),('Kulgam', 33),('Kupwara', 33),('Poonch', 33),
 ('Pulwama', 33),('Rajouri', 33),('Ramban', 33),('Reasi', 33),
-('Samba', 33),('Shopian', 33),('Srinagar', 33),('Udhampur', 33);
+('Samba', 33),('Shopian', 33),('Srinagar', 33),('Udhampur', 33)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Ladakh (state_id = 34)
 INSERT INTO district_master (name, state_id) VALUES
-('Kargil', 34),('Leh', 34);
+('Kargil', 34),('Leh', 34)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Lakshadweep (state_id = 35)
 INSERT INTO district_master (name, state_id) VALUES
-('Lakshadweep', 35);
+('Lakshadweep', 35)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- Puducherry (state_id = 36)
 INSERT INTO district_master (name, state_id) VALUES
-('Karaikal', 36),('Mahe', 36),('Puducherry', 36),('Yanam', 36);
+('Karaikal', 36),('Mahe', 36),('Puducherry', 36),('Yanam', 36)
+ON CONFLICT (name,state_id) DO NOTHING;
 
 -- =====================
 -- CROP MASTER
 -- =====================
-INSERT INTO crop_master (crop_name) VALUES
-
 -- Cereals & Millets
+INSERT INTO crop_master (crop_name) VALUES
 ('Wheat'),('Rice'),('Maize'),('Bajra'),('Jowar'),
 ('Barley'),('Ragi'),('Oats'),('Quinoa'),('Buckwheat'),
-('Foxtail Millet'),('Kodo Millet'),('Little Millet'),('Proso Millet'),('Barnyard Millet'),
+('Foxtail Millet'),('Kodo Millet'),('Little Millet'),('Proso Millet'),('Barnyard Millet')
+ON CONFLICT (crop_name) DO NOTHING;
 
 -- Pulses & Legumes
+INSERT INTO crop_master (crop_name) VALUES
 ('Chickpea'),('Lentil'),('Moong Dal'),('Urad Dal'),('Toor Dal'),
 ('Masoor Dal'),('Moth Bean'),('Horse Gram'),('Cowpea'),('Rajma'),
-('Soybean'),('Field Peas'),('Lobia'),('Kulthi'),('Chana Dal'),
+('Soybean'),('Field Peas'),('Lobia'),('Kulthi'),('Chana Dal')
+ON CONFLICT (crop_name) DO NOTHING;
 
 -- Oilseeds
+INSERT INTO crop_master (crop_name) VALUES
 ('Groundnut'),('Mustard'),('Sunflower'),('Sesame'),('Linseed'),
-('Safflower'),('Castor'),('Cottonseed'),('Niger Seed'),('Rapeseed'),
+('Safflower'),('Castor'),('Cottonseed'),('Niger Seed'),('Rapeseed')
+ON CONFLICT (crop_name) DO NOTHING;
 
 -- Vegetables
+INSERT INTO crop_master (crop_name) VALUES
 ('Potato'),('Tomato'),('Onion'),('Garlic'),('Ginger'),
 ('Chilli'),('Capsicum'),('Brinjal'),('Okra'),('Cabbage'),
 ('Cauliflower'),('Broccoli'),('Spinach'),('Fenugreek Leaves'),('Coriander Leaves'),
@@ -522,9 +565,11 @@ INSERT INTO crop_master (crop_name) VALUES
 ('Carrot'),('Radish'),('Turnip'),('Beetroot'),('Sweet Potato'),
 ('Colocasia'),('Yam'),('Tapioca'),('Elephant Foot Yam'),('Raw Banana'),
 ('Cucumber'),('Zucchini'),('Amaranth'),('Bathua'),('Knol Khol'),
-('Lettuce'),('Celery'),('Asparagus'),('Leek'),('Spring Onion'),
+('Lettuce'),('Celery'),('Asparagus'),('Leek'),('Spring Onion')
+ON CONFLICT (crop_name) DO NOTHING;
 
 -- Fruits
+INSERT INTO crop_master (crop_name) VALUES
 ('Mango'),('Banana'),('Papaya'),('Guava'),('Pomegranate'),
 ('Grapes'),('Watermelon'),('Muskmelon'),('Pineapple'),('Jackfruit'),
 ('Litchi'),('Coconut'),('Sapota'),('Custard Apple'),('Fig'),
@@ -532,37 +577,40 @@ INSERT INTO crop_master (crop_name) VALUES
 ('Wood Apple'),('Mulberry'),('Strawberry'),('Passion Fruit'),('Dragon Fruit'),
 ('Kiwi'),('Avocado'),('Orange'),('Lemon'),('Lime'),
 ('Grapefruit'),('Mosambi'),('Mandarin'),('Pear'),('Apple'),
-('Plum'),('Peach'),('Apricot'),('Cherry'),('Walnut'),
+('Plum'),('Peach'),('Apricot'),('Cherry'),('Walnut')
+ON CONFLICT (crop_name) DO NOTHING;
 
 -- Spices & Condiments
+INSERT INTO crop_master (crop_name) VALUES
 ('Turmeric'),('Cumin'),('Coriander Seed'),('Fennel'),('Fenugreek Seed'),
 ('Ajwain'),('Kalonji'),('Black Pepper'),('Cardamom'),('Clove'),
 ('Cinnamon'),('Nutmeg'),('Mace'),('Star Anise'),('Bay Leaf'),
 ('Dry Chilli'),('Paprika'),('Saffron'),('Vanilla'),('Asafoetida'),
-('Mustard Seed'),('Poppy Seed'),('Dry Ginger'),('Long Pepper'),('Curry Leaf Dry'),
+('Mustard Seed'),('Poppy Seed'),('Dry Ginger'),('Long Pepper'),('Curry Leaf Dry')
+ON CONFLICT (crop_name) DO NOTHING;
 
 -- Cash Crops
+INSERT INTO crop_master (crop_name) VALUES
 ('Cotton'),('Sugarcane'),('Jute'),('Tobacco'),('Rubber'),
-('Coffee'),('Tea'),('Cocoa'),('Areca Nut'),('Betel Leaf'),
+('Coffee'),('Tea'),('Cocoa'),('Areca Nut'),('Betel Leaf')
+ON CONFLICT (crop_name) DO NOTHING;
 
 -- Flowers
+INSERT INTO crop_master (crop_name) VALUES
 ('Rose'),('Marigold'),('Jasmine'),('Tuberose'),('Chrysanthemum'),
-('Lotus'),('Sunflower Flower'),('Gerbera'),('Carnation'),('Gladiolus'),
+('Lotus'),('Sunflower Flower'),('Gerbera'),('Carnation'),('Gladiolus')
+ON CONFLICT (crop_name) DO NOTHING;
 
 -- Plantation & Others
+INSERT INTO crop_master (crop_name) VALUES
 ('Bamboo'),('Moringa'),('Neem'),('Eucalyptus'),('Teak'),
 ('Lemongrass'),('Aloe Vera'),('Stevia'),('Ashwagandha'),('Brahmi'),
-('Tulsi'),('Shatavari'),('Giloy'),('Kalmegh'),('Mulethi');
-
-ALTER TABLE terms_and_policies
-ALTER COLUMN terms_of_service TYPE TEXT,
-ALTER COLUMN privacy_policy TYPE TEXT,
-ALTER COLUMN cookie_policy TYPE TEXT,
-ALTER COLUMN refund_policy TYPE TEXT,
-ALTER COLUMN community_guidelines TYPE TEXT;
+('Tulsi'),('Shatavari'),('Giloy'),('Kalmegh'),('Mulethi')
+ON CONFLICT (crop_name) DO NOTHING;
 
 INSERT INTO terms_and_policies
 (
+    terms_and_policies_id,
     terms_of_service,
     privacy_policy,
     cookie_policy,
@@ -571,6 +619,7 @@ INSERT INTO terms_and_policies
 )
 VALUES
 (
+    1,
     'Welcome to KisanSetu. By accessing or using this platform, you agree to comply with the following terms and conditions. KisanSetu provides a digital marketplace connecting farmers and buyers for agricultural produce trading. Users must ensure that the information they provide during registration and listing creation is accurate and up to date. Users agree not to misuse the platform, including posting false listings, engaging in fraudulent bidding, or violating any applicable laws. KisanSetu reserves the right to suspend or terminate accounts that violate platform policies. All transactions conducted through the platform are the responsibility of the involved parties. KisanSetu acts only as a facilitator and is not responsible for disputes between buyers and sellers.',
 
     'KisanSetu values your privacy and is committed to protecting your personal information. We collect information such as name, contact details, location, and account activity to provide and improve our services. This information is used to facilitate marketplace transactions, improve user experience, and ensure platform security. Your personal information will not be sold or shared with third parties without your consent, except when required by law or necessary to provide platform services. Users are responsible for maintaining the confidentiality of their account credentials.',
@@ -580,4 +629,5 @@ VALUES
     'KisanSetu acts as a marketplace connecting farmers and buyers. Payments and transactions may involve third-party payment providers. Refunds, if applicable, depend on the agreement between the buyer and seller. KisanSetu is not responsible for disputes related to product quality, delivery, or pricing. In case of technical issues or duplicate transactions involving platform service fees, refunds may be considered after review.',
 
     'KisanSetu aims to maintain a respectful and trustworthy marketplace. Users must ensure that listings accurately represent the agricultural products being sold, including quantity, quality, and pricing details. Fraudulent listings, bid manipulation, harassment, or attempts to bypass the platform for transactions are strictly prohibited. Violations may result in account suspension or permanent removal from the platform.'
-);
+)
+ON CONFLICT (terms_and_policies_id) DO NOTHING;

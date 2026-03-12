@@ -8,4 +8,6 @@ import java.util.List;
 public interface NotificationService {
     public void notifyUser(User user, String message);
     List<Notification> getBuyerNotifications(User buyer);
+
+    void notifyBuyer(User buyer, String message);
 }

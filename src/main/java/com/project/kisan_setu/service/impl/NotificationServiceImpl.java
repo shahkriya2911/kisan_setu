@@ -39,5 +39,9 @@ public class NotificationServiceImpl implements NotificationService {
     public List<Notification> getBuyerNotifications(User buyer) {
         return notificationRepository.findByBuyer(buyer);
     }
+
+    @Override
+    public void notifyBuyer(User buyer, String message) {
+    }
 }
 
