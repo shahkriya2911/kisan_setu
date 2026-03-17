@@ -1,6 +1,6 @@
 package com.project.kisan_setu.mapper;
 
-import com.project.kisan_setu.dto.IdNameDto;
+import com.project.kisan_setu.dto.RequestDto.IdNameDto;
 
 public class MasterMapper {
 

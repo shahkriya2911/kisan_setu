@@ -1,4 +1,4 @@
-package com.project.kisan_setu.dto;
+package com.project.kisan_setu.dto.RequestDto;
 import lombok.*;
 
 @Data

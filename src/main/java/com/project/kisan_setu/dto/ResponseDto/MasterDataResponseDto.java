@@ -1,5 +1,5 @@
 package com.project.kisan_setu.dto.ResponseDto;
-import com.project.kisan_setu.dto.IdNameDto;
+import com.project.kisan_setu.dto.RequestDto.IdNameDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

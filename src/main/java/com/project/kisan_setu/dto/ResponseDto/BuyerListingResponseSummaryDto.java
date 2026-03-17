@@ -1,4 +1,4 @@
-package com.project.kisan_setu.dto;
+package com.project.kisan_setu.dto.ResponseDto;
 
 import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.SaleType;

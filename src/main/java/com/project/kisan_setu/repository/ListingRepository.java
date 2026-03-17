@@ -1,5 +1,6 @@
 package com.project.kisan_setu.repository;
 
+import com.project.kisan_setu.dto.ResponseDto.TopCommodityDto;
 import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.SaleType;
@@ -36,4 +37,12 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
     Optional<Listing> findByIdForUpdate(@Param("listingId") Long listingId);
 
     Page<Listing> findBySeller_UserId(Long userId, Pageable pageable);
+
+    @Query("SELECT COUNT(DISTINCT l.seller) FROM Listing l")
+    long countDistinctSellers();
+
+    long countByStatus(AuctionStatus status);
+
+    @Query("SELECT l.crop.cropName, COUNT(l) FROM Listing l GROUP BY l.crop.cropName ORDER BY COUNT(l) DESC")
+    List<Object[]> getTopCommodities();
 }
