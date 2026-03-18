@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -496,16 +497,21 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public Order acceptInqury(Long inquiryId, Long userId) {
+    @Transactional
+    public Order acceptInqury(Long inquiryId) {
 //        validatorMethods.validateUserAccess();
         logger.info("Accepting inquiry...");
         //convert email to user
         logger.info("Validating user...");
+        Long userId = validatorMethods.getCurrentUserId();
         User seller = validatorMethods.validateUserById(userId);
         BuyerInquiry inquiry = buyerInquiryRepository.findById(inquiryId)
                 .orElseThrow(() -> new RuntimeException("Inquiry not found"));
 
         Listing listing = inquiry.getListing();
+        if (listing.getStatus() != AuctionStatus.ACTIVE){
+            throw new RuntimeException("Listing is not active");
+        }
         if (!listing.getSeller().getUserId().equals(seller.getUserId())) {
             logger.error("Unauthorized action");
             throw new RuntimeException("Unauthorized action...");
@@ -515,6 +521,9 @@ public class ListingServiceImpl implements ListingService {
             logger.error("Inquiry already processed...");
             throw new RuntimeException("Inquiry already processed");
         }
+        if (orderRepository.existsByListingAndBuyer(listing,inquiry.getBuyer())){
+            throw new RuntimeException("Order already exists for this inquiry");
+        }
 
         inquiry.setStatus(InquiryStatus.ACCEPTED);
         inquiry.setRespondedAt(LocalDateTime.now());
@@ -522,8 +531,14 @@ public class ListingServiceImpl implements ListingService {
         Order order = new Order();
         order.setListing(listing);
         order.setBuyer(inquiry.getBuyer());
+        order.setSeller(listing.getSeller());
         order.setQuantity(inquiry.getQuantityRequested());
-        order.setOrderTime(LocalDateTime.now());
+        order.setPricePerKg(listing.getPricePerKg());
+        BigDecimal total = listing.getPricePerKg().multiply(inquiry.getQuantityRequested());
+        order.setTotalBasePrice(total);
+        order.setAmount(total);
+        order.setStatus(OrderStatus.PENDING_BUYER_CONFIRMATION);
+        order.setCreatedAt(LocalDateTime.now());
         orderRepository.save(order);
         logger.info("Accept inquiry success...");
         return order;
@@ -555,11 +570,11 @@ public class ListingServiceImpl implements ListingService {
             order.setListing(listing);
             order.setQuantity(listing.getQuantity());
             order.setPricePerKg(highestBid.getBuyerAmount());
-            order.setTotalBasePrice(
+            order.setAmount(
                     highestBid.getBuyerAmount()
                             .multiply(listing.getQuantity())
             );
-            order.setOrderTime(LocalDateTime.now());
+            order.setCreatedAt(LocalDateTime.now());
 
             orderRepository.save(order);
         } else {
@@ -571,7 +586,7 @@ public class ListingServiceImpl implements ListingService {
             order.setBuyer(acceptedInquiry.getBuyer());
             order.setListing(listing);
             order.setQuantity(acceptedInquiry.getQuantityRequested());
-            order.setOrderTime(LocalDateTime.now());
+            order.setCreatedAt(LocalDateTime.now());
 
             orderRepository.save(order);
         }
@@ -595,6 +610,29 @@ public class ListingServiceImpl implements ListingService {
         logger.info("Getting active listings...");
         Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.ACTIVE, pageable);
         return listings.map(ListingMapper::toResponse);
+    }
+
+    @Override
+    public Page<Object> activeSummaryListings(Long sellerId, Pageable pageable) {
+
+        logger.info("Getting active listings...");
+
+        Page<Listing> listings =
+                listingRepository.findBySeller_UserIdAndStatus(
+                        sellerId,
+                        AuctionStatus.ACTIVE,
+                        pageable
+                );
+
+        return listings.map(listing -> {
+
+            if (listing.getSaleType() == SaleType.AUCTION) {
+                return ListingMapper.toAuctionListingResponseDto(listing);
+            } else {
+                return ListingMapper.toFixedResponseDto(listing);
+            }
+
+        });
     }
 
     @Override
@@ -778,17 +816,17 @@ public class ListingServiceImpl implements ListingService {
         return "Bid Rejected Successfully";
     }
 
-    @Override
-    public Page<ListingSummaryResponseDto> activeSummaryListings(Long sellerId, Pageable pageable) {
-        logger.info("Getting active listings...");
-        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.ACTIVE, pageable);
-        logger.info("Fetching active listings success...");
-        return listings.map(listing -> {
-            ListingSummaryResponseDto dto = ListingMapper.toSummaryResponse(listing);
-            dto.setCurrentHighestBid(resolveCurrentHighestBid(listing));
-            return dto;
-        });
-    }
+//    @Override
+//    public Page<ListingSummaryResponseDto> activeSummaryListings(Long sellerId, Pageable pageable) {
+//        logger.info("Getting active listings...");
+//        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.ACTIVE, pageable);
+//        logger.info("Fetching active listings success...");
+//        return listings.map(listing -> {
+//            ListingSummaryResponseDto dto = ListingMapper.toSummaryResponse(listing);
+//            dto.setCurrentHighestBid(resolveCurrentHighestBid(listing));
+//            return dto;
+//        });
+//    }
 
     @Override
     public Page<ListingSummaryResponseDto> pendingSummaryListings(Long sellerId, Pageable pageable){

@@ -24,7 +24,7 @@ public class BuyerController {
     private final ValidatorMethods validatorMethods;
     private static final Logger logger = LoggerFactory.getLogger(BuyerController.class);
 
-    @PostMapping
+    @PostMapping("/buyer-requirement")
     public BuyingRequirementResponseDto createRequirement(
             @Valid @RequestBody BuyingRequirementRequestDto dto) {
         logger.debug("Create buyer requirement request attempt for buyer");
@@ -46,21 +46,29 @@ public class BuyerController {
     //get all fixed listings
     @GetMapping("/fixed")
     public ResponseEntity<?> getFixedListings() {
-        logger.info("Get all auction listings request attempt");
+        logger.info("Get all fixed listings request attempt");
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
-        logger.info("Fetched all auction listings successfully");
+        logger.info("Fetched all fixed listings successfully");
         return ResponseEntity.ok(
                 buyerService.getActiveFixedListings(userId));
     }
 
     @GetMapping("/auctions/{listingId}")
     public ResponseEntity<?> getAuctionListingDetail(@PathVariable Long listingId) {
-        logger.debug("Get listing detail request attempt for listing id : {}",listingId);
-        logger.info("Fetched listing detail successfully");
+        logger.debug("Get auction listing detail request attempt for listing id : {}",listingId);
+        logger.info("Fetched auction listing detail successfully");
         return ResponseEntity.ok(buyerService.getAuctionListingDetail(listingId));
     }
 
-    //post a bid in a particular auction listing
+    @GetMapping("/fixed/{listingId}")
+    public ResponseEntity<?> getFixedListingDetail(@PathVariable("listingId") Long listingId){
+        logger.debug("Get fixed listing detail request attempt for listing id : {}",listingId);
+        logger.info("Fetched fixed listing detail successfully");
+        return ResponseEntity.ok(buyerService.getFixedListingDetail(listingId));
+    }
+
+
+    //post a bid in a particular auction or fixed listing
     @PostMapping("/{listingId}/auctions")
     public ResponseEntity<?> placeAction(
             @PathVariable Long listingId,
@@ -74,7 +82,7 @@ public class BuyerController {
 
     }
 
-    //git bid history of a particular auction
+    //git bid history of a particular auction or fixed listing
     @GetMapping("/auctions/{listingId}/bids")
     public ResponseEntity<?> getBidHistory(
             @PathVariable Long listingId) {

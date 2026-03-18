@@ -23,7 +23,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
     List<Listing> findBySaleType(SaleType saleType); //type of listing (fixed or auction)
     Page<Listing> findBySeller_UserIdAndStatus(Long sellerId,AuctionStatus status,Pageable pageable);
     Long countBySeller_UserIdAndStatus(Long sellerId, AuctionStatus status);
-    List<Listing> findBySaleTypeAndSellerUserIdNot(SaleType saleType, Long sellerId);
+    List<Listing> findBySaleTypeAndSellerUserIdNotAndStatus(SaleType saleType, Long sellerId,AuctionStatus auctionStatus);
     List<Listing> findByStatus(AuctionStatus auctionStatus);
 
     Long countBySaleTypeAndStatus(SaleType saleType, AuctionStatus listingStatus);
@@ -36,7 +36,10 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
     @Query("SELECT l FROM Listing l WHERE l.listingId = :listingId")
     Optional<Listing> findByIdForUpdate(@Param("listingId") Long listingId);
 
+
     Page<Listing> findBySeller_UserId(Long userId, Pageable pageable);
+
+    Page<Listing> findBySeller_UserIdAndStatusAndSaleType(Long sellerId, AuctionStatus auctionStatus, SaleType saleType, Pageable pageable);
 
     @Query("SELECT COUNT(DISTINCT l.seller) FROM Listing l")
     long countDistinctSellers();

@@ -28,4 +28,6 @@ public interface BuyerService {
     List<BidHistoryDto> getBidHistory(Long listingId);
 
     ListingSummaryResponseDto getListingSummary(Long listingId);
+
+    BuyerListingResponseDto getFixedListingDetail(Long listingId);
 }

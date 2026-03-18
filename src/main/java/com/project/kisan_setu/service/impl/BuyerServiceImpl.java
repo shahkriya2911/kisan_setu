@@ -6,10 +6,7 @@ import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.entity.*;
-import com.project.kisan_setu.enums.BidStatus;
-import com.project.kisan_setu.enums.InquiryStatus;
-import com.project.kisan_setu.enums.PurchaseType;
-import com.project.kisan_setu.enums.SaleType;
+import com.project.kisan_setu.enums.*;
 import com.project.kisan_setu.mapper.BuyingRequirementMapper;
 import com.project.kisan_setu.mapper.ListingMapper;
 import com.project.kisan_setu.repository.*;
@@ -63,7 +60,7 @@ public class BuyerServiceImpl implements BuyerService {
     @Override
     public List<BuyerListingResponseDto> getActiveAuctionListings(Long userId) {
 
-        return listingRepository.findBySaleTypeAndSellerUserIdNot(SaleType.AUCTION, userId)
+        return listingRepository.findBySaleTypeAndSellerUserIdNotAndStatus(SaleType.AUCTION, userId, AuctionStatus.ACTIVE)
                 .stream()
                 .map(this::toBuyerListingResponse)
                 .toList();
@@ -71,7 +68,7 @@ public class BuyerServiceImpl implements BuyerService {
 
     @Override
     public List<BuyerListingResponseDto> getActiveFixedListings(Long userId) {
-        return listingRepository.findBySaleTypeAndSellerUserIdNot(SaleType.FIXED, userId)
+        return listingRepository.findBySaleTypeAndSellerUserIdNotAndStatus(SaleType.FIXED, userId,AuctionStatus.ACTIVE)
                 .stream()
                 .map(this::toBuyerListingResponse)
                 .toList();
@@ -81,7 +78,16 @@ public class BuyerServiceImpl implements BuyerService {
     public BuyerListingResponseDto getAuctionListingDetail(Long listingId) {
         Listing listing = validatorMethods.validateExists(listingId);
         if (listing.getSaleType() != SaleType.AUCTION) {
-            throw new RuntimeException("Listing is not an auction");
+            throw new RuntimeException("Listing is not auction");
+        }
+        return toBuyerListingResponse(listing);
+    }
+
+    @Override
+    public BuyerListingResponseDto getFixedListingDetail(Long listingId){
+        Listing listing = validatorMethods.validateExists(listingId);
+        if (listing.getSaleType() != SaleType.FIXED){
+            throw new RuntimeException("Listing is not fixed");
         }
         return toBuyerListingResponse(listing);
     }
@@ -355,7 +361,9 @@ public class BuyerServiceImpl implements BuyerService {
                 listing.getDistrict() != null ? listing.getDistrict().getName() : null,
                 listing.getAuctionEndTime(),
                 currentHighest,
-                images
+                images,
+                listing.getMinimumOrderQuantity(),
+                listing.getRemainingQuantity()
         );
     }
 

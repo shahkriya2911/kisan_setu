@@ -37,6 +37,7 @@ public class BuyerListingResponseDto {
     private LocalDateTime auctionEndTime;
     private BigDecimal currentHighestBid;
     private List<ProductImageResponseDto> images;
-
+    private BigDecimal minimumOrderQuantity;
+    private BigDecimal remainingQuantity;
 
 }

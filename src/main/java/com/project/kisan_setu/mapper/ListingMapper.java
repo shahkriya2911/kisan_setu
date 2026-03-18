@@ -1,5 +1,7 @@
 package com.project.kisan_setu.mapper;
 
+import com.project.kisan_setu.dto.AuctionListingResponseDto;
+import com.project.kisan_setu.dto.ListingFixedResponseDto;
 import com.project.kisan_setu.dto.RequestDto.ProductListingDto;
 import com.project.kisan_setu.dto.RequestDto.QualityLocationListingDto;
 import com.project.kisan_setu.dto.RequestDto.QualityPricingListingDto;
@@ -105,6 +107,47 @@ public class ListingMapper {
 
         dto.setCreatedAt(listing.getCreatedAt());
         dto.setAuctionStatus(listing.getStatus());
+
+        return dto;
+    }
+
+    public static ListingFixedResponseDto toFixedResponseDto(Listing listing) {
+
+        if (listing == null) {
+            return null;
+        }
+
+        ListingFixedResponseDto dto = new ListingFixedResponseDto();
+
+        dto.setListingId(listing.getListingId());
+        dto.setCropName(listing.getCrop().getCropName());
+        dto.setVariety(listing.getVariety());
+        dto.setGrade(listing.getGrade());
+
+        dto.setQuantity(listing.getQuantity());
+        dto.setPricePerKg(listing.getPricePerKg());
+        dto.setUnitId(listing.getUnit().getUnitName());
+
+        dto.setTotalBasePrice(listing.getTotalBasePrice());
+
+        dto.setStatus(listing.getStatus().name());
+        dto.setPurchaseType(listing.getPurchaseType().name());
+        dto.setSaleType(listing.getSaleType().name());
+
+        dto.setPostedOn(listing.getPostedOn());
+
+        dto.setState(listing.getState().getName());
+        dto.setDistrict(listing.getDistrict().getName());
+
+        dto.setPickupMethod(listing.getPickupMethod());
+        dto.setStorage(listing.getStorage().getStorageType());
+
+        dto.setHarvestDate(listing.getHarvestDate());
+        dto.setPackagingType(listing.getPackaging().getPackagingType());
+
+        dto.setRemainingQuantity(listing.getRemainingQuantity());
+
+        dto.setImages(mapImages(listing));
 
         return dto;
     }
@@ -261,5 +304,56 @@ public class ListingMapper {
                     return List.of(dto);
                 })
                 .orElse(null);
+    }
+    public static AuctionListingResponseDto toAuctionListingResponseDto(Listing listing) {
+
+        if (listing == null) {
+            return null;
+        }
+
+        AuctionListingResponseDto dto = new AuctionListingResponseDto();
+
+        // Basic Info
+        dto.setListingId(listing.getListingId());
+        dto.setCropName(listing.getCrop().getCropName());
+        dto.setVariety(listing.getVariety());
+        dto.setGrade(listing.getGrade());
+        dto.setHarvestDate(listing.getHarvestDate());
+        dto.setQuantity(listing.getQuantity());
+        dto.setUnit(listing.getUnit().getUnitName());
+
+        // Pricing
+        dto.setPricePerKg(listing.getPricePerKg());
+        dto.setTotalBasePrice(listing.getTotalBasePrice());
+        dto.setPurchaseType(listing.getPurchaseType());
+        dto.setSaleType(listing.getSaleType().name());
+
+        // Partial Order fields
+        dto.setMinimumOrderQuantity(listing.getMinimumOrderQuantity());
+        dto.setMoqPricePerKg(listing.getMoqPricePerKg());
+        dto.setRemainingQuantity(listing.getRemainingQuantity());
+
+        // Auction fields
+        dto.setMinimumBidIncrement(listing.getMinimumBidIncrement());
+        dto.setAuctionEndTime(listing.getAuctionEndTime());
+
+        // Location
+        dto.setState(listing.getState().getName());
+        dto.setDistrict(listing.getDistrict().getName());
+        dto.setPackagingType(listing.getPackaging().getPackagingType());
+        dto.setStorageType(listing.getStorage().getStorageType());
+        dto.setPickupMethod(listing.getPickupMethod());
+
+        // Images
+        dto.setImages(mapImages(listing));
+
+        // Description
+        dto.setDescription(listing.getDescription());
+
+        // Meta
+        dto.setCreatedAt(listing.getCreatedAt());
+        dto.setAuctionStatus(listing.getStatus());
+
+        return dto;
     }
 }

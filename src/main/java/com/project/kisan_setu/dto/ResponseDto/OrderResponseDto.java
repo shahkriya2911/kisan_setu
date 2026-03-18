@@ -10,19 +10,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderResponseDto {
-
     private Long orderId;
-
-    private String buyerName;
-
-    private String cropName;
-
+    private Long listingId;
+    private Long buyerId;
+    private Long sellerId;
     private BigDecimal quantity;
-
     private BigDecimal pricePerKg;
-
-    private BigDecimal totalBasePrice;
-
-    private LocalDateTime orderTime;
-    private BigDecimal remainingQuantity;
+    private BigDecimal amount;
+    private String status;
+    private LocalDateTime createdAt;
 }

@@ -4,6 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.kisan_setu.dto.RequestDto.CreateListingRequest;
 import com.project.kisan_setu.dto.ResponseDto.DashboardDto;
+import com.project.kisan_setu.dto.ResponseDto.ListingResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.SellerListingDto;
+import com.project.kisan_setu.dto.*;
+import com.project.kisan_setu.entity.Order;
+import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.enums.BidStatus;
+import com.project.kisan_setu.dto.RequestDto.CreateListingRequest;
+import com.project.kisan_setu.dto.ResponseDto.DashboardDto;
 import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.UserService;
@@ -17,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -92,15 +101,6 @@ public class ListingController {
         return ResponseEntity.ok(listingService.getSellerListingDetail(listingId));
     }
 
-    @PutMapping("{inquiryId}/accept")
-    public ResponseEntity<String> acceptInquiry(@PathVariable Long inquiryId){
-        logger.debug("Accept inquiry attempt for inquiry with id : {}",inquiryId);
-        Long userId = validatorMethods.getCurrentUserId();
-        listingService.acceptInqury(inquiryId,userId);
-        logger.info("Inquiry accepted successfully");
-        return ResponseEntity.ok("Inquiry accepted successfully");
-    }
-
     @GetMapping("/dashboard")
     public ResponseEntity<DashboardDto> getSellerOverView(){
         logger.info("Get seller overview request");
@@ -163,6 +163,15 @@ public class ListingController {
         logger.info("Fetched all active listings for user with id : {} successfully",userId);
         return ResponseEntity.ok(listings);
     }
+
+//    @GetMapping("/my-active")
+//    public ResponseEntity<Page<Object>> activeListings(Authentication authentication, Pageable pageable){
+//        logger.debug("Get all active listings for user with id : {}",Long.parseLong(authentication.getName()));
+//        Long userId = Long.parseLong(authentication.getName());
+//        Page<Object> listings = listingService.activeListings(userId,pageable);
+//        logger.info("Fetched all active listings for user with id : {} successfully",userId);
+//        return ResponseEntity.ok(listings);
+//    }
 
     @GetMapping("my-listings")
     public ResponseEntity<Page<ListingResponseDto>> myListings(Authentication authentication,Pageable pageable){
@@ -237,13 +246,35 @@ public class ListingController {
         return ResponseEntity.ok(listings);
     }
 
+//    @GetMapping("/my-active-summary")
+//    public ResponseEntity<Page<ListingSummaryResponseDto>> activeSummaryListings(Authentication authentication, Pageable pageable){
+//        logger.debug("Get all active listings for user with id : {}",Long.parseLong(authentication.getName()));
+//        Long userId = Long.parseLong(authentication.getName());
+//        Page<ListingSummaryResponseDto> listings = listingService.activeSummaryListings(userId,pageable);
+//        logger.info("Fetched all active listings for user with id : {} successfully",userId);
+//        return ResponseEntity.ok(listings);
+//    }
+
     @GetMapping("/my-active-summary")
-    public ResponseEntity<Page<ListingSummaryResponseDto>> activeSummaryListings(Authentication authentication, Pageable pageable){
-        logger.debug("Get all active listings for user with id : {}",Long.parseLong(authentication.getName()));
+    public ResponseEntity<Page<Object>> activeSummaryListings(
+            Authentication authentication,
+            Pageable pageable
+    ) {
+
         Long userId = Long.parseLong(authentication.getName());
-        Page<ListingSummaryResponseDto> listings = listingService.activeSummaryListings(userId,pageable);
-        logger.info("Fetched all active listings for user with id : {} successfully",userId);
+
+        logger.debug("Get all active listings for user with id : {}", userId);
+
+        Page<Object> listings = listingService.activeSummaryListings(userId, pageable);
+
+        logger.info("Fetched all active listings for user with id : {} successfully", userId);
+
         return ResponseEntity.ok(listings);
+    }
+
+    @PutMapping("/{inquiryId}/accept")
+    public Order acceptInquiry(@PathVariable Long inquiryId){
+        return listingService.acceptInqury(inquiryId);
     }
 
 }

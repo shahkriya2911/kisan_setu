@@ -26,11 +26,12 @@ public interface ListingService {
 
     SellerListingDto getSellerListingDetail(Long listingId);
     DashboardDto getSellerOverview();
-    Order acceptInqury(Long inquiryId, Long userId);
+    Order acceptInqury(Long inquiryId);
 
     void markAsSold(Long listingId,Long userId);
 
     Page<ListingResponseDto> activeListings(Long sellerId, Pageable pageable);
+    Page<Object> activeSummaryListings(Long sellerId, Pageable pageable);
 
     Page<ListingResponseDto> pendingListings(Long sellerId, Pageable pageable);
 
@@ -45,7 +46,7 @@ public interface ListingService {
     String acceptBid(Long bidId);
     String rejectBid(Long bidId);
 
-    Page<ListingSummaryResponseDto> activeSummaryListings(Long sellerId, Pageable pageable);
+//    Page<ListingSummaryResponseDto> activeSummaryListings(Long sellerId, Pageable pageable);
 
     Page<ListingSummaryResponseDto> pendingSummaryListings(Long sellerId, Pageable pageable);
 

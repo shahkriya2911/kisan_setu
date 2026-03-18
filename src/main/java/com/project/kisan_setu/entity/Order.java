@@ -2,6 +2,7 @@ package com.project.kisan_setu.entity;
 
 import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,6 +29,10 @@ public class Order {
     private User buyer;
 
     @ManyToOne
+    @JoinColumn(name = "seller_id")
+    private User seller;
+
+    @ManyToOne
     @JoinColumn(name="listing_id")
     private Listing listing;
 
@@ -35,8 +40,17 @@ public class Order {
 
     private BigDecimal pricePerKg;
 
+    private LocalDateTime createdAt;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
     private BigDecimal totalBasePrice;
 
-    private LocalDateTime orderTime;
+    private BigDecimal amount;
 
+    @OneToOne
+    @JoinColumn(name = "accepted_bid_id")
+    private Bid acceptBid;
+
+    private LocalDateTime confirmationDeadline;
 }
