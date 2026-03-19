@@ -53,4 +53,6 @@ public class Order {
     private Bid acceptBid;
 
     private LocalDateTime confirmationDeadline;
+
+
 }

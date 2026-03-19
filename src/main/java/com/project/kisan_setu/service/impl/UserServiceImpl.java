@@ -3,6 +3,7 @@ import com.project.kisan_setu.dto.RequestDto.*;
 import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.entity.*;
 import com.project.kisan_setu.enums.Role;
+import com.project.kisan_setu.enums.UserStatus;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.UserMapper;
 import com.project.kisan_setu.repository.*;
@@ -78,6 +79,7 @@ public class UserServiceImpl implements UserService {
             user.setRole(Role.USER);
         }
         userRepository.save(user);
+        user.setStatus(UserStatus.ACTIVE);
         UserResponseDto userResponseDto = UserMapper.toResponse(user);
         logger.info("Signup success...");
         return new SignupResponseDto(

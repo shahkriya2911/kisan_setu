@@ -13,7 +13,6 @@ import com.project.kisan_setu.repository.*;
 import com.project.kisan_setu.service.FileStorageService;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.NotificationService;
-import com.project.kisan_setu.service.RecentActivityService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -54,7 +53,6 @@ public class ListingServiceImpl implements ListingService {
     private final UnitRepository unitRepository;
     private final StorageRepository storageRepository;
     private final PackagingRepository packagingRepository;
-    private final RecentActivityService recentActivityService;
     private static final Logger logger = LoggerFactory.getLogger(ListingServiceImpl.class);
 
 
@@ -133,12 +131,6 @@ public class ListingServiceImpl implements ListingService {
         listing.setRemainingQuantity(pricingDto.getQuantity());
 
         Listing saved = listingRepository.save(listing);
-        recentActivityService.logActivity(
-                "LISTING_ADDED",
-                "Seller " + seller.getFullName() + " added a new crop: " + saved.getCrop(),
-                seller.getUserId(),
-                null // no buyer yet
-        );
 
         logger.info("Listing created successfully ID: {}", saved.getListingId());
         return ListingMapper.toResponse(saved);
@@ -151,7 +143,6 @@ public class ListingServiceImpl implements ListingService {
                                             MultipartFile certificateFile) {
 //        validatorMethods.validateUserAccess();
         logger.info("Updating listing...");
-        logger.info("Validating listing...");
         Listing listing = validatorMethods.validateExists(listingId);
 
 
@@ -775,6 +766,8 @@ public class ListingServiceImpl implements ListingService {
         logger.info("Accepting bid...");
         logger.info("Validation user...");
         Long userId = validatorMethods.getCurrentUserId();
+        User seller = validatorMethods.validateUserById(userId);
+
 
         Bid bid = bidRepository.findById(bidId)
                 .orElseThrow(() -> new RuntimeException("Bid not found"));
@@ -796,7 +789,6 @@ public class ListingServiceImpl implements ListingService {
     @Override
     public String rejectBid(Long bidId) {
         logger.info("Rejecting bid...");
-        logger.info("Validating user...");
         Long userId = validatorMethods.getCurrentUserId();
 
         Bid bid = bidRepository.findById(bidId)

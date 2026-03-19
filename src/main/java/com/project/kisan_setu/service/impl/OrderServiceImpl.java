@@ -13,6 +13,7 @@ import com.project.kisan_setu.repository.ListingRepository;
 import com.project.kisan_setu.repository.OrderRepository;
 import com.project.kisan_setu.service.OrderService;
 import com.project.kisan_setu.util.ValidatorMethods;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
@@ -31,15 +33,10 @@ public class OrderServiceImpl implements OrderService {
     private final ValidatorMethods validatorMethods;
     private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
-    public OrderServiceImpl(OrderRepository orderRepository, BidRepository bidRepository, ListingRepository listingRepository, ValidatorMethods validatorMethods) {
-        this.orderRepository = orderRepository;
-        this.bidRepository = bidRepository;
-        this.listingRepository = listingRepository;
-        this.validatorMethods = validatorMethods;
-    }
 
     @Transactional
     @Override
+    //Seller accepts bid , update if not
     public Order createOrderFromAcceptedBid(Long bidId) {
         Bid bid = bidRepository.findById(bidId).orElseThrow(() -> new RuntimeException("Bid not found"));
         Listing listing = bid.getListing();
@@ -68,6 +65,7 @@ public class OrderServiceImpl implements OrderService {
         listing.setStatus(AuctionStatus.BID_ACCEPTED);
         listingRepository.save(listing);
         return orderRepository.save(order);
+
     }
 
     @Override
@@ -83,6 +81,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
+    //Buyer confirms order -> status becomes PAYMENT_PENDING.
     public Order confirmOrder(Long orderId, Long buyerId) {
         Order order = orderRepository.findById(orderId).orElseThrow(()->new RuntimeException("Bid not found"));
         if (!order.getBuyer().getUserId().equals(buyerId)){

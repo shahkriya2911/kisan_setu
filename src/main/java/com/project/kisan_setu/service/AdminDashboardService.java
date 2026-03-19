@@ -1,17 +1,19 @@
 package com.project.kisan_setu.service;
 
-import com.project.kisan_setu.dto.ResponseDto.AdminDashboardResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.EscrowGrowthDto;
-import com.project.kisan_setu.dto.ResponseDto.TopCommodityDto;
-import com.project.kisan_setu.dto.ResponseDto.UserDistributionDto;
+import com.project.kisan_setu.dto.ResponseDto.*;
+import com.project.kisan_setu.entity.User;
 
 import java.util.List;
 
 public interface AdminDashboardService {
 
-    AdminDashboardResponseDto getDashboardOverview();
-//    List<DailyTransactionDto> getDailyTransactions();
-      List<Object[]> getTopCommodities();
-     UserDistributionDto getUserDistribution();
-//    List<EscrowGrowthDto> getEscrowGrowth();
+       AdminDashboardResponseDto getDashboardOverview();
+//     List<DailyTransactionDto> getDailyTransactions();
+       List<Object[]> getTopCommodities();
+       UserDistributionDto getUserDistribution();
+//     List<EscrowGrowthDto> getEscrowGrowth();
+       List<UserManagementDto> getAllUsersForAdmin(String type, String status);
+       String verifyUser(Long userId);
+       String suspendUser(Long userId);
+       String reactivateUser(Long userId);
 }

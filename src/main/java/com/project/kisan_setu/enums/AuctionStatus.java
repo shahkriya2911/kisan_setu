@@ -1,9 +1,10 @@
 package com.project.kisan_setu.enums;
 
-public enum AuctionStatus {
+public enum AuctionStatus {    //OR ListingStatus
     ACTIVE,
     PENDING,
     BID_ACCEPTED,
     CLOSED,
-    SOLD
+    SOLD,
+    REJECTED
 }
