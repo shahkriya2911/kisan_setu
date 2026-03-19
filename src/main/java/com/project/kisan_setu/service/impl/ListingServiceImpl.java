@@ -16,7 +16,6 @@ import com.project.kisan_setu.service.FileStorageService;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.service.OrderService;
-import com.project.kisan_setu.service.RecentActivityService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

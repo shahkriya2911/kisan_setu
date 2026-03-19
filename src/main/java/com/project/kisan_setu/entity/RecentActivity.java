@@ -1,5 +1,6 @@
 package com.project.kisan_setu.entity;
 
+import com.fasterxml.jackson.databind.BeanProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,8 +20,13 @@ public class RecentActivity {
 
     private String activityType;
     private String description;
-    private Long sellerId;
-    private Long buyerId;
+    @ManyToOne
+    @JoinColumn(name = "seller_id")
+    private User seller;
+
+    @ManyToOne
+    @JoinColumn(name = "buyer_id")
+    private User buyer;
     private LocalDateTime timestamp;
 
 

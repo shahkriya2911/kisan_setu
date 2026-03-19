@@ -58,4 +58,6 @@ public class Order {
 
     @OneToMany(mappedBy = "order")
     private List<Notification> notifications = new ArrayList<>();
+
+
 }

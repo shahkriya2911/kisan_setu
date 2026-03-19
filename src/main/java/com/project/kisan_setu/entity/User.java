@@ -1,5 +1,6 @@
 package com.project.kisan_setu.entity;
 import com.project.kisan_setu.enums.Role;
+import com.project.kisan_setu.enums.UserStatus;
 import com.project.kisan_setu.service.PanCardVerificationService;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -42,7 +43,27 @@ public class User {
     private Integer yearsOfExperience;
     @Column(name = "profile_photo")
     private String profilePhoto;
+    @Column(name = "seller_verified")
+    private Boolean sellerVerified;
 
+    @Column(name = "buyer_verified")
+    private Boolean buyerVerified ;
+
+    public Boolean isVerified() {
+        return sellerVerified || buyerVerified;
+    }
+    @Column(name = "flag_count")
+    private Integer flagCount = 0;
+
+    @Column(name = "suspended")
+    private Boolean suspended;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.USER;  // default everyone is USER
+
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
 
 
     @OneToMany(mappedBy = "seller")
@@ -63,16 +84,13 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private PanCardVerification panCardVerification;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role = Role.USER;  // default everyone is USER
-
-
-
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReturnAndShipping> returnAndShippings = new ArrayList<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private ChangingLanguage changingLanguage;
+
+
+
 }

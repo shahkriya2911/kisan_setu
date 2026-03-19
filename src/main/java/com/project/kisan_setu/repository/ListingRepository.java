@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,4 +49,6 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
 
     @Query("SELECT l.crop.cropName, COUNT(l) FROM Listing l GROUP BY l.crop.cropName ORDER BY COUNT(l) DESC")
     List<Object[]> getTopCommodities();
+
+    long countBySellerUserId(Long userId);
 }

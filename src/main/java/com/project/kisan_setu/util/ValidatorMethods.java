@@ -25,6 +25,9 @@ public class ValidatorMethods {
     private final PackagingRepository packagingRepository;
     private final StorageRepository storageRepository;
     private final ReturnAndShippingRepository returnAndShippingRepository;
+    private final AadhaarVerificationRepository aadhaarVerificationRepository;
+    private final PanCardVerificationRepository panCardVerificationRepository;
+    private final BankAccountVerificationRepository bankAccountVerificationRepository;
 
     public Listing validateExists(Long listingId){
         return listingRepository.findById(listingId)
@@ -97,5 +100,25 @@ public class ValidatorMethods {
     public ReturnAndShipping getReturnAndShippingById(Long returnAndShippingId) {
         return returnAndShippingRepository.findById(returnAndShippingId)
                 .orElseThrow(()->new RuntimeException("Return and Shipping not found"));
+    }
+
+    public boolean isUserFullyVerified(Long userId) {
+
+        boolean aadhaarVerified = aadhaarVerificationRepository
+                .findByUserUserId(userId)
+                .map(AadhaarVerification::isVerified)
+                .orElse(false);
+
+        boolean panVerified = panCardVerificationRepository
+                .findByUserUserId(userId)
+                .map(PanCardVerification::isVerified)
+                .orElse(false);
+
+        boolean bankVerified = bankAccountVerificationRepository
+                .findByUserUserId(userId)
+                .map(BankAccountVerification::isVerified)
+                .orElse(false);
+
+        return aadhaarVerified && panVerified && bankVerified;
     }
 }
