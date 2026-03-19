@@ -7,6 +7,7 @@ import com.project.kisan_setu.dto.ResponseDto.DashboardDto;
 import com.project.kisan_setu.dto.ResponseDto.ListingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.SellerListingDto;
 import com.project.kisan_setu.dto.*;
+import com.project.kisan_setu.dto.SellerListingFixedDto;
 import com.project.kisan_setu.entity.Order;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.enums.BidStatus;
@@ -93,12 +94,22 @@ public class ListingController {
     }
 
     @GetMapping("/{listingId}/top-5")
-    public ResponseEntity<SellerListingDto> getListingDetail(
+    public ResponseEntity<SellerListingDto> getAuctionListingDetail(
             @PathVariable Long listingId) {
         logger.debug("Get top 5 bids for listing with id : {} request attempt",listingId);
         Long sellerId = validatorMethods.getCurrentUserId();
         logger.info("Fetched top 5 bids successfully for listing with id : {}",listingId);
-        return ResponseEntity.ok(listingService.getSellerListingDetail(listingId));
+        return ResponseEntity.ok(listingService.getSellerAuctionListingDetail(listingId));
+    }
+
+    @GetMapping("/{listingId}/fixed")
+    public ResponseEntity<SellerListingFixedDto> getFixedListingDetail(
+            @PathVariable Long listingId
+    ){
+        logger.debug("Get fixed listing with id : {} request attempt",listingId);
+        Long sellerId = validatorMethods.getCurrentUserId();
+        logger.info("Fetched fixed listing with id : {}",listingId);
+        return ResponseEntity.ok(listingService.getSellerFixedListingDetail(listingId));
     }
 
     @GetMapping("/dashboard")
@@ -271,10 +282,4 @@ public class ListingController {
 
         return ResponseEntity.ok(listings);
     }
-
-    @PutMapping("/{inquiryId}/accept")
-    public Order acceptInquiry(@PathVariable Long inquiryId){
-        return listingService.acceptInqury(inquiryId);
-    }
-
 }

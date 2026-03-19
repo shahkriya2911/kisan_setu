@@ -38,6 +38,5 @@ public class BuyerListingResponseDto {
     private BigDecimal currentHighestBid;
     private List<ProductImageResponseDto> images;
     private BigDecimal minimumOrderQuantity;
-    private BigDecimal remainingQuantity;
 
 }

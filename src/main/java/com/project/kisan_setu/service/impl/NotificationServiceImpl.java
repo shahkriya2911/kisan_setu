@@ -1,7 +1,9 @@
 package com.project.kisan_setu.service.impl;
 
-import com.project.kisan_setu.entity.Notification;
-import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.dto.ResponseDto.NotificationResponseDto;
+import com.project.kisan_setu.entity.*;
+import com.project.kisan_setu.enums.NotificationStatus;
+import com.project.kisan_setu.mapper.NotificationMapper;
 import com.project.kisan_setu.repository.NotificationRepository;
 import com.project.kisan_setu.repository.UserRepository;
 import com.project.kisan_setu.service.NotificationService;
@@ -13,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
@@ -25,23 +26,29 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void notifyUser(User user, String message) {
+    public void createNotification(User user, String message, NotificationStatus type
+    , Listing listing, Bid bid, Order order) {
         logger.info("Notifying buyer....");
         Notification notification = new Notification();
-        notification.setBuyer(user);
-        notification.setIsRead(false);
+        notification.setUser(user);
         notification.setMessage(message);
+        notification.setType(type);
+        notification.setListing(listing);
+        notification.setBid(bid);
+        notification.setOrder(order);
         notificationRepository.save(notification);
-        //print in console
-        System.out.println("Notification to"+user.getFullName()+" : "+message);
-
     }
-    public List<Notification> getBuyerNotifications(User buyer) {
-        return notificationRepository.findByBuyer(buyer);
+    public List<NotificationResponseDto> getUserNotifications(Long userId) {
+        List<Notification> notifications = notificationRepository.findByUser_UserIdOrderByCreatedAtDesc(userId);
+        return notifications.stream().map(NotificationMapper::toDto).toList();
     }
 
     @Override
-    public void notifyBuyer(User buyer, String message) {
+    public void markAsRead(Long id) {
+        Notification notification = notificationRepository.
+                findById(id).orElseThrow(()->new RuntimeException("Notification not found"));
+        notification.setIsRead(true);
+        notificationRepository.save(notification);
     }
 }
 

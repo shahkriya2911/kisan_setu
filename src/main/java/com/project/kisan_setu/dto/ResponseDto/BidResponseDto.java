@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class BidResponseDto {
 
     //bid response info
+    private Long bidId;
     private Long buyerId;
     private BigDecimal buyerAmount;
     private String buyerName;

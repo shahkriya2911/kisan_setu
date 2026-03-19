@@ -3,6 +3,7 @@ package com.project.kisan_setu.service;
 import com.project.kisan_setu.dto.RequestDto.CreateListingRequest;
 import com.project.kisan_setu.dto.ResponseDto.DashboardDto;
 import com.project.kisan_setu.dto.ResponseDto.*;
+import com.project.kisan_setu.dto.SellerListingFixedDto;
 import com.project.kisan_setu.entity.Bid;
 
 import com.project.kisan_setu.entity.Order;
@@ -24,9 +25,9 @@ public interface ListingService {
 
 //    BidHistory placeBid(Long listingId, Double buyerAmount, Long userId);
 
-    SellerListingDto getSellerListingDetail(Long listingId);
+    SellerListingDto getSellerAuctionListingDetail(Long listingId);
+    SellerListingFixedDto getSellerFixedListingDetail(Long listingId);
     DashboardDto getSellerOverview();
-    Order acceptInqury(Long inquiryId);
 
     void markAsSold(Long listingId,Long userId);
 

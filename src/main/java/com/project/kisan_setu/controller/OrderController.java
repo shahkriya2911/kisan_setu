@@ -22,13 +22,15 @@ public class OrderController {
         this.validatorMethods = validatorMethods;
     }
 
-    @PostMapping("/create/{bidId}")
+    // accept bid
+    @PostMapping("/accept/{bidId}")
     public ResponseEntity<?> createOrder(@PathVariable Long bidId){
         logger.debug("Create order attempt for bid with id : {}",bidId);
         logger.info("Order created for bid with id : {}",bidId);
         return ResponseEntity.ok(orderService.createOrderFromAcceptedBid(bidId));
     }
 
+    // buyer will confirm seller accept
     @PostMapping("/{orderId}/confirm")
     public ResponseEntity<?> confirmOrder(@PathVariable Long orderId){
         logger.debug("Confirm Order attempt for order with id : {}",orderId);
@@ -37,11 +39,21 @@ public class OrderController {
         return ResponseEntity.ok(orderService.confirmOrder(orderId,buyerId));
     }
 
-    @PostMapping("/{orderId}/payment-success")
-    public ResponseEntity<?> paymentSuccess(@PathVariable Long orderId){
+    //buyer will reject accept
+    @PostMapping("/{orderId}/reject")
+    public ResponseEntity<?> rejectOrder(@PathVariable Long orderId){
+        logger.debug("Reject Order attempt for order with id : {}",orderId);
+        logger.info("Order rejected for order with id : {}",orderId);
+        orderService.rejectOrder(orderId);
+        return ResponseEntity.ok("Buyer rejected accepted bid");
+    }
+
+    // buyer payment
+    @PostMapping("/{orderId}/payment")
+    public ResponseEntity<?> payment(@PathVariable Long orderId){
         logger.debug("Payment Success attempt for order with id : {}",orderId);
         logger.info("Payment success for order with id : {}",orderId);
-        return ResponseEntity.ok(orderService.markPaymentSuccess(orderId));
+        return ResponseEntity.ok(orderService.markPayment(orderId));
     }
 
     @GetMapping("/{orderId}")

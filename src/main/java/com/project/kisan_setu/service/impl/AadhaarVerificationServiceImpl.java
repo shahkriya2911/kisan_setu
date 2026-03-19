@@ -124,7 +124,7 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
         verification.setVerified(true);
         verification.setVerifiedAt(LocalDateTime.now());
         aadhaarVerificationRepository.save(verification);
-        notificationService.notifyUser(user, " Your Aadhaar card has been verified successfully!");
+//        notificationService.notifyUser(user, " Your Aadhaar card has been verified successfully!");
         logger.info("aadhaar approved successfully");
         return buildResponse(verification, user, "Aadhaar approved successfully!");
     }
@@ -140,7 +140,7 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
         verification.setVerifiedAt(null);
         verification.setAadhaarImagePath(null); // reset so user resubmits
         aadhaarVerificationRepository.save(verification);
-        notificationService.notifyUser(user, "Your Aadhaar card has been Rejected...!");
+//        notificationService.notifyUser(user, "Your Aadhaar card has been Rejected...!");
 
         logger.info("aadhaar reject success...");
         return buildResponse(verification, user, "Aadhaar rejected! Please resubmit the Detail.");

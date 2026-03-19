@@ -8,11 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 
 public interface OrderService {
-    Order createOrderFromAcceptedBid(Long bidId);
+    OrderResponseDto createOrderFromAcceptedBid(Long bidId);
 
-    Order markPaymentSuccess(Long orderId);
+    OrderResponseDto markPayment(Long orderId);
 
-    Order confirmOrder(Long orderId, Long buyerId);
+    OrderResponseDto confirmOrder(Long orderId, Long buyerId);
+
+    void rejectOrder(Long orderId);
 
     void expirePendingOrders();
 

@@ -10,6 +10,8 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "bids")
@@ -43,6 +45,8 @@ public class Bid {
     @JoinColumn(name = "buyer_id")
     private User buyer;
 
+    @OneToMany(mappedBy = "bid")
+    private List<Notification> notifications = new ArrayList<>();
 
 
 }

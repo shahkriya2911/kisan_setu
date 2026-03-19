@@ -13,8 +13,10 @@ import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.entity.*;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ListingMapper {
@@ -111,7 +113,7 @@ public class ListingMapper {
         return dto;
     }
 
-    public static ListingFixedResponseDto toFixedResponseDto(Listing listing) {
+    public static ListingFixedResponseDto toFixedResponseDto(Listing listing,Long topBid) {
 
         if (listing == null) {
             return null;
@@ -148,6 +150,7 @@ public class ListingMapper {
         dto.setRemainingQuantity(listing.getRemainingQuantity());
 
         dto.setImages(mapImages(listing));
+        dto.setTopBid(topBid);
 
         return dto;
     }
@@ -305,7 +308,7 @@ public class ListingMapper {
                 })
                 .orElse(null);
     }
-    public static AuctionListingResponseDto toAuctionListingResponseDto(Listing listing) {
+    public static AuctionListingResponseDto toAuctionListingResponseDto(Listing listing, Long topBid) {
 
         if (listing == null) {
             return null;
@@ -353,6 +356,7 @@ public class ListingMapper {
         // Meta
         dto.setCreatedAt(listing.getCreatedAt());
         dto.setAuctionStatus(listing.getStatus());
+        dto.setTopBid(topBid);
 
         return dto;
     }

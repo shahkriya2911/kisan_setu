@@ -1,6 +1,7 @@
 package com.project.kisan_setu.dto;
 
 import com.project.kisan_setu.dto.ResponseDto.ProductImageResponseDto;
+import com.project.kisan_setu.entity.Bid;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -30,4 +31,5 @@ public class ListingFixedResponseDto {
     private LocalDate harvestDate;
     private String packagingType;
     private BigDecimal remainingQuantity;
+    private Long topBid;
 }

@@ -1,7 +1,9 @@
 package com.project.kisan_setu.service.impl;
 
+import com.project.kisan_setu.dto.AuctionListingResponseDto;
 import com.project.kisan_setu.dto.RequestDto.*;
 import com.project.kisan_setu.dto.ResponseDto.*;
+import com.project.kisan_setu.dto.ResponseDto.SellerListingFixedDto;
 import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.entity.*;
@@ -13,6 +15,7 @@ import com.project.kisan_setu.repository.*;
 import com.project.kisan_setu.service.FileStorageService;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.NotificationService;
+import com.project.kisan_setu.service.OrderService;
 import com.project.kisan_setu.service.RecentActivityService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
@@ -43,9 +46,9 @@ public class ListingServiceImpl implements ListingService {
     private final UserRepository userRepository;
     private final BidRepository bidRepository;
     private final NotificationService notificationService;
+    private final OrderService orderService;
     private final FileStorageService fileStorageService;
     private final ValidatorMethods validatorMethods;
-    private final BuyerInquiryRepository buyerInquiryRepository;
     private final OrderRepository orderRepository;
     private final BuyingRequirementRepository buyingRequirementRepository;
     private final StateRepository stateRepository;
@@ -373,113 +376,116 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public SellerListingDto getSellerListingDetail(Long listingId) {
-//        validatorMethods.validateUserAccess();
-        logger.info("Getting seller listing detail...");
+    public SellerListingDto getSellerAuctionListingDetail(Long listingId) {
+
+        logger.info("Getting seller auction listing detail...");
+
         Listing listing = validatorMethods.validateExists(listingId);
 
-        if (listing.getSaleType() == SaleType.AUCTION) {
-            BigDecimal currentHighestBid =
-                    bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(listingId)
-                            .map(Bid::getBuyerAmount)
-                            .orElse(listing.getTotalBasePrice());
-
-
-            List<BidResponseDto> top5Bids = bidRepository
-                    .findTop5ByListingListingIdOrderByBuyerAmountDesc(listingId)
-                    .stream()
-                    .map(bid -> new BidResponseDto(
-                            bid.getBuyer().getUserId(),
-                            bid.getBuyerAmount(),
-                            bid.getBuyer().getFullName(),
-                            bid.getBidTime(),
-                            BidStatus.NEW
-                    ))
-                    .toList();
-
-
-            long totalBids = bidRepository.countTotalBidsBySellerId(listingId);
-            long activeBidders = bidRepository.countActiveBidders(listingId);
-            logger.info("Fetching seller listing detail");
-            return new SellerListingDto(
-                    listing.getListingId(),
-                    listing.getCrop().getCropName(),
-                    listing.getVariety(),
-                    listing.getGrade(),
-                    listing.getQuantity(),
-                    listing.getPricePerKg(),
-                    listing.getUnit().getUnitName(),
-                    listing.getTotalBasePrice(),
-                    listing.getMinimumBidIncrement(),
-                    totalBids,
-                    activeBidders,
-                    listing.getStatus(),
-                    listing.getAuctionEndTime(),
-                    currentHighestBid,
-                    listing.getPurchaseType(),
-                    listing.getSaleType(),
-                    listing.getPostedOn(),
-                    listing.getState().getName(),
-                    listing.getDistrict().getName(),
-                    listing.getPickupMethod(),
-                    listing.getStorage().getStorageType(),
-                    top5Bids,
-                    null,
-                    ListingMapper.mapImages(listing),
-                    listing.getHarvestDate(),
-                    listing.getPackaging().getPackagingType(),
-                    listing.getRemainingQuantity()
-            );
-        } else {
-            List<BuyerInquiry> inquiries = buyerInquiryRepository.findByListingListingId(listingId);
-
-            List<InquiryResponseDto> inquiryList = inquiries.stream().map(
-                    inquiry -> new InquiryResponseDto(
-                            inquiry.getInquiryId(),
-                            inquiry.getListing().getListingId(),
-                            inquiry.getBuyer().getFullName(),
-                            inquiry.getListing().getCrop().getCropName(),
-                            inquiry.getQuantityRequested(),
-                            inquiry.getInquiryTime(),
-                            inquiry.getStatus(),
-                            inquiry.getRemainingQuantity()
-                    )).toList();
-
-            long totalInquires = inquiries.size();
-            logger.info("Fetching inquires");
-            return new SellerListingDto(
-                    listing.getListingId(),
-                    listing.getCrop().getCropName(),
-                    listing.getVariety(),
-                    listing.getGrade(),
-                    listing.getQuantity(),
-                    listing.getPricePerKg(),
-                    listing.getUnit().getUnitName(),
-                    listing.getTotalBasePrice(),
-                    null,
-                    null,
-                    null,
-                    listing.getStatus(),
-                    null,
-                    null,
-                    listing.getPurchaseType(),
-                    listing.getSaleType(),
-                    listing.getPostedOn(),
-                    listing.getState().getName(),
-                    listing.getDistrict().getName(),
-                    listing.getPickupMethod(),
-                    listing.getStorage().getStorageType(),
-                    null,
-                    totalInquires,
-                    ListingMapper.mapImages(listing),
-                    listing.getHarvestDate(),
-                    listing.getPackaging().getPackagingType(),
-                    listing.getRemainingQuantity()
-            );
-
-
+        if (listing.getSaleType() != SaleType.AUCTION) {
+            throw new RuntimeException("Not an auction listing");
         }
+
+        BigDecimal currentHighestBid =
+                bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(listingId)
+                        .map(Bid::getBuyerAmount)
+                        .orElse(listing.getTotalBasePrice());
+
+        List<BidResponseDto> top5Bids =
+                bidRepository
+                        .findTop5ByListingListingIdOrderByBuyerAmountDesc(listingId)
+                        .stream()
+                        .map(bid -> new BidResponseDto(
+                                bid.getBidId(),
+                                bid.getBuyer().getUserId(),
+                                bid.getBuyerAmount(),
+                                bid.getBuyer().getFullName(),
+                                bid.getBidTime(),
+                                BidStatus.NEW
+                        ))
+                        .toList();
+
+        long totalBids = bidRepository.countTotalBidsBySellerId(listingId);
+        long activeBidders = bidRepository.countActiveBidders(listingId);
+
+        return new SellerListingDto(
+                listing.getListingId(),
+                listing.getCrop().getCropName(),
+                listing.getVariety(),
+                listing.getGrade(),
+                listing.getQuantity(),
+                listing.getPricePerKg(),
+                listing.getUnit().getUnitName(),
+                listing.getTotalBasePrice(),
+                listing.getMinimumBidIncrement(),
+                totalBids,
+                activeBidders,
+                listing.getStatus(),
+                listing.getAuctionEndTime(),
+                currentHighestBid,
+                listing.getPurchaseType(),
+                listing.getSaleType(),
+                listing.getPostedOn(),
+                listing.getState().getName(),
+                listing.getDistrict().getName(),
+                listing.getPickupMethod(),
+                listing.getStorage().getStorageType(),
+                top5Bids,
+                null,
+                ListingMapper.mapImages(listing),
+                listing.getHarvestDate(),
+                listing.getPackaging().getPackagingType(),
+                listing.getRemainingQuantity()
+        );
     }
+
+@Override
+public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
+
+    logger.info("Getting seller fixed listing detail...");
+
+    Listing listing = validatorMethods.validateExists(listingId);
+
+    if (listing.getSaleType() != SaleType.FIXED) {
+        throw new RuntimeException("Not a fixed listing");
+    }
+
+    return new SellerListingFixedDto(
+
+            listing.getListingId(),
+
+            listing.getCrop().getCropName(),
+            listing.getVariety(),
+            listing.getGrade(),
+
+            listing.getHarvestDate(),
+
+            listing.getQuantity(),
+            listing.getRemainingQuantity(),
+
+            listing.getPackaging().getPackagingType(),
+            listing.getStorage().getStorageType(),
+
+            listing.getState().getName(),
+            listing.getDistrict().getName(),
+
+            listing.getPickupMethod(),
+
+            listing.getTotalBasePrice(),
+            listing.getPricePerKg(),
+
+            listing.getMoqPricePerKg(),
+
+            listing.getPostedOn(),
+
+            ListingMapper.mapImages(listing),
+
+            listing.getDescription(),
+
+            listing.getSaleType(),
+            listing.getPurchaseType()
+    );
+}
 
     @Override
     public DashboardDto getSellerOverview() {
@@ -494,54 +500,6 @@ public class ListingServiceImpl implements ListingService {
         BigDecimal totalRevenue = bidRepository.sumAmountByListingSellerId(sellerId);
         logger.info("Fetching seller overview success...");
         return new DashboardDto(activeListings, pendingApprovals, totalBidsReceived, totalRevenue);
-    }
-
-    @Override
-    @Transactional
-    public Order acceptInqury(Long inquiryId) {
-//        validatorMethods.validateUserAccess();
-        logger.info("Accepting inquiry...");
-        //convert email to user
-        logger.info("Validating user...");
-        Long userId = validatorMethods.getCurrentUserId();
-        User seller = validatorMethods.validateUserById(userId);
-        BuyerInquiry inquiry = buyerInquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new RuntimeException("Inquiry not found"));
-
-        Listing listing = inquiry.getListing();
-        if (listing.getStatus() != AuctionStatus.ACTIVE){
-            throw new RuntimeException("Listing is not active");
-        }
-        if (!listing.getSeller().getUserId().equals(seller.getUserId())) {
-            logger.error("Unauthorized action");
-            throw new RuntimeException("Unauthorized action...");
-        }
-
-        if (inquiry.getStatus() != InquiryStatus.PENDING) {
-            logger.error("Inquiry already processed...");
-            throw new RuntimeException("Inquiry already processed");
-        }
-        if (orderRepository.existsByListingAndBuyer(listing,inquiry.getBuyer())){
-            throw new RuntimeException("Order already exists for this inquiry");
-        }
-
-        inquiry.setStatus(InquiryStatus.ACCEPTED);
-        inquiry.setRespondedAt(LocalDateTime.now());
-        buyerInquiryRepository.save(inquiry);
-        Order order = new Order();
-        order.setListing(listing);
-        order.setBuyer(inquiry.getBuyer());
-        order.setSeller(listing.getSeller());
-        order.setQuantity(inquiry.getQuantityRequested());
-        order.setPricePerKg(listing.getPricePerKg());
-        BigDecimal total = listing.getPricePerKg().multiply(inquiry.getQuantityRequested());
-        order.setTotalBasePrice(total);
-        order.setAmount(total);
-        order.setStatus(OrderStatus.PENDING_BUYER_CONFIRMATION);
-        order.setCreatedAt(LocalDateTime.now());
-        orderRepository.save(order);
-        logger.info("Accept inquiry success...");
-        return order;
     }
 
 
@@ -577,23 +535,7 @@ public class ListingServiceImpl implements ListingService {
             order.setCreatedAt(LocalDateTime.now());
 
             orderRepository.save(order);
-        } else {
-            BuyerInquiry acceptedInquiry = buyerInquiryRepository
-                    .findByListingListingIdAndStatus(listingId, InquiryStatus.ACCEPTED)
-                    .orElseThrow(() ->
-                            new UserException("No accepted inquiry found."));
-            Order order = new Order();
-            order.setBuyer(acceptedInquiry.getBuyer());
-            order.setListing(listing);
-            order.setQuantity(acceptedInquiry.getQuantityRequested());
-            order.setCreatedAt(LocalDateTime.now());
-
-            orderRepository.save(order);
         }
-        logger.info("Listing marked as sold success....");
-        listing.setStatus(AuctionStatus.SOLD);
-
-
     }
 
 
@@ -625,11 +567,27 @@ public class ListingServiceImpl implements ListingService {
                 );
 
         return listings.map(listing -> {
+            Long topBid = bidRepository.
+                    findTopByListingListingIdOrderByBuyerAmountDesc(listing.getListingId())
+                    .map(Bid::getBidId).orElse(null);
 
             if (listing.getSaleType() == SaleType.AUCTION) {
-                return ListingMapper.toAuctionListingResponseDto(listing);
+
+                AuctionListingResponseDto dto =
+                        ListingMapper.toAuctionListingResponseDto(listing,topBid);
+
+                bidRepository
+                        .findTopByListingListingIdOrderByBuyerAmountDesc(
+                                listing.getListingId())
+                        .ifPresent(bid -> {
+                            dto.setHighestBid(bid.getBuyerAmount());
+                            dto.setTopBidderName(bid.getBuyer().getFullName());
+                        });
+
+                return dto;
+
             } else {
-                return ListingMapper.toFixedResponseDto(listing);
+                return ListingMapper.toFixedResponseDto(listing,topBid);
             }
 
         });
@@ -773,23 +731,8 @@ public class ListingServiceImpl implements ListingService {
     @Override
     public String acceptBid(Long bidId) {
         logger.info("Accepting bid...");
-        logger.info("Validation user...");
-        Long userId = validatorMethods.getCurrentUserId();
-
-        Bid bid = bidRepository.findById(bidId)
-                .orElseThrow(() -> new RuntimeException("Bid not found"));
-
-        if (!bid.getListing().getSeller().getUserId().equals(userId)) {
-            throw new RuntimeException("You are not authorized to accept this bid");
-        }
-
-        if (bid.getBidStatus() != BidStatus.NEW) {
-            throw new RuntimeException("Bid is already " + bid.getBidStatus());
-        }
-
-        bid.setBidStatus(BidStatus.ACCEPTED);
-        bidRepository.save(bid);
-        logger.info("Bid accepted success...");
+        orderService.createOrderFromAcceptedBid(bidId);
+        logger.info("Bid accepted successfully, order created and listing moved to pending.");
         return "Bid Accepted Successfully";
     }
 

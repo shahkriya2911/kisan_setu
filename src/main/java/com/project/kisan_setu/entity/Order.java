@@ -11,6 +11,8 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name="orders")
@@ -53,4 +55,7 @@ public class Order {
     private Bid acceptBid;
 
     private LocalDateTime confirmationDeadline;
+
+    @OneToMany(mappedBy = "order")
+    private List<Notification> notifications = new ArrayList<>();
 }

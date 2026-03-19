@@ -325,10 +325,10 @@ public class UserServiceImpl implements UserService {
                 ? "Your account is verified"
                 : "Some documents are pending verification";
 
-        if (fullyVerified) {
-            notificationService.notifyUser(user,
-                    " KYC Verification Complete! All documents verified.");
-        }
+//        if (fullyVerified) {
+//            notificationService.notifyUser(user,
+//                    " KYC Verification Complete! All documents verified.");
+//        }
 
         logger.info("KYC status fetched successfully for userId: {}", userId);
 

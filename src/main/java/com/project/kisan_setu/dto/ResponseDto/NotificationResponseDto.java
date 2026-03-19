@@ -1,10 +1,14 @@
 package com.project.kisan_setu.dto.ResponseDto;
 
+import com.project.kisan_setu.entity.StateMaster;
+import com.project.kisan_setu.enums.NotificationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,6 +21,24 @@ public class NotificationResponseDto {
 
     private Boolean isRead;
 
+    private NotificationStatus type;
+
     private LocalDateTime createdTime;
 
+    // extra info
+    private Long listingId;
+    private Long bidId;
+    private Long orderId;
+
+    private String cropName;
+    private String variety;
+    private BigDecimal bidAmount;
+    private BigDecimal quantity;
+    private String unit;
+
+    private String sellerName;
+    private List<ProductImageResponseDto> images;
+    private BigDecimal pricePerKg;
+    private String state;
+    private String district;
 }

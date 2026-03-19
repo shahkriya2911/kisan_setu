@@ -109,7 +109,7 @@ public class BankAccountVerificationServiceImpl implements BankAccountVerificati
         verification.setVerified(true);
         verification.setVerifiedAt(LocalDateTime.now());
         bankAccountVerificationRepository.save(verification);
-        notificationService.notifyUser(user, "Your bank account has been verified and linked successfully!");
+//        notificationService.notifyUser(user, "Your bank account has been verified and linked successfully!");
         logger.info("Bank account approval success...");
         return buildResponse(verification, user, "Bank account approved successfully!");
     }
@@ -130,7 +130,7 @@ public class BankAccountVerificationServiceImpl implements BankAccountVerificati
         verification.setAadhaarPath(null);
         verification.setPanCardPath(null);
         bankAccountVerificationRepository.save(verification);
-        notificationService.notifyUser(user, "Your bank account has been verified and linked Rejected!");
+//        notificationService.notifyUser(user, "Your bank account has been verified and linked Rejected!");
 
         logger.info("Bank account rejection success");
         return buildResponse(verification, user,

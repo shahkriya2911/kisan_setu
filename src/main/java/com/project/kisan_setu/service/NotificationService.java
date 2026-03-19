@@ -1,13 +1,15 @@
 package com.project.kisan_setu.service;
 
-import com.project.kisan_setu.entity.Notification;
-import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.dto.ResponseDto.NotificationResponseDto;
+import com.project.kisan_setu.entity.*;
+import com.project.kisan_setu.enums.NotificationStatus;
 
 import java.util.List;
 
 public interface NotificationService {
-    public void notifyUser(User user, String message);
-    List<Notification> getBuyerNotifications(User buyer);
+    public void createNotification(User user, String message, NotificationStatus type,
+                                   Listing listing, Bid bid, Order order);
+    List<NotificationResponseDto> getUserNotifications(Long userId);
 
-    void notifyBuyer(User buyer, String message);
+    void markAsRead(Long id);
 }

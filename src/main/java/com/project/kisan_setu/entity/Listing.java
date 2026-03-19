@@ -131,6 +131,8 @@ public class Listing {
     @JoinColumn(name = "district_id")
     private DistrictMaster district;
 
+    @OneToMany(mappedBy = "listing")
+    private List<Notification> notifications = new ArrayList<>();
 
 
 

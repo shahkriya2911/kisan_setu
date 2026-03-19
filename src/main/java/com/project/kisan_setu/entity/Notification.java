@@ -1,5 +1,6 @@
 package com.project.kisan_setu.entity;
 
+import com.project.kisan_setu.enums.NotificationStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,7 +22,22 @@ public class Notification {
     private LocalDateTime createdAt = LocalDateTime.now();
     @ManyToOne
     @JoinColumn(name="user_id")
-    private User buyer;
+    private User user;
+
+    @Enumerated(EnumType.STRING)
+    private NotificationStatus type;
+
+    @ManyToOne
+    @JoinColumn(name = "listing_id")
+    private Listing listing;
+
+    @ManyToOne
+    @JoinColumn(name = "bid_id")
+    private Bid bid;
+
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
 
 
 }

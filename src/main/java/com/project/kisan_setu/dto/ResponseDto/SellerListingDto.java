@@ -20,7 +20,7 @@ public class SellerListingDto {
     private String grade;
     private BigDecimal quantity;
     private BigDecimal pricePerKg;
-    private String unitId;
+    private String unit;
 
     private BigDecimal totalBasePrice;
     private BigDecimal minimumBidIncrement;
