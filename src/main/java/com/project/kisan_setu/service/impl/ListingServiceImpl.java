@@ -3,7 +3,8 @@ package com.project.kisan_setu.service.impl;
 import com.project.kisan_setu.dto.AuctionListingResponseDto;
 import com.project.kisan_setu.dto.RequestDto.*;
 import com.project.kisan_setu.dto.ResponseDto.*;
-import com.project.kisan_setu.dto.ResponseDto.SellerListingFixedDto;
+
+import com.project.kisan_setu.dto.SellerListingFixedDto;
 import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.entity.*;
@@ -38,7 +39,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class ListingServiceImpl implements ListingService {
 
     private final ListingRepository listingRepository;
@@ -57,6 +57,24 @@ public class ListingServiceImpl implements ListingService {
     private final StorageRepository storageRepository;
     private final PackagingRepository packagingRepository;
     private static final Logger logger = LoggerFactory.getLogger(ListingServiceImpl.class);
+
+    public ListingServiceImpl(ListingRepository listingRepository, UserRepository userRepository, BidRepository bidRepository, NotificationService notificationService, OrderService orderService, FileStorageService fileStorageService, ValidatorMethods validatorMethods, OrderRepository orderRepository, BuyingRequirementRepository buyingRequirementRepository, StateRepository stateRepository, DistrictRepository districtRepository, CropRepository cropRepository, UnitRepository unitRepository, StorageRepository storageRepository, PackagingRepository packagingRepository) {
+        this.listingRepository = listingRepository;
+        this.userRepository = userRepository;
+        this.bidRepository = bidRepository;
+        this.notificationService = notificationService;
+        this.orderService = orderService;
+        this.fileStorageService = fileStorageService;
+        this.validatorMethods = validatorMethods;
+        this.orderRepository = orderRepository;
+        this.buyingRequirementRepository = buyingRequirementRepository;
+        this.stateRepository = stateRepository;
+        this.districtRepository = districtRepository;
+        this.cropRepository = cropRepository;
+        this.unitRepository = unitRepository;
+        this.storageRepository = storageRepository;
+        this.packagingRepository = packagingRepository;
+    }
 
 
     @Override
@@ -134,12 +152,6 @@ public class ListingServiceImpl implements ListingService {
         listing.setRemainingQuantity(pricingDto.getQuantity());
 
         Listing saved = listingRepository.save(listing);
-        recentActivityService.logActivity(
-                "LISTING_ADDED",
-                "Seller " + seller.getFullName() + " added a new crop: " + saved.getCrop(),
-                seller.getUserId(),
-                null // no buyer yet
-        );
 
         logger.info("Listing created successfully ID: {}", saved.getListingId());
         return ListingMapper.toResponse(saved);
