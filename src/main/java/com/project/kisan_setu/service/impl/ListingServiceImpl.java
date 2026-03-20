@@ -56,7 +56,6 @@ public class ListingServiceImpl implements ListingService {
     private final UnitRepository unitRepository;
     private final StorageRepository storageRepository;
     private final PackagingRepository packagingRepository;
-    private final RecentActivityService recentActivityService;
     private static final Logger logger = LoggerFactory.getLogger(ListingServiceImpl.class);
 
 
