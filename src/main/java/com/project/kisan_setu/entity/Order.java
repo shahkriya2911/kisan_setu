@@ -65,7 +65,8 @@ public class Order {
 
     private LocalDateTime otpGeneratedAt;
 
-    private boolean otpVerified;
+    @Column(nullable = false)
+    private boolean otpVerified = false;
 
     private Integer otpAttempts = 0;
 

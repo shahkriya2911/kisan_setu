@@ -13,5 +13,9 @@ public interface OrderHistoryService {
     List<OrderHistoryResponseDto> getSoldOrderHistory();
     String submitSellerReview(Long orderId, ReviewRequestDto requestDto);
     String reportSeller(Long orderId, ReportSellerRequestDto requestDto);
+    void verifyReceiptOtp(Long orderId, Long buyerId, String otpInput);
+    void validateSellerCanDownload(Long orderId, Long buyerId);
+    byte[] generateReceipt(Long orderId);
+    String verifyDeliveryOtp(Long orderId, Long sellerId, String otp);
 
 }

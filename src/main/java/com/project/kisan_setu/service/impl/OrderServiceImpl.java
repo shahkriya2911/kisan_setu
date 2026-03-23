@@ -59,7 +59,7 @@ public class OrderServiceImpl implements OrderService {
         if (listing.getStatus() != AuctionStatus.ACTIVE) {
             throw new RuntimeException("Listing is not ready for order creation");
         }
-        if (orderRepository.existsByAcceptBid(bid)){
+        if (orderRepository.existsByAcceptBid(bid)) {
             throw new RuntimeException("Order already created through this bid");
         }
         if (bid.getBidStatus() == BidStatus.REJECTED || bid.getBidStatus() == BidStatus.EXPIRED) {
@@ -87,16 +87,16 @@ public class OrderServiceImpl implements OrderService {
         notificationService.createNotification(
                 bid.getBuyer(),
                 "Your bid has been accepted. Please confirm purchase.",
-                NotificationStatus.BID_ACCEPTED,listing,bid,order
+                NotificationStatus.BID_ACCEPTED, listing, bid, order
         );
         return OrderMapper.toDto(order);
     }
 
     @Override
     @Transactional
-    public OrderResponseDto markPayment(Long orderId){
-        Order order = orderRepository.findById(orderId).orElseThrow(()->new RuntimeException("Order not found"));
-        if (order.getStatus() != OrderStatus.PAYMENT_PENDING){
+    public OrderResponseDto markPayment(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+        if (order.getStatus() != OrderStatus.PAYMENT_PENDING) {
             throw new RuntimeException("Payment not expected");
         }
         order.setStatus(OrderStatus.PAYMENT_HELD);
@@ -135,12 +135,12 @@ public class OrderServiceImpl implements OrderService {
         notificationService.createNotification(
                 order.getSeller(),
                 "Payment received for your listing #" + order.getListing().getListingId(),
-                NotificationStatus.PAYMENT_RECEIVED,listing,null,order
+                NotificationStatus.PAYMENT_RECEIVED, listing, null, order
         );
         notificationService.createNotification(
                 order.getBuyer(),
                 "Your delivery OTP for order #" + order.getOrderId() + " is " + otp,
-                NotificationStatus.DELIVERY_OTP_SENT,listing,null,order
+                NotificationStatus.DELIVERY_OTP_SENT, listing, null, order
         );
         return OrderMapper.toDto(order);
     }
@@ -148,14 +148,14 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public OrderResponseDto confirmOrder(Long orderId, Long buyerId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(()->new RuntimeException("Order not found"));
-        if (!order.getBuyer().getUserId().equals(buyerId)){
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+        if (!order.getBuyer().getUserId().equals(buyerId)) {
             throw new RuntimeException("Unauthorized Buyer");
         }
-        if (order.getStatus()!=OrderStatus.PENDING_BUYER_CONFIRMATION){
+        if (order.getStatus() != OrderStatus.PENDING_BUYER_CONFIRMATION) {
             throw new RuntimeException("Order cannot be confirmed");
         }
-        if (LocalDateTime.now().isAfter(order.getConfirmationDeadline())){
+        if (LocalDateTime.now().isAfter(order.getConfirmationDeadline())) {
             order.setStatus(OrderStatus.EXPIRED);
             orderRepository.save(order);
             throw new RuntimeException("Order expired");
@@ -165,21 +165,21 @@ public class OrderServiceImpl implements OrderService {
         notificationService.createNotification(
                 order.getSeller(),
                 "Buyer confirmed order for listing #" + order.getListing().getListingId(),
-                NotificationStatus.ORDER_CONFIRMED,null,null,order
+                NotificationStatus.ORDER_CONFIRMED, null, null, order
         );
         return OrderMapper.toDto(order);
     }
 
     @Transactional
     @Override
-    public void rejectOrder(Long orderId){
+    public void rejectOrder(Long orderId) {
         Order order = orderRepository.findById(orderId).
-                orElseThrow(()->new RuntimeException("Order not found"));
+                orElseThrow(() -> new RuntimeException("Order not found"));
         Long buyerId = validatorMethods.getCurrentUserId();
-        if (!order.getBuyer().getUserId().equals(buyerId)){
+        if (!order.getBuyer().getUserId().equals(buyerId)) {
             throw new RuntimeException("Unauthorized Buyer");
         }
-        if (order.getStatus() != OrderStatus.PENDING_BUYER_CONFIRMATION){
+        if (order.getStatus() != OrderStatus.PENDING_BUYER_CONFIRMATION) {
             throw new RuntimeException("Order cannot be rejected");
         }
         order.setStatus(OrderStatus.CANCELLED);
@@ -193,16 +193,16 @@ public class OrderServiceImpl implements OrderService {
         listing.setStatus(AuctionStatus.ACTIVE);
         listingRepository.save(listing);
         orderRepository.save(order);
-        notificationService.createNotification(listing.getSeller(),"Buyer rejected the accepted bid",
-                NotificationStatus.ORDER_CANCELLED,listing,bid,order);
+        notificationService.createNotification(listing.getSeller(), "Buyer rejected the accepted bid",
+                NotificationStatus.ORDER_CANCELLED, listing, bid, order);
     }
 
     @Override
     public void expirePendingOrders() {
         List<Order> orders = orderRepository.
                 findByStatusAndConfirmationDeadlineBefore(OrderStatus.PENDING_BUYER_CONFIRMATION,
-                LocalDateTime.now());
-        for (Order order : orders){
+                        LocalDateTime.now());
+        for (Order order : orders) {
             order.setStatus(OrderStatus.EXPIRED);
             Bid bid = order.getAcceptBid();
             if (bid != null) {
@@ -215,7 +215,7 @@ public class OrderServiceImpl implements OrderService {
             notificationService.createNotification(
                     order.getSeller(),
                     "Buyer didn't confirmed order for listing #" + order.getListing().getListingId(),
-                    NotificationStatus.ORDER_EXPIRED,listing,bid,order
+                    NotificationStatus.ORDER_EXPIRED, listing, bid, order
             );
         }
         orderRepository.saveAll(orders);
@@ -224,7 +224,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order getOrder(Long orderId) {
-        return orderRepository.findById(orderId).orElseThrow(()->new RuntimeException("Order not found"));
+        return orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
     @Override
@@ -300,14 +300,14 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderResponseDto wholeLot(Long listingId) {
         Listing listing = listingRepository.findByIdForUpdate(listingId)
-                .orElseThrow(()->new RuntimeException("Listing not found"));
-        if (listing.getSaleType() != SaleType.FIXED){
+                .orElseThrow(() -> new RuntimeException("Listing not found"));
+        if (listing.getSaleType() != SaleType.FIXED) {
             throw new RuntimeException("Listing is not of fixed type");
         }
-        if (listing.getStatus() != AuctionStatus.ACTIVE){
+        if (listing.getStatus() != AuctionStatus.ACTIVE) {
             throw new RuntimeException("Listing is not active");
         }
-        if (listing.getPurchaseType() != PurchaseType.WHOLE_LOT_ONLY){
+        if (listing.getPurchaseType() != PurchaseType.WHOLE_LOT_ONLY) {
             throw new RuntimeException("Listing is not of whole lot");
         }
         Long buyerId = validatorMethods.getCurrentUserId();
@@ -316,7 +316,7 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("Seller cannot buy own listing");
         }
         BigDecimal available = listing.getQuantity();
-        if (available == null || available.compareTo(BigDecimal.ZERO) <= 0){
+        if (available == null || available.compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("Listing is sold");
         }
         BigDecimal totalPrice = listing.getPricePerKg().multiply(available);
@@ -336,8 +336,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponseDto cancelOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(()->new RuntimeException("Order not found"));
-        if (order.getStatus() == OrderStatus.CANCELLED){
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        if (order.getStatus() == OrderStatus.CANCELLED) {
             throw new RuntimeException("Order already cancelled");
         }
         if (order.getStatus() == OrderStatus.PAYMENT_HELD
@@ -351,8 +351,8 @@ public class OrderServiceImpl implements OrderService {
         listing.setStatus(AuctionStatus.ACTIVE);
         listingRepository.save(listing);
         orderRepository.save(order);
-        notificationService.createNotification(order.getBuyer(),"Order cancelled by buyer",
-                NotificationStatus.ORDER_CANCELLED,listing,null,order);
+        notificationService.createNotification(order.getBuyer(), "Order cancelled by buyer",
+                NotificationStatus.ORDER_CANCELLED, listing, null, order);
         return OrderMapper.toDto(order);
     }
 
@@ -381,52 +381,4 @@ public class OrderServiceImpl implements OrderService {
         return OrderMapper.toDto(order);
     }
 
-    @Transactional
-    @Override
-    public String verifyDeliveryOtp(Long orderId, String otp) {
-        Order order = orderRepository.findById(orderId).
-                orElseThrow(()->new RuntimeException("Order not found"));
-        if (order.isOtpVerified()){
-            throw new RuntimeException("Otp already used");
-        }
-        if (order.getStatus() != OrderStatus.PAYMENT_HELD
-                && order.getStatus() != OrderStatus.OUT_FOR_DELIVERY) {
-            throw new RuntimeException("Order is not ready for delivery confirmation");
-        }
-        if (order.getDeliveryOtp() == null || order.getOtpGeneratedAt() == null) {
-            throw new RuntimeException("OTP not generated for this order");
-        }
-        if (order.getOtpGeneratedAt().plusHours(24).isBefore(LocalDateTime.now())){
-            throw new RuntimeException("Otp expired");
-        }
-        if (!order.getDeliveryOtp().equals(otp)) {
-
-            int attempts = (order.getOtpAttempts() == null ? 0 : order.getOtpAttempts()) + 1;
-            order.setOtpAttempts(attempts);
-            orderRepository.save(order);
-
-            if (attempts >= 5) {
-                throw new RuntimeException("Too many invalid attempts");
-            }
-
-            throw new RuntimeException("Invalid OTP");
-        }
-        order.setOtpVerified(true);
-
-        order.setStatus(OrderStatus.COMPLETED);
-
-        order.setEscrowStatus(EscrowStatus.RELEASED);
-
-        orderRepository.save(order);
-
-        notificationService.createNotification(
-                order.getSeller(),
-                "Payment released for order #" + order.getOrderId(),
-                NotificationStatus.PAYMENT_RELEASED,
-                order.getListing(),
-                null,
-                order
-        );
-        return "Delivery confirmed, payment released.";
-    }
 }

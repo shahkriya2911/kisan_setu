@@ -9,5 +9,6 @@ public enum NotificationStatus {
     ORDER_EXPIRED,
     DELIVERY_OTP_SENT,
     OUT_FOR_DELIVERY,
-    PAYMENT_RELEASED
+    PAYMENT_RELEASED,
+    OTP_NOTIFICATION
 }

@@ -79,16 +79,6 @@ public class OrderController {
         return ResponseEntity.ok(orderService.cancelOrder(orderId));
     }
 
-    @PostMapping("/{orderId}/verify-otp")
-    public ResponseEntity<?> verifyOtp(
-            @PathVariable Long orderId,
-            @Valid @RequestBody OtpVerificationRequestDto request
-    ) {
-
-        return ResponseEntity.ok(
-                orderService.verifyDeliveryOtp(orderId, request.getOtp())
-        );
-    }
 
     @PostMapping("/{orderId}/out-for-delivery")
     public ResponseEntity<OrderResponseDto> markOutForDelivery(@PathVariable Long orderId){

@@ -1,5 +1,6 @@
 package com.project.kisan_setu.controller;
 
+import com.project.kisan_setu.dto.RequestDto.OtpVerificationRequestDto;
 import com.project.kisan_setu.dto.RequestDto.ReportSellerRequestDto;
 import com.project.kisan_setu.dto.RequestDto.ReviewRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.OrderHistoryResponseDto;
@@ -46,5 +47,28 @@ public class OrderHistoryController {
 
         return ResponseEntity.ok(orderHistoryService.reportSeller(orderId, requestDto));
     }
+
+    @PostMapping("/{orderId}/verify-delivery-otp")
+    public ResponseEntity<?> verifyDeliveryOtp(@PathVariable Long orderId,
+                                               @RequestParam Long sellerId,
+                                               @RequestParam String otp) {
+
+        return ResponseEntity.ok(
+                orderHistoryService.verifyDeliveryOtp(orderId, sellerId, otp)
+        );
+    }
+    @GetMapping("/{orderId}/download-receipt")
+    public ResponseEntity<?> downloadReceipt(@PathVariable Long orderId,
+                                             @RequestParam Long buyerId) {
+
+       orderHistoryService.validateSellerCanDownload(orderId, buyerId);
+        byte[] pdf = orderHistoryService.generateReceipt(orderId);
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=receipt_" + orderId + ".pdf")
+                .header("Content-Type", "application/pdf")
+                .body(pdf);
+    }
+
 
 }

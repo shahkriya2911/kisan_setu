@@ -2,17 +2,20 @@ package com.project.kisan_setu.service.impl;
 import com.project.kisan_setu.dto.RequestDto.ReportSellerRequestDto;
 import com.project.kisan_setu.dto.RequestDto.ReviewRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.OrderHistoryResponseDto;
-import com.project.kisan_setu.entity.Order;
-import com.project.kisan_setu.entity.RatingAndReview;
-import com.project.kisan_setu.entity.Report;
+import com.project.kisan_setu.entity.*;
+import com.project.kisan_setu.enums.EscrowStatus;
+import com.project.kisan_setu.enums.NotificationStatus;
 import com.project.kisan_setu.enums.OrderStatus;
 import com.project.kisan_setu.repository.OrderRepository;
+import com.project.kisan_setu.repository.OtpRepository;
 import com.project.kisan_setu.repository.RatingReviewRepository;
 import com.project.kisan_setu.repository.ReportSellerRepository;
+import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.service.OrderHistoryService;
+import com.project.kisan_setu.util.OtpGenerator;
 import com.project.kisan_setu.util.ValidatorMethods;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +27,9 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
     private final ValidatorMethods validatorMethods;
     private final RatingReviewRepository ratingReviewRepository;
     private final ReportSellerRepository reportSellerRepository;
+    private final OtpGenerator otpGenerator;
+    private final OtpRepository otpRepository;
+    private final NotificationService notificationService;
     @Override
     public List<OrderHistoryResponseDto> getAllOrderHistory() {
         Long userId = validatorMethods.getCurrentUserId();
@@ -39,7 +45,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         return orderRepository.findByBuyer_UserId(userId)
                 .stream()
                 .filter(order -> order.getStatus() == OrderStatus.PAYMENT_PENDING
-                        || order.getStatus() == OrderStatus.PAID)
+                        || order.getStatus() == OrderStatus.COMPLETED)
                 .map(order -> mapToDto(order, userId))
                 .toList();
     }
@@ -49,7 +55,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         Long userId = validatorMethods.getCurrentUserId();
         return orderRepository.findBySeller_UserId(userId)
                 .stream()
-                .filter(order -> order.getStatus() == OrderStatus.PAID)
+                .filter(order -> order.getStatus() == OrderStatus.COMPLETED)
                 .map(order -> mapToDto(order, userId))
                 .toList();
     }
@@ -65,7 +71,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
             throw new RuntimeException("You are not allowed to review this order");
         }
 
-        if (order.getStatus() != OrderStatus.PAID) {
+        if (order.getStatus() != OrderStatus.COMPLETED) {
             throw new RuntimeException("Review allowed only for completed orders");
         }
 
@@ -116,6 +122,62 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
     }
 
 
+    @Override
+    public void verifyReceiptOtp(Long orderId, Long buyerId, String otpInput) {
+        OrderOtp orderOtp = otpRepository
+                .findTopByOrderIdAndBuyerIdOrderByIdDesc(orderId, buyerId)
+                .orElseThrow(() -> new RuntimeException("OTP not found"));
+
+        if (orderOtp.getAttempts() >= 3) {
+            throw new RuntimeException("Too many attempts. Try again later.");
+        }
+
+        if (orderOtp.getExpiryTime().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("OTP expired");
+        }
+
+        if (!orderOtp.getOtp().equals(otpInput)) {
+            orderOtp.setAttempts(orderOtp.getAttempts() + 1);
+            otpRepository.save(orderOtp);
+            throw new RuntimeException("Invalid OTP");
+        }
+
+        if (orderOtp.isVerified()) {
+            throw new RuntimeException("OTP already used");
+        }
+        orderOtp.setVerified(true);
+        otpRepository.save(orderOtp);
+
+    }
+    public void validateSellerCanDownload(Long orderId, Long buyerId) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (!order.getBuyer().getUserId().equals(buyerId)) {
+            throw new RuntimeException("Unauthorized: Not your order");
+        }
+
+        OrderOtp orderOtp =otpRepository
+                .findByOrderIdAndBuyerIdAndVerifiedTrue(orderId, buyerId)
+                .orElseThrow(() -> new RuntimeException("OTP verification required"));
+
+        if (orderOtp.getExpiryTime().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("OTP expired. Request again.");
+        }
+
+        orderOtp.setVerified(false);
+        otpRepository.save(orderOtp);
+    }
+
+    public byte[] generateReceipt(Long orderId) {
+
+        String content = "Receipt for Order ID: " + orderId;
+
+        return content.getBytes();
+    }
+
+
 
     private OrderHistoryResponseDto mapToDto(Order order, Long userId) {
         boolean isBuyer = order.getBuyer()!=null && order.getBuyer().getUserId().equals(userId);
@@ -142,10 +204,68 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         if(order.getStatus() == OrderStatus.PAYMENT_PENDING){
             return "PAYMENT_PENDING";
         }
-        if(order.getStatus() == OrderStatus.PAID)
+        if(order.getStatus() == OrderStatus.COMPLETED)
         {
             return isBuyer ? "IN_ESCROW" : "RELEASED";
         }
         return order.getStatus().name();
+    }
+    @Transactional
+    @Override
+    public String verifyDeliveryOtp(Long orderId, Long sellerId, String otp) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+
+        if (!order.getSeller().getUserId().equals(sellerId)) {
+            throw new RuntimeException("Only seller can verify delivery OTP");
+        }
+
+        if (order.isOtpVerified()) {
+            throw new RuntimeException("OTP already used");
+        }
+
+        if (order.getStatus() != OrderStatus.OUT_FOR_DELIVERY) {
+            throw new RuntimeException("Order not out for delivery");
+        }
+
+        if (order.getDeliveryOtp() == null) {
+            throw new RuntimeException("OTP not generated");
+        }
+
+        if (order.getOtpGeneratedAt().plusHours(168).isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("OTP expired");
+        }
+
+        if (!order.getDeliveryOtp().equals(otp)) {
+
+            int attempts = (order.getOtpAttempts() == null ? 0 : order.getOtpAttempts()) + 1;
+            order.setOtpAttempts(attempts);
+
+            if (attempts >= 5) {
+                throw new RuntimeException("Too many attempts");
+            }
+
+            orderRepository.save(order);
+            throw new RuntimeException("Invalid OTP");
+        }
+
+        order.setOtpVerified(true);
+        order.setStatus(OrderStatus.COMPLETED);
+        order.setEscrowStatus(EscrowStatus.RELEASED);
+
+        orderRepository.save(order);
+
+        notificationService.createNotification(
+                order.getSeller(),
+                "Payment released for order #" + order.getOrderId(),
+                NotificationStatus.PAYMENT_RELEASED,
+                order.getListing(),
+                null,
+                order
+        );
+
+        return "Delivery confirmed, payment released.";
     }
 }
