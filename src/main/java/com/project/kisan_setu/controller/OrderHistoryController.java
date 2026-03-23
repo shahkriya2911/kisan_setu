@@ -1,0 +1,50 @@
+package com.project.kisan_setu.controller;
+
+import com.project.kisan_setu.dto.RequestDto.ReportSellerRequestDto;
+import com.project.kisan_setu.dto.RequestDto.ReviewRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.OrderHistoryResponseDto;
+import com.project.kisan_setu.service.OrderHistoryService;
+import com.project.kisan_setu.service.OrderService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("api/orderHistory")
+@RequiredArgsConstructor
+public class OrderHistoryController {
+    private final OrderHistoryService orderHistoryService;
+    @GetMapping
+    public ResponseEntity<List<OrderHistoryResponseDto>> getAllOrderHistory() {
+        return ResponseEntity.ok(orderHistoryService.getAllOrderHistory());
+    }
+
+    @GetMapping("/purchased")
+    public ResponseEntity<List<OrderHistoryResponseDto>> getPurchasedOrderHistory() {
+        return ResponseEntity.ok(orderHistoryService.getPurchasedOrderHistory());
+    }
+
+    @GetMapping("/sold")
+    public ResponseEntity<List<OrderHistoryResponseDto>> getSoldOrderHistory() {
+        return ResponseEntity.ok(orderHistoryService.getSoldOrderHistory());
+    }
+
+    @PostMapping("/{orderId}/review")
+    public ResponseEntity<String> submitSellerReview(
+            @PathVariable Long orderId,
+            @Valid @RequestBody ReviewRequestDto requestDto) {
+        return ResponseEntity.ok(orderHistoryService.submitSellerReview(orderId, requestDto));
+    }
+
+    @PostMapping("/report/{orderId}")
+    public ResponseEntity<String> reportSeller(
+            @PathVariable Long orderId,
+            @RequestBody ReportSellerRequestDto requestDto) {
+
+        return ResponseEntity.ok(orderHistoryService.reportSeller(orderId, requestDto));
+    }
+
+}
