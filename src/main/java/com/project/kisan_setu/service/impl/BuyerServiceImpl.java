@@ -104,12 +104,6 @@ public class BuyerServiceImpl implements BuyerService {
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
         User buyer = validatorMethods.validateUserById(userId);
 
-        // Initialize remaining quantity if null
-        if (listing.getRemainingQuantity() == null) {
-            listing.setRemainingQuantity(listing.getQuantity());
-            listingRepository.save(listing);
-        }
-
         // Seller cannot buy own listing
         if (listing.getSeller().getUserId().equals(buyer.getUserId())) {
             throw new RuntimeException("Seller cannot buy own listing");

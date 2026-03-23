@@ -149,7 +149,6 @@ public class ListingServiceImpl implements ListingService {
                 pricingDto.getPricePerKg()
                         .multiply(pricingDto.getQuantity());
         listing.setTotalBasePrice(totalBasePrice);
-        listing.setRemainingQuantity(pricingDto.getQuantity());
 
         Listing saved = listingRepository.save(listing);
 
@@ -444,8 +443,7 @@ public class ListingServiceImpl implements ListingService {
                 null,
                 ListingMapper.mapImages(listing),
                 listing.getHarvestDate(),
-                listing.getPackaging().getPackagingType(),
-                listing.getRemainingQuantity()
+                listing.getPackaging().getPackagingType()
         );
     }
 
@@ -471,7 +469,6 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
             listing.getHarvestDate(),
 
             listing.getQuantity(),
-            listing.getRemainingQuantity(),
 
             listing.getPackaging().getPackagingType(),
             listing.getStorage().getStorageType(),

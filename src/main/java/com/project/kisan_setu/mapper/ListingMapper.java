@@ -54,7 +54,6 @@ public class ListingMapper {
         // Partial Order
         dto.setMinimumOrderQuantity(listing.getMinimumOrderQuantity());
         dto.setMoqPricePerKg(listing.getMoqPricePerKg());
-        dto.setRemainingQuantity(listing.getRemainingQuantity());
         if (listing.getState() != null) {
             dto.setState(listing.getState().getName());
         }
@@ -124,7 +123,7 @@ public class ListingMapper {
         dto.setListingId(listing.getListingId());
         dto.setCropName(listing.getCrop().getCropName());
         dto.setVariety(listing.getVariety());
-        dto.setGrade(listing.getGrade());
+//        dto.setGrade(listing.getGrade());
 
         dto.setQuantity(listing.getQuantity());
         dto.setPricePerKg(listing.getPricePerKg());
@@ -141,13 +140,11 @@ public class ListingMapper {
         dto.setState(listing.getState().getName());
         dto.setDistrict(listing.getDistrict().getName());
 
-        dto.setPickupMethod(listing.getPickupMethod());
-        dto.setStorage(listing.getStorage().getStorageType());
+//        dto.setPickupMethod(listing.getPickupMethod());
+//        dto.setStorage(listing.getStorage().getStorageType());
 
-        dto.setHarvestDate(listing.getHarvestDate());
-        dto.setPackagingType(listing.getPackaging().getPackagingType());
-
-        dto.setRemainingQuantity(listing.getRemainingQuantity());
+//        dto.setHarvestDate(listing.getHarvestDate());
+//        dto.setPackagingType(listing.getPackaging().getPackagingType());
 
         dto.setImages(mapImages(listing));
         dto.setTopBid(topBid);
@@ -186,8 +183,6 @@ public class ListingMapper {
         listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
         listing.setSaleType(pricingDto.getSaleType());
         listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
-        listing.setRemainingQuantity(pricingDto.getRemainingQuantity());
-
         // Partial Order
         listing.setMinimumOrderQuantity(pricingDto.getMinimumOrderQuantity());
         listing.setMoqPricePerKg(pricingDto.getMoqPricePerKg());
@@ -234,7 +229,6 @@ public class ListingMapper {
 
         listing.setQuantity(pricingDto.getQuantity());
         listing.setUnit(unit);
-        listing.setRemainingQuantity(pricingDto.getRemainingQuantity());
         listing.setPurchaseType(pricingDto.getPurchaseType());
         listing.setMinimumOrderQuantity(pricingDto.getMinimumOrderQuantity());
         listing.setMoqPricePerKg(pricingDto.getMoqPricePerKg());
@@ -320,8 +314,8 @@ public class ListingMapper {
         dto.setListingId(listing.getListingId());
         dto.setCropName(listing.getCrop().getCropName());
         dto.setVariety(listing.getVariety());
-        dto.setGrade(listing.getGrade());
-        dto.setHarvestDate(listing.getHarvestDate());
+//        dto.setGrade(listing.getGrade());
+//        dto.setHarvestDate(listing.getHarvestDate());
         dto.setQuantity(listing.getQuantity());
         dto.setUnit(listing.getUnit().getUnitName());
 
@@ -333,19 +327,18 @@ public class ListingMapper {
 
         // Partial Order fields
         dto.setMinimumOrderQuantity(listing.getMinimumOrderQuantity());
-        dto.setMoqPricePerKg(listing.getMoqPricePerKg());
-        dto.setRemainingQuantity(listing.getRemainingQuantity());
+//        dto.setMoqPricePerKg(listing.getMoqPricePerKg());
 
         // Auction fields
-        dto.setMinimumBidIncrement(listing.getMinimumBidIncrement());
+//        dto.setMinimumBidIncrement(listing.getMinimumBidIncrement());
         dto.setAuctionEndTime(listing.getAuctionEndTime());
 
         // Location
         dto.setState(listing.getState().getName());
         dto.setDistrict(listing.getDistrict().getName());
-        dto.setPackagingType(listing.getPackaging().getPackagingType());
-        dto.setStorageType(listing.getStorage().getStorageType());
-        dto.setPickupMethod(listing.getPickupMethod());
+//        dto.setPackagingType(listing.getPackaging().getPackagingType());
+//        dto.setStorageType(listing.getStorage().getStorageType());
+//        dto.setPickupMethod(listing.getPickupMethod());
 
         // Images
         dto.setImages(mapImages(listing));

@@ -39,7 +39,6 @@ public class Listing {
 
     // Quantity
     private BigDecimal quantity;
-    private BigDecimal remainingQuantity;
 
     // Pricing & Purchase Type
     private BigDecimal pricePerKg;

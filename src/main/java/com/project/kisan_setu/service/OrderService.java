@@ -23,4 +23,7 @@ public interface OrderService {
     OrderResponseDto partialLot(Long listingId, PartialLotRequestDto requestDto);
     OrderResponseDto wholeLot(Long listingId);
     OrderResponseDto cancelOrder(Long orderId);
+    String verifyDeliveryOtp(Long orderId, String otp);
+    OrderResponseDto markOutForDelivery(Long orderId);
+
 }

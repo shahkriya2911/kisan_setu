@@ -18,5 +18,7 @@ public class OrderResponseDto {
     private BigDecimal pricePerKg;
     private BigDecimal amount;
     private String status;
+    private String escrowStatus;
+    private Boolean otpVerified;
     private LocalDateTime createdAt;
 }

@@ -38,7 +38,6 @@ public class ListingResponseDto {
     private BigDecimal minimumOrderQuantity;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private BigDecimal moqPricePerKg;
-    private BigDecimal remainingQuantity;
 
     // Auction fields
     private BigDecimal minimumBidIncrement;

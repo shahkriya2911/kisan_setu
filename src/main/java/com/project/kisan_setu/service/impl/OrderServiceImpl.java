@@ -13,10 +13,8 @@ import com.project.kisan_setu.repository.ListingRepository;
 import com.project.kisan_setu.repository.OrderRepository;
 import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.service.OrderService;
+import com.project.kisan_setu.util.OtpGenerator;
 import com.project.kisan_setu.util.ValidatorMethods;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,14 +30,15 @@ public class OrderServiceImpl implements OrderService {
     private final ListingRepository listingRepository;
     private final ValidatorMethods validatorMethods;
     private final NotificationService notificationService;
-    private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
+    private final OtpGenerator otpGenerator;
 
-    public OrderServiceImpl(OrderRepository orderRepository, BidRepository bidRepository, ListingRepository listingRepository, ValidatorMethods validatorMethods, NotificationService notificationService) {
+    public OrderServiceImpl(OrderRepository orderRepository, BidRepository bidRepository, ListingRepository listingRepository, ValidatorMethods validatorMethods, NotificationService notificationService, OtpGenerator otpGenerator) {
         this.orderRepository = orderRepository;
         this.bidRepository = bidRepository;
         this.listingRepository = listingRepository;
         this.validatorMethods = validatorMethods;
         this.notificationService = notificationService;
+        this.otpGenerator = otpGenerator;
     }
 
     @Transactional
@@ -100,15 +99,48 @@ public class OrderServiceImpl implements OrderService {
         if (order.getStatus() != OrderStatus.PAYMENT_PENDING){
             throw new RuntimeException("Payment not expected");
         }
-        order.setStatus(OrderStatus.PAID);
+        order.setStatus(OrderStatus.PAYMENT_HELD);
+        order.setEscrowStatus(EscrowStatus.HELD);
+
+        String otp = otpGenerator.generateOtp();
+        order.setDeliveryOtp(otp);
+        order.setOtpGeneratedAt(LocalDateTime.now());
+        order.setOtpVerified(false);
+        order.setOtpAttempts(0);
+
         Listing listing = order.getListing();
-        listing.setStatus(AuctionStatus.SOLD);
+        if (listing == null) {
+            throw new RuntimeException("Listing not found for order");
+        }
+
+        if (listing.getSaleType() == SaleType.AUCTION) {
+            listing.setStatus(AuctionStatus.SOLD);
+            listing.setQuantity(BigDecimal.ZERO);
+        } else if (listing.getSaleType() == SaleType.FIXED) {
+            BigDecimal available = listing.getQuantity();
+            if (available == null) {
+                throw new RuntimeException("Listing quantity not set");
+            }
+            BigDecimal remaining = available.subtract(order.getQuantity());
+            if (remaining.compareTo(BigDecimal.ZERO) < 0) {
+                throw new RuntimeException("Insufficient listing quantity");
+            }
+            listing.setQuantity(remaining);
+            if (remaining.compareTo(BigDecimal.ZERO) == 0) {
+                listing.setStatus(AuctionStatus.SOLD);
+            }
+        }
         listingRepository.save(listing);
         orderRepository.save(order);
         notificationService.createNotification(
                 order.getSeller(),
                 "Payment received for your listing #" + order.getListing().getListingId(),
                 NotificationStatus.PAYMENT_RECEIVED,listing,null,order
+        );
+        notificationService.createNotification(
+                order.getBuyer(),
+                "Your delivery OTP for order #" + order.getOrderId() + " is " + otp,
+                NotificationStatus.DELIVERY_OTP_SENT,listing,null,order
         );
         return OrderMapper.toDto(order);
     }
@@ -198,60 +230,69 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponseDto partialLot(Long listingId, PartialLotRequestDto requestDto) {
-        Listing listing = listingRepository.
-                findByIdForUpdate(listingId).orElseThrow(()->new RuntimeException("Listing not found"));
-        if (listing.getSaleType() != SaleType.FIXED){
+
+        Listing listing = listingRepository
+                .findByIdForUpdate(listingId)
+                .orElseThrow(() -> new RuntimeException("Listing not found"));
+
+        if (listing.getSaleType() != SaleType.FIXED) {
             throw new RuntimeException("Listing is not of fixed type");
         }
-        if (listing.getStatus() != AuctionStatus.ACTIVE){
+
+        if (listing.getStatus() != AuctionStatus.ACTIVE) {
             throw new RuntimeException("Listing is not active");
         }
-        if (listing.getPurchaseType() != PurchaseType.PARTIAL_ORDER_ALLOWS){
-            throw new RuntimeException("Listing is not of partial lot");
+
+        if (listing.getPurchaseType() != PurchaseType.PARTIAL_ORDER_ALLOWS) {
+            throw new RuntimeException("Listing is not partial lot");
         }
+
         Long buyerId = validatorMethods.getCurrentUserId();
         User buyer = validatorMethods.validateUserById(buyerId);
+
         if (listing.getSeller().getUserId().equals(buyerId)) {
             throw new RuntimeException("Seller cannot buy own listing");
         }
+
         BigDecimal quantity = requestDto.getQuantity();
-        if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0){
+
+        if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("Quantity must be greater than 0");
         }
-        BigDecimal available = listing.getRemainingQuantity();
-        if (available == null){
-            available = listing.getQuantity();
-            listing.setRemainingQuantity(available);
+
+        // MOQ validation
+        BigDecimal moq = listing.getMinimumOrderQuantity();
+        if (moq != null && quantity.compareTo(moq) < 0) {
+            throw new RuntimeException("Minimum order quantity is " + moq);
         }
-        if (available == null){
+
+        BigDecimal available = listing.getQuantity();
+        if (available == null) {
             throw new RuntimeException("Listing quantity not set");
         }
-        if (quantity.compareTo(available)>0){
+
+        if (quantity.compareTo(available) > 0) {
             throw new RuntimeException("Requested quantity exceeds available stock");
         }
-        BigDecimal totalPrice = listing.getPricePerKg().multiply(quantity);
+
+        BigDecimal totalPrice =
+                listing.getPricePerKg().multiply(quantity);
+
         Order order = new Order();
+
         order.setListing(listing);
         order.setBuyer(buyer);
         order.setSeller(listing.getSeller());
+
         order.setQuantity(quantity);
         order.setPricePerKg(listing.getPricePerKg());
+
         order.setAmount(totalPrice);
-        order.setStatus(OrderStatus.PAID);
+        order.setStatus(OrderStatus.PAYMENT_PENDING);
         order.setCreatedAt(LocalDateTime.now());
+
         orderRepository.save(order);
 
-        BigDecimal remaining = available.subtract(quantity);
-        listing.setRemainingQuantity(remaining);
-        if (remaining.compareTo(BigDecimal.ZERO) == 0){
-            listing.setStatus(AuctionStatus.SOLD);
-        }
-        listingRepository.save(listing);
-        notificationService.createNotification(
-                listing.getSeller(),
-                "Payment received for your listing #" + listing.getListingId(),
-                NotificationStatus.PAYMENT_RECEIVED,listing,null,order
-        );
         return OrderMapper.toDto(order);
     }
 
@@ -274,11 +315,7 @@ public class OrderServiceImpl implements OrderService {
         if (listing.getSeller().getUserId().equals(buyerId)) {
             throw new RuntimeException("Seller cannot buy own listing");
         }
-        BigDecimal available = listing.getRemainingQuantity();
-        if (available == null){
-            available = listing.getQuantity();
-            listing.setRemainingQuantity(available);
-        }
+        BigDecimal available = listing.getQuantity();
         if (available == null || available.compareTo(BigDecimal.ZERO) <= 0){
             throw new RuntimeException("Listing is sold");
         }
@@ -291,16 +328,8 @@ public class OrderServiceImpl implements OrderService {
         order.setPricePerKg(listing.getPricePerKg());
         order.setAmount(totalPrice);
         order.setCreatedAt(LocalDateTime.now());
-        order.setStatus(OrderStatus.PAID);
+        order.setStatus(OrderStatus.PAYMENT_PENDING);
         orderRepository.save(order);
-        listing.setRemainingQuantity(BigDecimal.ZERO);
-        listing.setStatus(AuctionStatus.SOLD);
-        listingRepository.save(listing);
-        notificationService.createNotification(
-                listing.getSeller(),
-                "Payment received for your listing #" + listing.getListingId(),
-                NotificationStatus.PAYMENT_RECEIVED,listing,null,order
-        );
         return OrderMapper.toDto(order);
     }
 
@@ -311,6 +340,11 @@ public class OrderServiceImpl implements OrderService {
         if (order.getStatus() == OrderStatus.CANCELLED){
             throw new RuntimeException("Order already cancelled");
         }
+        if (order.getStatus() == OrderStatus.PAYMENT_HELD
+                || order.getStatus() == OrderStatus.OUT_FOR_DELIVERY
+                || order.getStatus() == OrderStatus.COMPLETED) {
+            throw new RuntimeException("Order cannot be cancelled after payment is held");
+        }
 
         order.setStatus(OrderStatus.CANCELLED);
         Listing listing = order.getListing();
@@ -320,5 +354,79 @@ public class OrderServiceImpl implements OrderService {
         notificationService.createNotification(order.getBuyer(),"Order cancelled by buyer",
                 NotificationStatus.ORDER_CANCELLED,listing,null,order);
         return OrderMapper.toDto(order);
+    }
+
+    @Override
+    @Transactional
+    public OrderResponseDto markOutForDelivery(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        Long sellerId = validatorMethods.getCurrentUserId();
+        if (!order.getSeller().getUserId().equals(sellerId)) {
+            throw new RuntimeException("Unauthorized seller");
+        }
+        if (order.getStatus() != OrderStatus.PAYMENT_HELD) {
+            throw new RuntimeException("Order is not ready for delivery");
+        }
+        order.setStatus(OrderStatus.OUT_FOR_DELIVERY);
+        orderRepository.save(order);
+        notificationService.createNotification(
+                order.getBuyer(),
+                "Your order #" + order.getOrderId() + " is out for delivery.",
+                NotificationStatus.OUT_FOR_DELIVERY,
+                order.getListing(),
+                null,
+                order
+        );
+        return OrderMapper.toDto(order);
+    }
+
+    @Transactional
+    @Override
+    public String verifyDeliveryOtp(Long orderId, String otp) {
+        Order order = orderRepository.findById(orderId).
+                orElseThrow(()->new RuntimeException("Order not found"));
+        if (order.isOtpVerified()){
+            throw new RuntimeException("Otp already used");
+        }
+        if (order.getStatus() != OrderStatus.PAYMENT_HELD
+                && order.getStatus() != OrderStatus.OUT_FOR_DELIVERY) {
+            throw new RuntimeException("Order is not ready for delivery confirmation");
+        }
+        if (order.getDeliveryOtp() == null || order.getOtpGeneratedAt() == null) {
+            throw new RuntimeException("OTP not generated for this order");
+        }
+        if (order.getOtpGeneratedAt().plusHours(24).isBefore(LocalDateTime.now())){
+            throw new RuntimeException("Otp expired");
+        }
+        if (!order.getDeliveryOtp().equals(otp)) {
+
+            int attempts = (order.getOtpAttempts() == null ? 0 : order.getOtpAttempts()) + 1;
+            order.setOtpAttempts(attempts);
+            orderRepository.save(order);
+
+            if (attempts >= 5) {
+                throw new RuntimeException("Too many invalid attempts");
+            }
+
+            throw new RuntimeException("Invalid OTP");
+        }
+        order.setOtpVerified(true);
+
+        order.setStatus(OrderStatus.COMPLETED);
+
+        order.setEscrowStatus(EscrowStatus.RELEASED);
+
+        orderRepository.save(order);
+
+        notificationService.createNotification(
+                order.getSeller(),
+                "Payment released for order #" + order.getOrderId(),
+                NotificationStatus.PAYMENT_RELEASED,
+                order.getListing(),
+                null,
+                order
+        );
+        return "Delivery confirmed, payment released.";
     }
 }

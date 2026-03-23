@@ -2,6 +2,7 @@ package com.project.kisan_setu.entity;
 
 import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.enums.EscrowStatus;
 import com.project.kisan_setu.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -42,8 +43,6 @@ public class Order {
 
     private BigDecimal pricePerKg;
 
-    private LocalDateTime createdAt;
-
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private BigDecimal totalBasePrice;
@@ -59,5 +58,26 @@ public class Order {
     @OneToMany(mappedBy = "order")
     private List<Notification> notifications = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
+    private EscrowStatus escrowStatus;
 
+    private String deliveryOtp;
+
+    private LocalDateTime otpGeneratedAt;
+
+    private boolean otpVerified;
+
+    private Integer otpAttempts = 0;
+
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (otpAttempts == null) {
+            otpAttempts = 0;
+        }
+    }
 }

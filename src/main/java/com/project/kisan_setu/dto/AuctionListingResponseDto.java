@@ -3,7 +3,6 @@ package com.project.kisan_setu.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.project.kisan_setu.dto.ResponseDto.ProductImageResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.QualityCertificateResponseDto;
-import com.project.kisan_setu.entity.Bid;
 import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.PurchaseType;
 import lombok.AllArgsConstructor;
@@ -15,7 +14,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Getter
 @Setter
@@ -43,7 +41,6 @@ public class AuctionListingResponseDto {
     private BigDecimal minimumOrderQuantity;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private BigDecimal moqPricePerKg;
-    private BigDecimal remainingQuantity;
 
     // Auction fields
     private BigDecimal minimumBidIncrement;
