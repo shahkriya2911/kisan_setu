@@ -45,5 +45,4 @@ public class SellerListingDto {
     private List<ProductImageResponseDto> images;
     private LocalDate harvestDate;
     private String packagingType;
-    private BigDecimal remainingQuantity;
 }

@@ -123,12 +123,12 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
         boolean buyerVerified = false;
 
         long soldListings = listingRepository.findBySellerUserId(userId).stream().filter(
-                listing -> orderRepository.existsByListing_ListingIdAndStatus(listing.getListingId(), OrderStatus.PAID)
+                listing -> orderRepository.existsByListing_ListingIdAndStatus(listing.getListingId(), OrderStatus.COMPLETED)
         ).count();
         if (soldListings >= 5)
             sellerVerified = true;
 
-        long successfulOrders = orderRepository.countByBuyerUserIdAndStatus(userId, OrderStatus.PAID);
+        long successfulOrders = orderRepository.countByBuyerUserIdAndStatus(userId, OrderStatus.COMPLETED);
         if (successfulOrders >= 5)
             buyerVerified = true;
 

@@ -15,6 +15,8 @@ public class OrderMapper {
         dto.setPricePerKg(order.getPricePerKg());
         dto.setAmount(order.getAmount());
         dto.setStatus(order.getStatus().name());
+        dto.setEscrowStatus(order.getEscrowStatus() != null ? order.getEscrowStatus().name() : null);
+        dto.setOtpVerified(order.isOtpVerified());
         dto.setCreatedAt(order.getCreatedAt());
         return dto;
     }

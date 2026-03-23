@@ -23,7 +23,6 @@ public class SellerListingFixedDto {
     private LocalDate harvestDate;
 
     private BigDecimal totalQuantity;
-    private BigDecimal remainingQuantity;
 
     private String packaging;
     private String storage;
