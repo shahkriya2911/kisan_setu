@@ -1,11 +1,8 @@
 package com.project.kisan_setu.controller;
-
-import com.project.kisan_setu.dto.RequestDto.OtpVerificationRequestDto;
 import com.project.kisan_setu.dto.RequestDto.ReportSellerRequestDto;
 import com.project.kisan_setu.dto.RequestDto.ReviewRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.OrderHistoryResponseDto;
 import com.project.kisan_setu.service.OrderHistoryService;
-import com.project.kisan_setu.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -45,7 +45,6 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-    private BigDecimal totalBasePrice;
 
     private BigDecimal amount;
 
