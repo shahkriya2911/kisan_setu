@@ -20,6 +20,7 @@ public class NotificationMapper {
         dto.setIsRead(n.getIsRead());
         dto.setType(n.getType());
         dto.setCreatedTime(n.getCreatedAt());
+        dto.setActionCompleted(n.getActionCompleted());
 
         // Listing details
         if (n.getListing() != null){

@@ -33,4 +33,5 @@ public class ListingSummaryResponseDto {
     private String sellerName;
 
     private List<ProductImageResponseDto> images;
+
 }

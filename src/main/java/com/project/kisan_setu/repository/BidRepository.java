@@ -1,6 +1,7 @@
 package com.project.kisan_setu.repository;
 import com.project.kisan_setu.entity.Bid;
 import com.project.kisan_setu.entity.Listing;
+import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.enums.BidStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,9 +12,27 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BidRepository extends JpaRepository<Bid, Long> {
-
+    List<Bid> findByBuyerUserIdAndBidStatusInOrderByCreatedAtAsc(Long buyerId,List<BidStatus> statuses);
+    List<Bid> findByBuyerUserIdAndBidStatusOrderByCreatedAtAsc(Long buyerId,BidStatus bidStatus);
     List<Bid> findByListingListingIdOrderByBuyerAmountDesc(Long listingId);
+    Optional<Bid> findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
+            Long listingId, BidStatus status);
+    default List<Bid> findTop5ByListingListingIdAndBidStatusOrderByAmountDesc(Long listingId, BidStatus status) {
+        return findTop5ByListingListingIdAndBidStatusOrderByBuyerAmountDesc(listingId, status);
+    }
+    List<Bid> findTop5ByListingListingIdAndBidStatusOrderByBuyerAmountDesc(Long listingId, BidStatus status);
 
+@Query("""
+SELECT b FROM Bid b
+WHERE b.buyer.userId = :buyerId
+AND b.bidStatus = :status
+AND b.buyerAmount < (
+    SELECT MAX(b2.buyerAmount)
+    FROM Bid b2
+    WHERE b2.listing.listingId = b.listing.listingId
+)
+""")
+    List<Bid> findOutbidBids(Long buyerId, BidStatus status);
     Optional<Bid> findTopByListingListingIdOrderByBuyerAmountDesc(Long listingId);
     Optional<Bid> findTopByListingListingIdOrderByBidIdDesc(Long listingId);
 

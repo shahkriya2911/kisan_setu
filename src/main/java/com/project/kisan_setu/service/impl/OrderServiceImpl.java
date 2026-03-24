@@ -65,6 +65,9 @@ public class OrderServiceImpl implements OrderService {
         if (bid.getBidStatus() == BidStatus.REJECTED || bid.getBidStatus() == BidStatus.EXPIRED) {
             throw new RuntimeException("Bid is already " + bid.getBidStatus());
         }
+        if (listing.getBidAccepted()) {
+            throw new RuntimeException("Bid already accepted for this listing");
+        }
         if (bid.getBidStatus() != BidStatus.ACCEPTED) {
             bid.setBidStatus(BidStatus.ACCEPTED);
             bidRepository.save(bid);
@@ -161,7 +164,11 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("Order expired");
         }
         order.setStatus(OrderStatus.PAYMENT_PENDING);
+        Listing listing = order.getListing();
+        listing.setBidAccepted(true);
+        listingRepository.save(listing);
         orderRepository.save(order);
+        notificationService.markOrderNotificationHandled(orderId);
         notificationService.createNotification(
                 order.getSeller(),
                 "Buyer confirmed order for listing #" + order.getListing().getListingId(),
@@ -190,9 +197,23 @@ public class OrderServiceImpl implements OrderService {
         }
 
         Listing listing = order.getListing();
+        Bid nextTopBid = bidRepository
+                .findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
+                        listing.getListingId(),
+                        BidStatus.NEW
+                )
+                .orElse(null);
+        if (nextTopBid != null){
+            listing.setTopBid(nextTopBid.getBuyerAmount());
+        }else {
+            listing.setTopBid(null);
+        }
+        listing.setBidAccepted(false);
+        listingRepository.save(listing);
         listing.setStatus(AuctionStatus.ACTIVE);
         listingRepository.save(listing);
         orderRepository.save(order);
+        notificationService.markOrderNotificationHandled(orderId);
         notificationService.createNotification(listing.getSeller(),"Buyer rejected the accepted bid",
                 NotificationStatus.ORDER_CANCELLED,listing,bid,order);
     }
@@ -277,6 +298,15 @@ public class OrderServiceImpl implements OrderService {
 
         BigDecimal totalPrice =
                 listing.getPricePerKg().multiply(quantity);
+
+        // reduce available quantity
+        BigDecimal remaining = available.subtract(quantity);
+        listing.setQuantity(remaining);
+
+        // if stock finished mark listing as sold
+        if (remaining.compareTo(BigDecimal.ZERO) == 0) {
+            listing.setStatus(AuctionStatus.SOLD);
+        }
 
         Order order = new Order();
 

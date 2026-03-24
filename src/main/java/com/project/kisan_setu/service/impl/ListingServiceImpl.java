@@ -4,7 +4,7 @@ import com.project.kisan_setu.dto.AuctionListingResponseDto;
 import com.project.kisan_setu.dto.RequestDto.*;
 import com.project.kisan_setu.dto.ResponseDto.*;
 
-import com.project.kisan_setu.dto.SellerListingFixedDto;
+import com.project.kisan_setu.dto.ResponseDto.SellerListingFixedDto;
 import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.entity.*;
@@ -402,7 +402,7 @@ public class ListingServiceImpl implements ListingService {
 
         List<BidResponseDto> top5Bids =
                 bidRepository
-                        .findTop5ByListingListingIdOrderByBuyerAmountDesc(listingId)
+                        .findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(listingId,BidStatus.NEW)
                         .stream()
                         .map(bid -> new BidResponseDto(
                                 bid.getBidId(),
@@ -574,18 +574,22 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
                 );
 
         return listings.map(listing -> {
-            Long topBid = bidRepository.
-                    findTopByListingListingIdOrderByBuyerAmountDesc(listing.getListingId())
-                    .map(Bid::getBidId).orElse(null);
-
+            Bid nextTopBid = bidRepository
+                    .findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
+                            listing.getListingId(),
+                            BidStatus.NEW
+                    )
+                    .orElse(null);
+            Long topBidId = nextTopBid != null ? nextTopBid.getBidId() : null;
             if (listing.getSaleType() == SaleType.AUCTION) {
 
                 AuctionListingResponseDto dto =
-                        ListingMapper.toAuctionListingResponseDto(listing,topBid);
+                        ListingMapper.toAuctionListingResponseDto(listing,topBidId);
 
                 bidRepository
-                        .findTopByListingListingIdOrderByBuyerAmountDesc(
-                                listing.getListingId())
+                        .findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
+                                listing.getListingId(),
+                                BidStatus.NEW)
                         .ifPresent(bid -> {
                             dto.setHighestBid(bid.getBuyerAmount());
                             dto.setTopBidderName(bid.getBuyer().getFullName());
@@ -594,7 +598,7 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
                 return dto;
 
             } else {
-                return ListingMapper.toFixedResponseDto(listing,topBid);
+                return ListingMapper.toFixedResponseDto(listing,topBidId);
             }
 
         });
