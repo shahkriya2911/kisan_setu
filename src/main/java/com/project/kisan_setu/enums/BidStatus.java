@@ -4,5 +4,6 @@ public enum BidStatus {
     NEW,
     ACCEPTED,
     REJECTED,
-    EXPIRED
+    EXPIRED,
+    FLAGGED
 }

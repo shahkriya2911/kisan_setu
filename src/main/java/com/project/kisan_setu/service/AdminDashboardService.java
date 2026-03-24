@@ -16,4 +16,5 @@ public interface AdminDashboardService {
        String verifyUser(Long userId);
        String suspendUser(Long userId);
        String reactivateUser(Long userId);
+       List<User> getFlaggedUsers();
 }

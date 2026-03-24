@@ -3,6 +3,7 @@ package com.project.kisan_setu.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.kisan_setu.dto.RequestDto.CreateListingRequest;
+import com.project.kisan_setu.dto.RequestDto.ExtendAuctionDto;
 import com.project.kisan_setu.dto.ResponseDto.DashboardDto;
 import com.project.kisan_setu.dto.ResponseDto.ListingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.SellerListingDto;
@@ -130,13 +131,12 @@ public class ListingController {
         return ResponseEntity.ok("Listing marked as SOLD successfully");
     }
 
-    @PutMapping("/{listingId}/extends")
-    public ResponseEntity<String> extendAuctionTime(@PathVariable Long listingId,@RequestParam Long sellerId,@RequestParam int minutes){
-        logger.debug("Extend auction time request attempt for listing with id : {}",listingId);
-        listingService.extendAuctionTime(listingId,sellerId,minutes);
-        logger.info("Auction time extended successfully");
-        return ResponseEntity.ok("Auction time extended successfully");
+    @PostMapping("/extend-auction")
+    public ResponseEntity<String> extendAuction(
+            @RequestBody ExtendAuctionDto dto) {
 
+        String response = listingService.extendAuctionTime(dto);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/my-pending")
@@ -216,19 +216,6 @@ public class ListingController {
         return ResponseEntity.ok(listingService.getRecentBids());
     }
 
-    @PutMapping("/recent-bids/{bidId}/accept")
-    public ResponseEntity<String> acceptBid(@PathVariable Long bidId) {
-        logger.debug("Accept bid request attempt for bid with id : {} ",bidId);
-        logger.info("Bid accepted by user successfully");
-        return ResponseEntity.ok(listingService.acceptBid(bidId));
-    }
-
-    @PutMapping("/recent-bids/{bidId}/reject")
-    public ResponseEntity<String> rejectBid(@PathVariable Long bidId) {
-        logger.debug("Reject bid request attempt for bid with id : {}",bidId);
-        logger.info("Bid rejected bu user successfully");
-        return ResponseEntity.ok(listingService.rejectBid(bidId));
-    }
 
     @GetMapping("/my-pending-summary")
     public ResponseEntity<Page<ListingSummaryResponseDto>> pendingSummaryListings(Authentication authentication, Pageable pageable){

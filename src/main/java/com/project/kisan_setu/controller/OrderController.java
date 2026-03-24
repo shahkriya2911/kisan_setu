@@ -1,12 +1,9 @@
 package com.project.kisan_setu.controller;
-
-import com.project.kisan_setu.dto.RequestDto.OtpVerificationRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.OrderResponseDto;
 import com.project.kisan_setu.dto.PartialLotRequestDto;
 import com.project.kisan_setu.entity.Order;
 import com.project.kisan_setu.service.OrderService;
 import com.project.kisan_setu.util.ValidatorMethods;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;

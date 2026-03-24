@@ -67,6 +67,7 @@ public class OrderServiceImpl implements OrderService {
         }
         if (bid.getBidStatus() != BidStatus.ACCEPTED) {
             bid.setBidStatus(BidStatus.ACCEPTED);
+            bid.setAcceptedTime(LocalDateTime.now());
             bidRepository.save(bid);
         }
         Order order = new Order();
@@ -75,12 +76,10 @@ public class OrderServiceImpl implements OrderService {
         order.setListing(listing);
         order.setAcceptBid(bid);
         order.setQuantity(listing.getQuantity());
-        order.setPricePerKg(bid.getBuyerAmount());
-        BigDecimal total = listing.getQuantity().multiply(bid.getBuyerAmount());
-        order.setAmount(total);
+        order.setAmount(bid.getBuyerAmount());
         order.setCreatedAt(LocalDateTime.now());
-        order.setConfirmationDeadline(LocalDateTime.now().plusHours(24));
         order.setStatus(OrderStatus.PENDING_BUYER_CONFIRMATION);
+        order.setConfirmationDeadline(LocalDateTime.now().plusHours(24));
         listing.setStatus(AuctionStatus.PENDING);
         listingRepository.save(listing);
         orderRepository.save(order);
@@ -197,30 +196,30 @@ public class OrderServiceImpl implements OrderService {
                 NotificationStatus.ORDER_CANCELLED, listing, bid, order);
     }
 
-    @Override
-    public void expirePendingOrders() {
-        List<Order> orders = orderRepository.
-                findByStatusAndConfirmationDeadlineBefore(OrderStatus.PENDING_BUYER_CONFIRMATION,
-                        LocalDateTime.now());
-        for (Order order : orders) {
-            order.setStatus(OrderStatus.EXPIRED);
-            Bid bid = order.getAcceptBid();
-            if (bid != null) {
-                bid.setBidStatus(BidStatus.EXPIRED);
-                bidRepository.save(bid);
-            }
-            Listing listing = order.getListing();
-            listing.setStatus(AuctionStatus.ACTIVE);
-            listingRepository.save(listing);
-            notificationService.createNotification(
-                    order.getSeller(),
-                    "Buyer didn't confirmed order for listing #" + order.getListing().getListingId(),
-                    NotificationStatus.ORDER_EXPIRED, listing, bid, order
-            );
-        }
-        orderRepository.saveAll(orders);
-
-    }
+//    @Override
+//    public void expirePendingOrders() {
+//        List<Order> orders = orderRepository.
+//                findByStatusAndConfirmationDeadlineBefore(OrderStatus.PENDING_BUYER_CONFIRMATION,
+//                        LocalDateTime.now());
+//        for (Order order : orders) {
+//            order.setStatus(OrderStatus.EXPIRED);
+//            Bid bid = order.getAcceptBid();
+//            if (bid != null) {
+//                bid.setBidStatus(BidStatus.EXPIRED);
+//                bidRepository.save(bid);
+//            }
+//            Listing listing = order.getListing();
+//            listing.setStatus(AuctionStatus.ACTIVE);
+//            listingRepository.save(listing);
+//            notificationService.createNotification(
+//                    order.getSeller(),
+//                    "Buyer didn't confirmed order for listing #" + order.getListing().getListingId(),
+//                    NotificationStatus.ORDER_EXPIRED, listing, bid, order
+//            );
+//        }
+//        orderRepository.saveAll(orders);
+//
+//    }
 
     @Override
     public Order getOrder(Long orderId) {

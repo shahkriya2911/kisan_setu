@@ -52,11 +52,12 @@ public class User {
     public Boolean isVerified() {
         return sellerVerified || buyerVerified;
     }
-    @Column(name = "flag_count")
-    private Integer flagCount = 0;
 
-    @Column(name = "suspended")
-    private Boolean suspended;
+    private int violationCount = 0;
+
+    private boolean flagged = false;
+
+    private Boolean suspended = false;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

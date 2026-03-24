@@ -34,6 +34,9 @@ public class Bid {
     private BidStatus bidStatus =  BidStatus.NEW;
 
     private BigDecimal amountPerKg;
+    private LocalDateTime acceptedTime;
+    private String buyerResponse; // or enum (ACCEPT / REJECT)
+    private boolean buyerFlagProcessed = false;
 
     //relationship with listing
     @ManyToOne

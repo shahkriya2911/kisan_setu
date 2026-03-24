@@ -16,7 +16,7 @@ public interface OrderService {
 
     void rejectOrder(Long orderId);
 
-    void expirePendingOrders();
+//    void expirePendingOrders();
 
     Order getOrder(Long orderId);
 

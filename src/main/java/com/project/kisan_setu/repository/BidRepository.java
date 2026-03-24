@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,4 +41,8 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
 
     @Query("SELECT MAX(b.buyerAmount) FROM Bid b WHERE b.listing.id = :listingId")
     BigDecimal getHighestBid(@Param("listingId") Long listingId);
+
+    boolean existsByListingAndBidStatus(Listing listing, BidStatus bidStatus);
+
+    List<Bid> findByBidStatusAndAcceptedTimeBefore(BidStatus bidStatus, LocalDateTime cutoff);
 }

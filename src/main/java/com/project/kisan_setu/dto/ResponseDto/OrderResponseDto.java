@@ -14,9 +14,6 @@ public class OrderResponseDto {
     private Long listingId;
     private Long buyerId;
     private Long sellerId;
-    private BigDecimal quantity;
-    private BigDecimal pricePerKg;
-    private BigDecimal amount;
     private String status;
     private String escrowStatus;
     private Boolean otpVerified;
