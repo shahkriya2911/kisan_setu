@@ -41,4 +41,5 @@ public class NotificationResponseDto {
     private BigDecimal pricePerKg;
     private String state;
     private String district;
+    private Boolean actionCompleted;
 }

@@ -7,6 +7,7 @@ import com.project.kisan_setu.mapper.NotificationMapper;
 import com.project.kisan_setu.repository.NotificationRepository;
 import com.project.kisan_setu.repository.UserRepository;
 import com.project.kisan_setu.service.NotificationService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,12 @@ public class NotificationServiceImpl implements NotificationService {
                 findById(id).orElseThrow(()->new RuntimeException("Notification not found"));
         notification.setIsRead(true);
         notificationRepository.save(notification);
+    }
+
+    @Transactional
+    @Override
+    public void markOrderNotificationHandled(Long orderId){
+        notificationRepository.markOrderNotificationHandled(orderId);
     }
 }
 

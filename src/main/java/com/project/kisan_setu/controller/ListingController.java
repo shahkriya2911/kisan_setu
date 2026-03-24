@@ -9,6 +9,11 @@ import com.project.kisan_setu.dto.ResponseDto.ListingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.SellerListingDto;
 import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.dto.SellerListingFixedDto;
+import com.project.kisan_setu.entity.Order;
+import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.enums.BidStatus;
+import com.project.kisan_setu.dto.RequestDto.CreateListingRequest;
+import com.project.kisan_setu.dto.ResponseDto.DashboardDto;
 import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.UserService;
@@ -210,6 +215,19 @@ public class ListingController {
         return ResponseEntity.ok(listingService.getRecentBids());
     }
 
+    @PutMapping("/recent-bids/{bidId}/accept")
+    public ResponseEntity<String> acceptBid(@PathVariable Long bidId) {
+        logger.debug("Accept bid request attempt for bid with id : {} ",bidId);
+        logger.info("Bid accepted by user successfully");
+        return ResponseEntity.ok(listingService.acceptBid(bidId));
+    }
+
+    @PutMapping("/recent-bids/{bidId}/reject")
+    public ResponseEntity<String> rejectBid(@PathVariable Long bidId) {
+        logger.debug("Reject bid request attempt for bid with id : {}",bidId);
+        logger.info("Bid rejected bu user successfully");
+        return ResponseEntity.ok(listingService.rejectBid(bidId));
+    }
 
     @GetMapping("/my-pending-summary")
     public ResponseEntity<Page<ListingSummaryResponseDto>> pendingSummaryListings(Authentication authentication, Pageable pageable){
