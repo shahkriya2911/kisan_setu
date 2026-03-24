@@ -16,13 +16,14 @@ public interface OrderService {
 
     void rejectOrder(Long orderId);
 
-    void expirePendingOrders();
+//    void expirePendingOrders();
 
     Order getOrder(Long orderId);
 
     OrderResponseDto partialLot(Long listingId, PartialLotRequestDto requestDto);
     OrderResponseDto wholeLot(Long listingId);
     OrderResponseDto cancelOrder(Long orderId);
-    String verifyDeliveryOtp(Long orderId, String otp);
     OrderResponseDto markOutForDelivery(Long orderId);
+
+    String verifyDeliveryOtp(Long orderId, String otp);
 }

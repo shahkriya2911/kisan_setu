@@ -4,7 +4,7 @@ import com.project.kisan_setu.dto.AuctionListingResponseDto;
 import com.project.kisan_setu.dto.RequestDto.*;
 import com.project.kisan_setu.dto.ResponseDto.*;
 
-import com.project.kisan_setu.dto.ResponseDto.SellerListingFixedDto;
+import com.project.kisan_setu.dto.SellerListingFixedDto;
 import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.entity.*;
@@ -628,22 +628,38 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
         return listings.map(ListingMapper::toResponse);
     }
 
+
     @Override
-    public void extendAuctionTime(Long listingId, Long sellerId, int minutes) {
-//        validatorMethods.validateUserAccess();
-        logger.info("Extending auction time...");
-        Listing listing = validatorMethods.validateExists(listingId);
-        validatorMethods.checkStatus(listing, AuctionStatus.ACTIVE);
-        if (listing.getAuctionEndTime().isBefore(LocalDateTime.now())) {
-            logger.error("Cannot extend expire auction");
-            throw new UserException("Cannot Extend expire Auction");
+    public String extendAuctionTime(ExtendAuctionDto dto) {
+
+        Listing listing = listingRepository.findById(dto.getListingId())
+                .orElseThrow(() -> new RuntimeException("Listing not found"));
+
+        if (!listing.getSeller().getUserId().equals(dto.getSellerId())) {
+            throw new UserException("You are not authorized to extend this auction");
         }
-        if (minutes <= 0) {
-            logger.error("Extension time must be greater than 0");
+
+        if (listing.getStatus() != AuctionStatus.ACTIVE) {
+            throw new UserException("Auction is not active");
+        }
+
+        if (listing.getAuctionEndTime().isBefore(LocalDateTime.now())) {
+            throw new UserException("Cannot extend expired auction");
+        }
+
+
+        if (dto.getMinutes() <= 0) {
             throw new UserException("Extension time must be greater than 0");
         }
-        logger.info("Auction time extended success...");
-        listing.setAuctionEndTime(listing.getAuctionEndTime().plusMinutes(minutes));
+
+
+        listing.setAuctionEndTime(
+                listing.getAuctionEndTime().plusMinutes(dto.getMinutes())
+        );
+
+        listingRepository.save(listing);
+
+        return "Auction time extended successfully";
     }
 
     @Override

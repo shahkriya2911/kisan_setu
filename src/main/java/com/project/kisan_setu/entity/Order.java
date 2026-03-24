@@ -45,7 +45,6 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-    private BigDecimal totalBasePrice;
 
     private BigDecimal amount;
 
@@ -65,7 +64,8 @@ public class Order {
 
     private LocalDateTime otpGeneratedAt;
 
-    private boolean otpVerified;
+    @Column(nullable = false)
+    private boolean otpVerified = false;
 
     private Integer otpAttempts = 0;
 

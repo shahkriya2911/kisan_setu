@@ -5,5 +5,6 @@ public enum AuctionStatus {    //OR ListingStatus
     PENDING,
     CLOSED,
     SOLD,
-    REJECTED
+    REJECTED,
+    FLAGGED
 }

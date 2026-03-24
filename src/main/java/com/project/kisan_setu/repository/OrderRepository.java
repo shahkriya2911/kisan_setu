@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order,Long> {
@@ -25,5 +26,12 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     long countByBuyerUserIdAndStatus(Long userId, OrderStatus orderStatus);
 
     Order findByListingListingId(Long listingId);
+
+    List<Order> findByBuyer_UserIdOrSeller_UserId(Long userId, Long userId1);
+
+    List<Order> findByBuyer_UserId(Long userId);
+
+    List<Order> findBySeller_UserId(Long userId);
+
 //    long countDistinctBuyers();
 }

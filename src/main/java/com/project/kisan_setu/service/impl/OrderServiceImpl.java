@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -70,6 +69,7 @@ public class OrderServiceImpl implements OrderService {
         }
         if (bid.getBidStatus() != BidStatus.ACCEPTED) {
             bid.setBidStatus(BidStatus.ACCEPTED);
+            bid.setAcceptedTime(LocalDateTime.now());
             bidRepository.save(bid);
         }
         Order order = new Order();
@@ -78,28 +78,26 @@ public class OrderServiceImpl implements OrderService {
         order.setListing(listing);
         order.setAcceptBid(bid);
         order.setQuantity(listing.getQuantity());
-        order.setPricePerKg(bid.getBuyerAmount());
-        BigDecimal total = listing.getQuantity().multiply(bid.getBuyerAmount());
-        order.setAmount(total);
+        order.setAmount(bid.getBuyerAmount());
         order.setCreatedAt(LocalDateTime.now());
-        order.setConfirmationDeadline(LocalDateTime.now().plusHours(24));
         order.setStatus(OrderStatus.PENDING_BUYER_CONFIRMATION);
+        order.setConfirmationDeadline(LocalDateTime.now().plusHours(24));
         listing.setStatus(AuctionStatus.PENDING);
         listingRepository.save(listing);
         orderRepository.save(order);
         notificationService.createNotification(
                 bid.getBuyer(),
                 "Your bid has been accepted. Please confirm purchase.",
-                NotificationStatus.BID_ACCEPTED,listing,bid,order
+                NotificationStatus.BID_ACCEPTED, listing, bid, order
         );
         return OrderMapper.toDto(order);
     }
 
     @Override
     @Transactional
-    public OrderResponseDto markPayment(Long orderId){
-        Order order = orderRepository.findById(orderId).orElseThrow(()->new RuntimeException("Order not found"));
-        if (order.getStatus() != OrderStatus.PAYMENT_PENDING){
+    public OrderResponseDto markPayment(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+        if (order.getStatus() != OrderStatus.PAYMENT_PENDING) {
             throw new RuntimeException("Payment not expected");
         }
         order.setStatus(OrderStatus.PAYMENT_HELD);
@@ -138,12 +136,12 @@ public class OrderServiceImpl implements OrderService {
         notificationService.createNotification(
                 order.getSeller(),
                 "Payment received for your listing #" + order.getListing().getListingId(),
-                NotificationStatus.PAYMENT_RECEIVED,listing,null,order
+                NotificationStatus.PAYMENT_RECEIVED, listing, null, order
         );
         notificationService.createNotification(
                 order.getBuyer(),
                 "Your delivery OTP for order #" + order.getOrderId() + " is " + otp,
-                NotificationStatus.DELIVERY_OTP_SENT,listing,null,order
+                NotificationStatus.DELIVERY_OTP_SENT, listing, null, order
         );
         return OrderMapper.toDto(order);
     }
@@ -151,14 +149,14 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public OrderResponseDto confirmOrder(Long orderId, Long buyerId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(()->new RuntimeException("Order not found"));
-        if (!order.getBuyer().getUserId().equals(buyerId)){
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+        if (!order.getBuyer().getUserId().equals(buyerId)) {
             throw new RuntimeException("Unauthorized Buyer");
         }
-        if (order.getStatus()!=OrderStatus.PENDING_BUYER_CONFIRMATION){
+        if (order.getStatus() != OrderStatus.PENDING_BUYER_CONFIRMATION) {
             throw new RuntimeException("Order cannot be confirmed");
         }
-        if (LocalDateTime.now().isAfter(order.getConfirmationDeadline())){
+        if (LocalDateTime.now().isAfter(order.getConfirmationDeadline())) {
             order.setStatus(OrderStatus.EXPIRED);
             orderRepository.save(order);
             throw new RuntimeException("Order expired");
@@ -218,30 +216,30 @@ public class OrderServiceImpl implements OrderService {
                 NotificationStatus.ORDER_CANCELLED,listing,bid,order);
     }
 
-    @Override
-    public void expirePendingOrders() {
-        List<Order> orders = orderRepository.
-                findByStatusAndConfirmationDeadlineBefore(OrderStatus.PENDING_BUYER_CONFIRMATION,
-                LocalDateTime.now());
-        for (Order order : orders){
-            order.setStatus(OrderStatus.EXPIRED);
-            Bid bid = order.getAcceptBid();
-            if (bid != null) {
-                bid.setBidStatus(BidStatus.EXPIRED);
-                bidRepository.save(bid);
-            }
-            Listing listing = order.getListing();
-            listing.setStatus(AuctionStatus.ACTIVE);
-            listingRepository.save(listing);
-            notificationService.createNotification(
-                    order.getSeller(),
-                    "Buyer didn't confirmed order for listing #" + order.getListing().getListingId(),
-                    NotificationStatus.ORDER_EXPIRED,listing,bid,order
-            );
-        }
-        orderRepository.saveAll(orders);
-
-    }
+//    @Override
+//    public void expirePendingOrders() {
+//        List<Order> orders = orderRepository.
+//                findByStatusAndConfirmationDeadlineBefore(OrderStatus.PENDING_BUYER_CONFIRMATION,
+//                LocalDateTime.now());
+//        for (Order order : orders){
+//            order.setStatus(OrderStatus.EXPIRED);
+//            Bid bid = order.getAcceptBid();
+//            if (bid != null) {
+//                bid.setBidStatus(BidStatus.EXPIRED);
+//                bidRepository.save(bid);
+//            }
+//            Listing listing = order.getListing();
+//            listing.setStatus(AuctionStatus.ACTIVE);
+//            listingRepository.save(listing);
+//            notificationService.createNotification(
+//                    order.getSeller(),
+//                    "Buyer didn't confirmed order for listing #" + order.getListing().getListingId(),
+//                    NotificationStatus.ORDER_EXPIRED,listing,bid,order
+//            );
+//        }
+//        orderRepository.saveAll(orders);
+//
+//    }
 
     @Override
     public Order getOrder(Long orderId) {

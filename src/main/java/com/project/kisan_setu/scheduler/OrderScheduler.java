@@ -1,6 +1,5 @@
-package com.project.kisan_setu.Scheduler;
+package com.project.kisan_setu.scheduler;
 
-import com.project.kisan_setu.enums.OrderStatus;
 import com.project.kisan_setu.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,8 +10,8 @@ import org.springframework.stereotype.Component;
 public class OrderScheduler {
     private final OrderService orderService;
 
-    @Scheduled(fixedRate = 60000)
-    public void expireOrders(){
-        orderService.expirePendingOrders();
-    }
+//    @Scheduled(fixedRate = 60000)
+//    public void expireOrders(){
+//        orderService.expirePendingOrders();
+//    }
 }

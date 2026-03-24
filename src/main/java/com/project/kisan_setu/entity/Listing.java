@@ -35,7 +35,7 @@ public class Listing {
     private String grade;
     private LocalDate harvestDate;
     @Enumerated(EnumType.STRING)
-    private PurchaseType purchaseType; // Whole Lot Only / Partial Orders Allowed
+    private PurchaseType purchaseType;
 
     // Quantity
     private BigDecimal quantity;
@@ -73,13 +73,15 @@ public class Listing {
     private String description;
     private boolean oneDayNotified = false;
     private boolean thirtyMinuteNotified = false;
+    @Column(nullable = false)
+    private boolean sellerFlagProcessed = false;
+
 
     // Relationship with user
     @ManyToOne
     @JoinColumn(name = "seller_id")
     private User seller;
 
-    // Store images in separate relational columns (one row per image)
     @ElementCollection
     @CollectionTable(
             name = "listing_images",

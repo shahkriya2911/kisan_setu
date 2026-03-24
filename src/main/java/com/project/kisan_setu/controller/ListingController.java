@@ -3,9 +3,12 @@ package com.project.kisan_setu.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.kisan_setu.dto.RequestDto.CreateListingRequest;
+import com.project.kisan_setu.dto.RequestDto.ExtendAuctionDto;
 import com.project.kisan_setu.dto.ResponseDto.DashboardDto;
 import com.project.kisan_setu.dto.ResponseDto.ListingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.SellerListingDto;
+import com.project.kisan_setu.dto.*;
+import com.project.kisan_setu.dto.SellerListingFixedDto;
 import com.project.kisan_setu.entity.Order;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.enums.BidStatus;
@@ -128,13 +131,12 @@ public class ListingController {
         return ResponseEntity.ok("Listing marked as SOLD successfully");
     }
 
-    @PutMapping("/{listingId}/extends")
-    public ResponseEntity<String> extendAuctionTime(@PathVariable Long listingId,@RequestParam Long sellerId,@RequestParam int minutes){
-        logger.debug("Extend auction time request attempt for listing with id : {}",listingId);
-        listingService.extendAuctionTime(listingId,sellerId,minutes);
-        logger.info("Auction time extended successfully");
-        return ResponseEntity.ok("Auction time extended successfully");
+    @PostMapping("/extend-auction")
+    public ResponseEntity<String> extendAuction(
+            @RequestBody ExtendAuctionDto dto) {
 
+        String response = listingService.extendAuctionTime(dto);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/my-pending")
