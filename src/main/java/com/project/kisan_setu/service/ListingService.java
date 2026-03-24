@@ -4,6 +4,7 @@ import com.project.kisan_setu.dto.RequestDto.CreateListingRequest;
 import com.project.kisan_setu.dto.RequestDto.ExtendAuctionDto;
 import com.project.kisan_setu.dto.ResponseDto.DashboardDto;
 import com.project.kisan_setu.dto.ResponseDto.*;
+import com.project.kisan_setu.dto.ResponseDto.SellerListingFixedDto;
 import com.project.kisan_setu.entity.Bid;
 
 import com.project.kisan_setu.entity.Order;
