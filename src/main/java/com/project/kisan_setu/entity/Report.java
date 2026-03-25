@@ -1,5 +1,7 @@
 package com.project.kisan_setu.entity;
 import com.project.kisan_setu.enums.ReportReason;
+import com.project.kisan_setu.enums.ReportStatus;
+import jakarta.annotation.Resource;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,6 +25,9 @@ public class Report {
     @Column(nullable = false, length = 1000)
     private String description;
 
+    @Enumerated(EnumType.STRING)
+    private ReportStatus reportStatus;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
@@ -37,4 +42,7 @@ public class Report {
     @ManyToOne
     @JoinColumn(name = "seller_id", nullable = false)
     private User seller;
+
+
+
 }

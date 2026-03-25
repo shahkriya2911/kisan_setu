@@ -17,4 +17,9 @@ public interface AdminDashboardService {
        String suspendUser(Long userId);
        String reactivateUser(Long userId);
        List<User> getFlaggedUsers();
+       List<ReportResponseDto> getAllReports();
+       ReportResponseDto updateStatus(Long reportId, String status);
+       String requestMoreEvidence(Long disputeId);
+
+    String resolveDispute(Long disputeId);
 }

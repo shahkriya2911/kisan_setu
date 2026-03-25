@@ -1,16 +1,19 @@
 package com.project.kisan_setu.service.impl;
 
 import com.project.kisan_setu.dto.ResponseDto.*;
+import com.project.kisan_setu.entity.Dispute;
+import com.project.kisan_setu.entity.Report;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.enums.DisputeStatus;
 import com.project.kisan_setu.enums.OrderStatus;
-import com.project.kisan_setu.repository.ListingRepository;
-import com.project.kisan_setu.repository.OrderRepository;
-import com.project.kisan_setu.repository.UserRepository;
+import com.project.kisan_setu.enums.ReportStatus;
+import com.project.kisan_setu.repository.*;
 import com.project.kisan_setu.service.AdminDashboardService;
 import com.project.kisan_setu.service.EmailService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,6 +28,9 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
     private final ValidatorMethods validatorMethods;
     private final OrderRepository orderRepository;
     private final EmailService emailService;
+    private final ReportUserRepository reportUserRepository;
+    private final JavaMailSender javaMailSender;
+    private final DisputeRepository disputeRepository;
 
     private static final int MAX_VIOLATIONS = 5;
     @Override
@@ -151,7 +157,6 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
                 ", BuyerVerified=" + buyerVerified;
     }
 
-    // ================= SUSPEND USER =================
     @Override
     public String suspendUser(Long userId) {
 
@@ -205,4 +210,92 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
                 .filter(user -> user.getViolationCount() >= MAX_VIOLATIONS)
                 .toList();
     }
+
+    @Override
+    public List<ReportResponseDto> getAllReports() {
+        List<Report> reports = reportUserRepository.findAll();
+
+        return reports.stream().map(report -> {
+            ReportResponseDto dto = new ReportResponseDto();
+
+            dto.setReportId(report.getReportId());
+            dto.setTransactionId("TXN" + report.getOrder().getOrderId());
+            dto.setBuyerName(String.valueOf(report.getBuyer()));
+            dto.setSellerName(String.valueOf(report.getSeller()));
+            dto.setIssueType(report.getReason().name());
+            dto.setStatus(report.getReportStatus().name());
+            dto.setCreatedAt(report.getCreatedAt());
+
+            return dto;
+        }).toList();
+    }
+
+    @Override
+    public ReportResponseDto updateStatus(Long reportId, String status) {
+        Report report = reportUserRepository.findById(reportId)
+                .orElseThrow(() -> new RuntimeException("Report not found"));
+
+        ReportStatus newStatus = ReportStatus.valueOf(status);
+
+        ReportResponseDto responseDto = new ReportResponseDto();
+        responseDto.setReportId(report.getReportId());
+        responseDto.setTransactionId(String.valueOf(report.getOrder().getOrderId()));
+        responseDto.setBuyerName(report.getBuyer().getFullName());
+        responseDto.setSellerName(report.getSeller().getFullName());
+        responseDto.setStatus(report.getReportStatus().name());
+        responseDto.setCreatedAt(report.getCreatedAt());
+
+
+        return responseDto;
+    }
+
+    @Override
+    public String requestMoreEvidence(Long disputeId) {
+
+        Dispute dispute = disputeRepository.findById(disputeId)
+                .orElseThrow(() -> new RuntimeException("Dispute not found"));
+        dispute.setStatus(DisputeStatus.UNDER_REVIEW);
+        dispute.setEvidenceRequested(true);
+
+        disputeRepository.save(dispute);
+
+        emailService.sendDisputeEvidenceEmail(
+                dispute.getBuyer().getEmail(),
+                dispute.getBuyer().getFullName(),
+                dispute.getDisputeCode()
+        );
+
+        emailService.sendDisputeResolvedEmail(
+                dispute.getSeller().getEmail(),
+                dispute.getSeller().getFullName(),
+                dispute.getDisputeCode()
+        );
+
+        return "Evidence request sent successfully";
+    }
+    @Override
+    public String resolveDispute(Long disputeId) {
+
+        Dispute dispute = disputeRepository.findById(disputeId)
+                .orElseThrow(() -> new RuntimeException("Dispute not found"));
+
+        dispute.setStatus(DisputeStatus.RESOLVED);
+
+        disputeRepository.save(dispute);
+
+        emailService.sendDisputeResolvedEmail(
+                dispute.getBuyer().getEmail(),
+                dispute.getBuyer().getFullName(),
+                dispute.getDisputeCode()
+        );
+
+        emailService.sendDisputeResolvedEmail(
+                dispute.getSeller().getEmail(),
+                dispute.getSeller().getFullName(),
+                dispute.getDisputeCode()
+        );
+
+        return "Dispute resolved and email sent successfully";
+    }
+
 }

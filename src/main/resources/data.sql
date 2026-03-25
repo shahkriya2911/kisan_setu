@@ -631,3 +631,18 @@ VALUES
     'KisanSetu aims to maintain a respectful and trustworthy marketplace. Users must ensure that listings accurately represent the agricultural products being sold, including quantity, quality, and pricing details. Fraudulent listings, bid manipulation, harassment, or attempts to bypass the platform for transactions are strictly prohibited. Violations may result in account suspension or permanent removal from the platform.'
 )
 ON CONFLICT (terms_and_policies_id) DO NOTHING;
+
+INSERT INTO fraud_type_master (type_name) VALUES
+
+('Identity Fraud'),
+('Fake Listing'),
+('Payment Scam'),
+('Duplicate Listings'),
+('Price Manipulation'),
+('Fake Documents'),
+('Spam or Misleading Info'),
+('Unauthorized Reselling'),
+('Account Misuse'),
+('Other')
+
+ON CONFLICT (type_name) DO NOTHING;

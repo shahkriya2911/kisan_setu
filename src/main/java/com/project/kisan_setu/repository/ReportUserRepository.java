@@ -3,5 +3,5 @@ package com.project.kisan_setu.repository;
 import com.project.kisan_setu.entity.Report;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ReportSellerRepository extends JpaRepository<Report,Long> {
+public interface ReportUserRepository extends JpaRepository<Report,Long> {
 }

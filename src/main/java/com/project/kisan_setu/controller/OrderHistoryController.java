@@ -1,5 +1,5 @@
 package com.project.kisan_setu.controller;
-import com.project.kisan_setu.dto.RequestDto.ReportSellerRequestDto;
+import com.project.kisan_setu.dto.RequestDto.ReportUserRequestDto;
 import com.project.kisan_setu.dto.RequestDto.ReviewRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.OrderHistoryResponseDto;
 import com.project.kisan_setu.service.OrderHistoryService;
@@ -40,7 +40,7 @@ public class OrderHistoryController {
     @PostMapping("/report/{orderId}")
     public ResponseEntity<String> reportSeller(
             @PathVariable Long orderId,
-            @RequestBody ReportSellerRequestDto requestDto) {
+            @RequestBody ReportUserRequestDto requestDto) {
 
         return ResponseEntity.ok(orderHistoryService.reportSeller(orderId, requestDto));
     }

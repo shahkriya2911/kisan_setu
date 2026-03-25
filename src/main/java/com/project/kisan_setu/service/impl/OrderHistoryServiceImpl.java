@@ -1,15 +1,16 @@
 package com.project.kisan_setu.service.impl;
-import com.project.kisan_setu.dto.RequestDto.ReportSellerRequestDto;
+import com.project.kisan_setu.dto.RequestDto.ReportUserRequestDto;
 import com.project.kisan_setu.dto.RequestDto.ReviewRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.OrderHistoryResponseDto;
 import com.project.kisan_setu.entity.*;
 import com.project.kisan_setu.enums.EscrowStatus;
 import com.project.kisan_setu.enums.NotificationStatus;
 import com.project.kisan_setu.enums.OrderStatus;
+import com.project.kisan_setu.enums.ReportStatus;
 import com.project.kisan_setu.repository.OrderRepository;
 import com.project.kisan_setu.repository.OtpRepository;
 import com.project.kisan_setu.repository.RatingReviewRepository;
-import com.project.kisan_setu.repository.ReportSellerRepository;
+import com.project.kisan_setu.repository.ReportUserRepository;
 import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.service.OrderHistoryService;
 import com.project.kisan_setu.util.OtpGenerator;
@@ -26,7 +27,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
     private final OrderRepository orderRepository;
     private final ValidatorMethods validatorMethods;
     private final RatingReviewRepository ratingReviewRepository;
-    private final ReportSellerRepository reportSellerRepository;
+    private final ReportUserRepository reportSellerRepository;
     private final OtpGenerator otpGenerator;
     private final OtpRepository otpRepository;
     private final NotificationService notificationService;
@@ -93,7 +94,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
     }
 
     @Override
-    public String reportSeller(Long orderId, ReportSellerRequestDto requestDto) {
+    public String reportSeller(Long orderId, ReportUserRequestDto requestDto) {
 
         Long buyerId = validatorMethods.getCurrentUserId();
 
@@ -115,6 +116,8 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         report.setReason(requestDto.getReason());
         report.setDescription(requestDto.getDescription());
         report.setCreatedAt(LocalDateTime.now());
+
+        report.setReportStatus(ReportStatus.OPEN);
 
         reportSellerRepository.save(report);
 

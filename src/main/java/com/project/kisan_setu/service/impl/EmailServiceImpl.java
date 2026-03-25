@@ -40,4 +40,37 @@ public class EmailServiceImpl implements EmailService {
 
        javaMailSender.send(message);
     }
+    @Override
+    public void sendDisputeEvidenceEmail(String toEmail, String name, String disputeCode) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Request for Evidence - Dispute " + disputeCode);
+
+        message.setText(
+                "Dear " + name + ",\n\n" +
+                        "We are reviewing a dispute (" + disputeCode + ") related to your order.\n" +
+                        "Please provide supporting evidence within 48 hours.\n\n" +
+                        "Login to your account and upload proof.\n\n" +
+                        "Regards,\nKisan Setu Team"
+        );
+
+        javaMailSender.send(message);
+
+    }
+    @Override
+    public void sendDisputeResolvedEmail(String toEmail, String name, String disputeCode) {
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Dispute Resolved - " + disputeCode);
+
+        message.setText(
+                "Dear " + name + ",\n\n" +
+                        "The dispute (" + disputeCode + ") has been resolved successfully.\n\n" +
+                        "If you have any further concerns, feel free to contact support.\n\n" +
+                        "Regards,\nKisan Setu Team"
+        );
+
+        javaMailSender.send(message);
+    }
 }

@@ -18,7 +18,7 @@ public class Dispute {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long disputeId;
 
-    private String disputeCode; // DIS001
+    private String disputeCode;
 
     @ManyToOne
     @JoinColumn(name = "order_id")
@@ -40,6 +40,8 @@ public class Dispute {
     private String description;
 
     private LocalDateTime createdAt;
+    private Boolean evidenceRequested = false;
+    private Boolean evidenceSubmitted = false;
 
 
 }

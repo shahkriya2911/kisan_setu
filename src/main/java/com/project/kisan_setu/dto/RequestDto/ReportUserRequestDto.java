@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReportSellerRequestDto {
+public class ReportUserRequestDto {
+    private Long orderId;
     @NotNull
     private ReportReason reason;
     private String description;

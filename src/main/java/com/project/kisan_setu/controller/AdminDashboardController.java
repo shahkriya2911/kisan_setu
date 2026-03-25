@@ -1,8 +1,6 @@
 package com.project.kisan_setu.controller;
-import com.project.kisan_setu.dto.ResponseDto.AdminDashboardResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.TopCommodityDto;
-import com.project.kisan_setu.dto.ResponseDto.UserDistributionDto;
-import com.project.kisan_setu.dto.ResponseDto.UserManagementDto;
+import com.project.kisan_setu.dto.RequestDto.ReportUserRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.service.AdminDashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -56,5 +54,32 @@ public class AdminDashboardController {
         String result = adminDashboardService.reactivateUser(userId);
         return ResponseEntity.ok(result);
     }
+    @GetMapping("/disputes")
+    public ResponseEntity<List<ReportResponseDto>> getAllDisputes(
+            @RequestParam(required = false) String status
+    ) {
+        return ResponseEntity.ok(adminDashboardService.getAllReports());
+    }
+    @PutMapping("/{reportId}/status")
+    public ResponseEntity<ReportResponseDto> updateStatus(
+            @PathVariable Long reportId,
+            @RequestParam String status
+    ) {
+        return ResponseEntity.ok(adminDashboardService.updateStatus(reportId, status));
+    }
+    @PostMapping("/request-evidence/{disputeId}")
+    public ResponseEntity<String> requestEvidence(@PathVariable Long disputeId) {
 
+        String response = adminDashboardService.requestMoreEvidence(disputeId);
+
+        return ResponseEntity.ok(response);
+    }
+    @PostMapping("/resolve/{disputeId}")
+    public ResponseEntity<String> resolveDispute(@PathVariable Long disputeId) {
+
+        String response = adminDashboardService.resolveDispute(disputeId);
+
+        return ResponseEntity.ok(response);
+    }
 }
+
