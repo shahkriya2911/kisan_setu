@@ -25,4 +25,5 @@ public interface OrderService {
     OrderResponseDto cancelOrder(Long orderId);
     OrderResponseDto markOutForDelivery(Long orderId);
 
+    String verifyDeliveryOtp(Long orderId, String otp);
 }

@@ -4,6 +4,8 @@ import com.project.kisan_setu.dto.RequestDto.BuyingRequirementRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
 import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.ListingSummaryResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.MyBiddingsResponseDto;
+import com.project.kisan_setu.service.BidService;
 import com.project.kisan_setu.service.BuyerService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import jakarta.validation.Valid;
@@ -14,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/buyers")
 @RequiredArgsConstructor
@@ -21,6 +25,7 @@ public class BuyerController {
 
     //constructor dependency injection
     private final BuyerService buyerService;
+    private final BidService bidService;
     private final ValidatorMethods validatorMethods;
     private static final Logger logger = LoggerFactory.getLogger(BuyerController.class);
 
@@ -100,4 +105,30 @@ public class BuyerController {
         logger.info("Listing summary fetched successfully");
         return ResponseEntity.ok(buyerService.getListingSummary(listingId));
     }
+
+    @GetMapping("/my-all-bids")
+    public ResponseEntity<List<MyBiddingsResponseDto>> getAllMyBids(){
+        return ResponseEntity.ok(bidService.getAllMyBids());
+    }
+
+    @GetMapping("my-pending-bids")
+    public ResponseEntity<List<MyBiddingsResponseDto>> getMyPendingBids(){
+        return ResponseEntity.ok(bidService.getMyPendingBids());
+    }
+
+    @GetMapping("my-accepted-bids")
+    public ResponseEntity<List<MyBiddingsResponseDto>> getMyAcceptedBids(){
+        return ResponseEntity.ok(bidService.getMyAcceptedBids());
+    }
+
+    @GetMapping("my-rejected-bids")
+    public ResponseEntity<List<MyBiddingsResponseDto>> getMyRejectedBids(){
+        return ResponseEntity.ok(bidService.getMyRejectedBids());
+    }
+
+    @GetMapping("my-outbid-bids")
+    public ResponseEntity<List<MyBiddingsResponseDto>> getMyOutbidBids(){
+        return ResponseEntity.ok(bidService.getMyOutbidBids());
+    }
+
 }

@@ -131,6 +131,8 @@ public class Listing {
 
     @OneToMany(mappedBy = "listing")
     private List<Notification> notifications = new ArrayList<>();
+    private BigDecimal topBid;
+    private Boolean bidAccepted = false;
 
 
 

@@ -108,6 +108,9 @@ public class BuyerServiceImpl implements BuyerService {
         if (listing.getSeller().getUserId().equals(buyer.getUserId())) {
             throw new RuntimeException("Seller cannot buy own listing");
         }
+        if (listing.getBidAccepted()) {
+            throw new RuntimeException("Bidding closed for this listing");
+        }
 
         if (listing.getSaleType() != SaleType.AUCTION) {
             throw new RuntimeException("Invalid sale type");

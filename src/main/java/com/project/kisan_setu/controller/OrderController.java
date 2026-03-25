@@ -23,7 +23,7 @@ public class OrderController {
 
     // accept bid
     @PostMapping("/accept/{bidId}")
-    public ResponseEntity<?> createOrder(@PathVariable Long bidId){
+    public ResponseEntity<?> createBid(@PathVariable Long bidId){
         logger.debug("Create order attempt for bid with id : {}",bidId);
         logger.info("Order created for bid with id : {}",bidId);
         return ResponseEntity.ok(orderService.createOrderFromAcceptedBid(bidId));
