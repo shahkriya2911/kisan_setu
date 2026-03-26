@@ -31,7 +31,7 @@ public class Bid {
 
     private LocalDateTime createdAt = LocalDateTime.now();
     @Enumerated(EnumType.STRING)
-    private BidStatus bidStatus =  BidStatus.NEW;
+    private BidStatus bidStatus =  BidStatus.PENDING;
 
     private BigDecimal amountPerKg;
     private LocalDateTime acceptedTime;

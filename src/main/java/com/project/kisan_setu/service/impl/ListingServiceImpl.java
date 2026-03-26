@@ -402,7 +402,7 @@ public class ListingServiceImpl implements ListingService {
 
         List<BidResponseDto> top5Bids =
                 bidRepository
-                        .findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(listingId,BidStatus.NEW)
+                        .findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(listingId,BidStatus.PENDING)
                         .stream()
                         .map(bid -> new BidResponseDto(
                                 bid.getBidId(),
@@ -410,7 +410,7 @@ public class ListingServiceImpl implements ListingService {
                                 bid.getBuyerAmount(),
                                 bid.getBuyer().getFullName(),
                                 bid.getBidTime(),
-                                BidStatus.NEW
+                                BidStatus.PENDING
                         ))
                         .toList();
 
@@ -577,7 +577,7 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
             Bid nextTopBid = bidRepository
                     .findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
                             listing.getListingId(),
-                            BidStatus.NEW
+                            BidStatus.PENDING
                     )
                     .orElse(null);
             Long topBidId = nextTopBid != null ? nextTopBid.getBidId() : null;
@@ -589,7 +589,7 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
                 bidRepository
                         .findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
                                 listing.getListingId(),
-                                BidStatus.NEW)
+                                BidStatus.PENDING)
                         .ifPresent(bid -> {
                             dto.setHighestBid(bid.getBuyerAmount());
                             dto.setTopBidderName(bid.getBuyer().getFullName());
@@ -737,7 +737,7 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
 
         List<Bid> bids = bidRepository
                 .findTop5ByListingSellerUserIdAndBidStatusOrderByCreatedAtDesc(
-                        seller.getUserId(), BidStatus.NEW);
+                        seller.getUserId(), BidStatus.PENDING);
 
         List<RecentBidResponseDto> response = new ArrayList<>();
 
@@ -776,7 +776,7 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
             throw new RuntimeException("You are not authorized to reject this bid");
         }
 
-        if (bid.getBidStatus() != BidStatus.NEW) {
+        if (bid.getBidStatus() != BidStatus.PENDING) {
             throw new RuntimeException("Bid is already " + bid.getBidStatus());
         }
 

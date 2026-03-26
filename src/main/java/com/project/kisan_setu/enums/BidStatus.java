@@ -1,9 +1,10 @@
 package com.project.kisan_setu.enums;
 
 public enum BidStatus {
-    NEW,
+    PENDING,
     ACCEPTED,
     REJECTED,
     EXPIRED,
-    FLAGGED
+    FLAGGED,
+    OUTBID
 }

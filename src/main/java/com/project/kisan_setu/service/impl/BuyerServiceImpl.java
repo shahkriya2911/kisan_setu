@@ -182,7 +182,7 @@ public class BuyerServiceImpl implements BuyerService {
             Bid bid = new Bid();
             bid.setBuyerAmount(dto.getBuyerAmount());
             bid.setBidTime(LocalDateTime.now());
-            bid.setBidStatus(BidStatus.NEW);
+            bid.setBidStatus(BidStatus.PENDING);
             bid.setListing(listing);
             bid.setBuyer(buyer);
 
@@ -197,7 +197,7 @@ public class BuyerServiceImpl implements BuyerService {
                     bid.getBuyerAmount(),
                     buyer.getFullName(),
                     bid.getBidTime(),
-                    BidStatus.NEW
+                    BidStatus.PENDING
 
             );
         }

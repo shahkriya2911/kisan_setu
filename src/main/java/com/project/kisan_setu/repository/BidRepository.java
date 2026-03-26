@@ -64,4 +64,6 @@ AND b.buyerAmount < (
     boolean existsByListingAndBidStatus(Listing listing, BidStatus bidStatus);
 
     List<Bid> findByBidStatusAndAcceptedTimeBefore(BidStatus bidStatus, LocalDateTime cutoff);
+
+    List<Bid> findByListingListingIdAndBidIdNot(Long listingId, Long bidId);
 }

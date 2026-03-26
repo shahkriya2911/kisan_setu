@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -72,6 +73,19 @@ public class OrderServiceImpl implements OrderService {
             bid.setAcceptedTime(LocalDateTime.now());
             bidRepository.save(bid);
         }
+        List<Bid> otherBids = bidRepository
+                .findByListingListingIdAndBidIdNot(
+                        listing.getListingId(),
+                        bid.getBidId()
+                );
+
+        for (Bid otherBid : otherBids) {
+            if (otherBid.getBidStatus() != BidStatus.ACCEPTED) {
+                otherBid.setBidStatus(BidStatus.OUTBID);
+            }
+        }
+
+        bidRepository.saveAll(otherBids);
         Order order = new Order();
         order.setBuyer(bid.getBuyer());
         order.setSeller(listing.getSeller());
@@ -83,6 +97,7 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(OrderStatus.PENDING_BUYER_CONFIRMATION);
         order.setConfirmationDeadline(LocalDateTime.now().plusHours(24));
         listing.setStatus(AuctionStatus.PENDING);
+        listing.setBidAccepted(true);
         listingRepository.save(listing);
         orderRepository.save(order);
         notificationService.createNotification(
@@ -90,6 +105,16 @@ public class OrderServiceImpl implements OrderService {
                 "Your bid has been accepted. Please confirm purchase.",
                 NotificationStatus.BID_ACCEPTED, listing, bid, order
         );
+        for (Bid otherBid : otherBids) {
+            notificationService.createNotification(
+                    otherBid.getBuyer(),
+                    "You have been outbid for listing " + listing.getListingId(),
+                    NotificationStatus.OUTBID,
+                    listing,
+                    otherBid,
+                    null
+            );
+        }
         return OrderMapper.toDto(order);
     }
 
@@ -153,7 +178,7 @@ public class OrderServiceImpl implements OrderService {
         Bid nextTopBid = bidRepository
                 .findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
                         listing.getListingId(),
-                        BidStatus.NEW
+                        BidStatus.PENDING
                 )
                 .orElse(null);
         if (nextTopBid != null){

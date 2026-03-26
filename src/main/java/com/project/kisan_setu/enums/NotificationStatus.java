@@ -11,5 +11,6 @@ public enum NotificationStatus {
     OUT_FOR_DELIVERY,
     PAYMENT_RELEASED,
     OTP_NOTIFICATION,
-    FLAGGED
+    FLAGGED,
+    OUTBID
 }

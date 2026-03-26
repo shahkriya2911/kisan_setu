@@ -2,6 +2,7 @@ package com.project.kisan_setu.service.impl;
 import com.project.kisan_setu.dto.RequestDto.ReportUserRequestDto;
 import com.project.kisan_setu.dto.RequestDto.ReviewRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.OrderHistoryResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ProductImageResponseDto;
 import com.project.kisan_setu.entity.*;
 import com.project.kisan_setu.enums.EscrowStatus;
 import com.project.kisan_setu.enums.NotificationStatus;
@@ -187,15 +188,33 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         return new OrderHistoryResponseDto(
                 order.getOrderId(),
                 order.getListing() != null ? order.getListing().getListingId() : null,
+                order.getListing() != null && order.getListing().getImages() != null
+                ? order.getListing().getImages().stream()
+                                .map(listingImage -> new ProductImageResponseDto(
+                                        listingImage.getFileName(),
+                                        listingImage.getFilePath(),
+                                        listingImage.getFileType(),
+                                        listingImage.getIsPrimary()
+                                )).toList():null,
                 order.getListing() != null && order.getListing().getCrop() != null
                         ? order.getListing().getCrop().getCropName()
+                        : null,
+                order.getListing() != null && order.getListing().getVariety() != null
+                        ? order.getListing().getVariety()
                         : null,
                 order.getBuyer() != null ? order.getBuyer().getFullName() : null,
                 order.getListing() != null && order.getListing().getSeller() != null
                         ? order.getListing().getSeller().getFullName():null,
                 order.getQuantity(),
                 order.getAmount(),
+                order.getListing() != null && order.getListing().getState() != null
+                        ? order.getListing().getState().getName()
+                        : null,
+                order.getListing() != null && order.getListing().getDistrict() != null
+                        ? order.getListing().getDistrict().getName()
+                        : null,
                 isBuyer ? "PURCHASED" : "SOLD",
+                order.getDeliveryOtp(),
                 getPaymentLabel(order, isBuyer),
                 order.getStatus() != null ? order.getStatus().name() : null,
                 order.getCreatedAt()

@@ -128,7 +128,9 @@ public class BuyerController {
 
     @GetMapping("my-outbid-bids")
     public ResponseEntity<List<MyBiddingsResponseDto>> getMyOutbidBids(){
-        return ResponseEntity.ok(bidService.getMyOutbidBids());
+        List<MyBiddingsResponseDto> response = bidService.getMyOutbidBids();
+
+        return ResponseEntity.ok(response);
     }
 
 }

@@ -28,7 +28,7 @@ public class BidServiceImpl implements BidService {
     @Override
     public List<MyBiddingsResponseDto> getAllMyBids() {
         Long buyerId = validatorMethods.getCurrentUserId();
-        List<BidStatus> statuses = List.of(BidStatus.NEW,BidStatus.REJECTED,BidStatus.EXPIRED,BidStatus.ACCEPTED);
+        List<BidStatus> statuses = List.of(BidStatus.PENDING,BidStatus.REJECTED,BidStatus.EXPIRED,BidStatus.ACCEPTED);
         List<Bid> getAllBids =  bidRepository
                 .findByBuyerUserIdAndBidStatusInOrderByCreatedAtAsc(buyerId,statuses);
         return getAllBids.stream()
@@ -45,7 +45,7 @@ public class BidServiceImpl implements BidService {
     public List<MyBiddingsResponseDto> getMyPendingBids() {
         Long buyerId = validatorMethods.getCurrentUserId();
         List<Bid> pendingBids = bidRepository
-                .findByBuyerUserIdAndBidStatusOrderByCreatedAtAsc(buyerId,BidStatus.NEW);
+                .findByBuyerUserIdAndBidStatusOrderByCreatedAtAsc(buyerId,BidStatus.PENDING);
         return pendingBids.stream()
                 .map(bid -> {
                     BigDecimal highestBid = bidRepository
@@ -90,14 +90,20 @@ public class BidServiceImpl implements BidService {
     public List<MyBiddingsResponseDto> getMyOutbidBids() {
         Long buyerId = validatorMethods.getCurrentUserId();
         List<Bid> outbidBids =  bidRepository
-                .findOutbidBids(buyerId,BidStatus.NEW);
+                .findOutbidBids(buyerId,BidStatus.OUTBID);
         return outbidBids.stream()
                 .map(bid -> {
+
                     BigDecimal highestBid = bidRepository
-                            .findTopByListingListingIdOrderByBuyerAmountDesc(bid.getListing().getListingId())
+                            .findTopByListingListingIdOrderByBuyerAmountDesc(
+                                    bid.getListing().getListingId())
                             .map(Bid::getBuyerAmount)
                             .orElse(BigDecimal.ZERO);
-                    return BidMapper.toResponse(bid,highestBid);
-                }).toList();
+
+                    // Use your mapper
+                    return BidMapper.toResponse(bid, highestBid);
+
+                })
+                .toList();
     }
 }
