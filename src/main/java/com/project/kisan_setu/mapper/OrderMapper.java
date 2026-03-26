@@ -13,6 +13,7 @@ public class OrderMapper {
         dto.setSellerId(order.getSeller().getUserId());
         dto.setStatus(order.getStatus().name());
         dto.setEscrowStatus(order.getEscrowStatus() != null ? order.getEscrowStatus().name() : null);
+        dto.setOtp(order.getDeliveryOtp());
         dto.setOtpVerified(order.isOtpVerified());
         dto.setCreatedAt(order.getCreatedAt());
         return dto;

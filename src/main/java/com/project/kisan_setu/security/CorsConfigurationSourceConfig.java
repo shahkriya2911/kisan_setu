@@ -65,7 +65,7 @@ public class CorsConfigurationSourceConfig {
 
         configuration.setAllowedOriginPatterns(List.of(
 
-                "http://localhost:3000",
+                "http://192.168.29.99:3000",
 
                 "https://*.ngrok-free.app",
 

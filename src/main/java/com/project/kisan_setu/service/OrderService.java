@@ -10,8 +10,6 @@ import java.math.BigDecimal;
 public interface OrderService {
     OrderResponseDto createOrderFromAcceptedBid(Long bidId);
 
-    OrderResponseDto markPayment(Long orderId);
-
     OrderResponseDto confirmOrder(Long orderId, Long buyerId);
 
     void rejectOrder(Long orderId);

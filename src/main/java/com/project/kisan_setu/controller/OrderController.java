@@ -31,11 +31,13 @@ public class OrderController {
 
     // buyer will confirm seller accept
     @PostMapping("/{orderId}/confirm")
-    public ResponseEntity<?> confirmOrder(@PathVariable Long orderId){
-        logger.debug("Confirm Order attempt for order with id : {}",orderId);
-        logger.info("Order confirmed for order with id : {}",orderId);
+    public ResponseEntity<OrderResponseDto> confirmOrder(
+            @PathVariable Long orderId) {
+
         Long buyerId = validatorMethods.getCurrentUserId();
-        return ResponseEntity.ok(orderService.confirmOrder(orderId,buyerId));
+
+        OrderResponseDto response = orderService.confirmOrder(orderId, buyerId);
+        return ResponseEntity.ok(response);
     }
 
     //buyer will reject accept
@@ -47,28 +49,27 @@ public class OrderController {
         return ResponseEntity.ok("Buyer rejected accepted bid");
     }
 
-    // buyer payment
-    @PostMapping("/{orderId}/payment")
-    public ResponseEntity<?> payment(@PathVariable Long orderId){
-        logger.debug("Payment Success attempt for order with id : {}",orderId);
-        logger.info("Payment success for order with id : {}",orderId);
-        return ResponseEntity.ok(orderService.markPayment(orderId));
-    }
 
     @GetMapping("/{orderId}")
     public Order getOrder(@PathVariable Long orderId){
         return orderService.getOrder(orderId);
     }
 
-    @PostMapping("buy-partial/{listingId}")
-    public ResponseEntity<OrderResponseDto> buyPartialLot(@PathVariable Long listingId,
-                                                          @RequestBody PartialLotRequestDto requestDto){
-        return ResponseEntity.ok(orderService.partialLot(listingId,requestDto));
+    @PostMapping("/buy-partial/{listingId}")
+    public ResponseEntity<OrderResponseDto> partialLot(
+            @PathVariable Long listingId,
+            @RequestBody PartialLotRequestDto requestDto) {
+
+        OrderResponseDto response = orderService.partialLot(listingId, requestDto);
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping("buy-whole/{listingId}")
-    public ResponseEntity<OrderResponseDto> buyWholeLot(@PathVariable Long listingId){
-        return ResponseEntity.ok(orderService.wholeLot(listingId));
+    @PostMapping("/buy-whole/{listingId}")
+    public ResponseEntity<OrderResponseDto> wholeLot(
+            @PathVariable Long listingId) {
+
+        OrderResponseDto response = orderService.wholeLot(listingId);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("cancel-order/{orderId}")

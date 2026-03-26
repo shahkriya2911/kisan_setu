@@ -93,58 +93,6 @@ public class OrderServiceImpl implements OrderService {
         return OrderMapper.toDto(order);
     }
 
-    @Override
-    @Transactional
-    public OrderResponseDto markPayment(Long orderId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
-        if (order.getStatus() != OrderStatus.PAYMENT_PENDING) {
-            throw new RuntimeException("Payment not expected");
-        }
-        order.setStatus(OrderStatus.PAYMENT_HELD);
-        order.setEscrowStatus(EscrowStatus.HELD);
-
-        String otp = otpGenerator.generateOtp();
-        order.setDeliveryOtp(otp);
-        order.setOtpGeneratedAt(LocalDateTime.now());
-        order.setOtpVerified(false);
-        order.setOtpAttempts(0);
-
-        Listing listing = order.getListing();
-        if (listing == null) {
-            throw new RuntimeException("Listing not found for order");
-        }
-
-        if (listing.getSaleType() == SaleType.AUCTION) {
-            listing.setStatus(AuctionStatus.SOLD);
-            listing.setQuantity(BigDecimal.ZERO);
-        } else if (listing.getSaleType() == SaleType.FIXED) {
-            BigDecimal available = listing.getQuantity();
-            if (available == null) {
-                throw new RuntimeException("Listing quantity not set");
-            }
-            BigDecimal remaining = available.subtract(order.getQuantity());
-            if (remaining.compareTo(BigDecimal.ZERO) < 0) {
-                throw new RuntimeException("Insufficient listing quantity");
-            }
-            listing.setQuantity(remaining);
-            if (remaining.compareTo(BigDecimal.ZERO) == 0) {
-                listing.setStatus(AuctionStatus.SOLD);
-            }
-        }
-        listingRepository.save(listing);
-        orderRepository.save(order);
-        notificationService.createNotification(
-                order.getSeller(),
-                "Payment received for your listing #" + order.getListing().getListingId(),
-                NotificationStatus.PAYMENT_RECEIVED, listing, null, order
-        );
-        notificationService.createNotification(
-                order.getBuyer(),
-                "Your delivery OTP for order #" + order.getOrderId() + " is " + otp,
-                NotificationStatus.DELIVERY_OTP_SENT, listing, null, order
-        );
-        return OrderMapper.toDto(order);
-    }
 
     @Transactional
     @Override
@@ -161,16 +109,23 @@ public class OrderServiceImpl implements OrderService {
             orderRepository.save(order);
             throw new RuntimeException("Order expired");
         }
-        order.setStatus(OrderStatus.PAYMENT_PENDING);
+        order.setStatus(OrderStatus.PAYMENT_HELD);
+        order.setEscrowStatus(EscrowStatus.HELD);
+        String otp = otpGenerator.generateOtp();
+        order.setDeliveryOtp(otp);
+        order.setOtpGeneratedAt(LocalDateTime.now());
+        order.setOtpVerified(false);
+        order.setOtpAttempts(0);
         Listing listing = order.getListing();
         listing.setBidAccepted(true);
         listingRepository.save(listing);
         orderRepository.save(order);
         notificationService.markOrderNotificationHandled(orderId);
         notificationService.createNotification(
-                order.getSeller(),
-                "Buyer confirmed order for listing #" + order.getListing().getListingId(),
-                NotificationStatus.ORDER_CONFIRMED,null,null,order
+                order.getBuyer(),
+                "Your delivery OTP for order #" + order.getOrderId() + " is " + otp,
+                NotificationStatus.DELIVERY_OTP_SENT,
+                listing, null, order
         );
         return OrderMapper.toDto(order);
     }
@@ -294,32 +249,43 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("Requested quantity exceeds available stock");
         }
 
-        BigDecimal totalPrice =
-                listing.getPricePerKg().multiply(quantity);
+        BigDecimal totalPrice = listing.getPricePerKg().multiply(quantity);
 
-        // reduce available quantity
+
         BigDecimal remaining = available.subtract(quantity);
         listing.setQuantity(remaining);
 
-        // if stock finished mark listing as sold
         if (remaining.compareTo(BigDecimal.ZERO) == 0) {
             listing.setStatus(AuctionStatus.SOLD);
         }
 
         Order order = new Order();
-
         order.setListing(listing);
         order.setBuyer(buyer);
         order.setSeller(listing.getSeller());
-
         order.setQuantity(quantity);
         order.setPricePerKg(listing.getPricePerKg());
-
         order.setAmount(totalPrice);
-        order.setStatus(OrderStatus.PAYMENT_PENDING);
         order.setCreatedAt(LocalDateTime.now());
 
+        order.setStatus(OrderStatus.PAYMENT_HELD);
+        order.setEscrowStatus(EscrowStatus.HELD);
+
+        String otp = otpGenerator.generateOtp();
+        order.setDeliveryOtp(otp);
+        order.setOtpGeneratedAt(LocalDateTime.now());
+        order.setOtpVerified(false);
+        order.setOtpAttempts(0);
+
+        listingRepository.save(listing);
         orderRepository.save(order);
+
+
+        notificationService.createNotification(
+                order.getBuyer(),
+                "Your delivery OTP for order #" + order.getOrderId() + " is " + otp,
+                NotificationStatus.DELIVERY_OTP_SENT, listing, null, order
+        );
 
         return OrderMapper.toDto(order);
     }
@@ -357,7 +323,25 @@ public class OrderServiceImpl implements OrderService {
         order.setAmount(totalPrice);
         order.setCreatedAt(LocalDateTime.now());
         order.setStatus(OrderStatus.PAYMENT_PENDING);
+        order.setEscrowStatus(EscrowStatus.HELD);
+
+        String otp = otpGenerator.generateOtp();
+        order.setDeliveryOtp(otp);
+        order.setOtpGeneratedAt(LocalDateTime.now());
+        order.setOtpVerified(false);
+        order.setOtpAttempts(0);
+
+        listing.setQuantity(BigDecimal.ZERO);
+        listing.setStatus(AuctionStatus.SOLD);
+
+        listingRepository.save(listing);
         orderRepository.save(order);
+
+        notificationService.createNotification(
+                order.getBuyer(),
+                "Your delivery OTP for order #" + order.getOrderId() + " is " + otp,
+                NotificationStatus.DELIVERY_OTP_SENT, listing, null, order
+        );
         return OrderMapper.toDto(order);
     }
 

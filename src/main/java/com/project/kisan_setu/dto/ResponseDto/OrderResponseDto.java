@@ -16,6 +16,7 @@ public class OrderResponseDto {
     private Long sellerId;
     private String status;
     private String escrowStatus;
+    private String otp;
     private Boolean otpVerified;
     private LocalDateTime createdAt;
 }
