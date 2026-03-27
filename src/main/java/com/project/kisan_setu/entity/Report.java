@@ -1,7 +1,5 @@
 package com.project.kisan_setu.entity;
-import com.project.kisan_setu.enums.ReportReason;
 import com.project.kisan_setu.enums.ReportStatus;
-import jakarta.annotation.Resource;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,8 +17,7 @@ public class Report {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reportId;
 
-    @Enumerated(EnumType.STRING)
-    private ReportReason reason;
+    private String reason;
 
     @Column(nullable = false, length = 1000)
     private String description;

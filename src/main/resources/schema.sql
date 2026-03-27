@@ -28,3 +28,8 @@ ALTER TABLE terms_and_policies
     ALTER COLUMN cookie_policy TYPE TEXT,
     ALTER COLUMN refund_policy TYPE TEXT,
     ALTER COLUMN community_guidelines TYPE TEXT;
+
+CREATE TABLE IF NOT EXISTS report_reason_master (
+    id SERIAL PRIMARY KEY,
+    reason_name VARCHAR(100) UNIQUE NOT NULL
+);

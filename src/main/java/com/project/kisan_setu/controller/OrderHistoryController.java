@@ -45,15 +45,7 @@ public class OrderHistoryController {
         return ResponseEntity.ok(orderHistoryService.reportSeller(orderId, requestDto));
     }
 
-    @PostMapping("/{orderId}/verify-delivery-otp")
-    public ResponseEntity<?> verifyDeliveryOtp(@PathVariable Long orderId,
-                                               @RequestParam Long sellerId,
-                                               @RequestParam String otp) {
 
-        return ResponseEntity.ok(
-                orderHistoryService.verifyDeliveryOtp(orderId, sellerId, otp)
-        );
-    }
     @GetMapping("/{orderId}/download-receipt")
     public ResponseEntity<?> downloadReceipt(@PathVariable Long orderId,
                                              @RequestParam Long buyerId) {
