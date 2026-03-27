@@ -1,6 +1,5 @@
 package com.project.kisan_setu.service.impl;
 
-import com.project.kisan_setu.dto.RequestDto.BidHistoryDto;
 import com.project.kisan_setu.dto.RequestDto.BuyingRequirementRequestDto;
 import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.*;
@@ -22,7 +21,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -259,21 +257,6 @@ public class BuyerServiceImpl implements BuyerService {
         dto.setFileType(image.getFileType());
         dto.setIsPrimary(image.getIsPrimary());
         return dto;
-    }
-    @Override
-    public List<BidHistoryDto> getBidHistory(Long listingId) {
-        List<Bid> bids =  bidRepository.findByListingListingIdOrderByBuyerAmountDesc(listingId);
-        return IntStream.range(0,bids.size()).mapToObj(i -> {
-            Bid bid = bids.get(i);
-            BidHistoryDto dto = new BidHistoryDto();
-            dto.setBidId(bid.getBidId());
-            dto.setBuyerAmount(bid.getBuyerAmount());
-            dto.setBidTime(bid.getBidTime());
-            dto.setBidderName(bid.getBuyer().getFullName());
-
-            dto.setBidHistoryStatus(i==0 ? "LEADING" : "OUTBID");
-            return dto;
-        }).toList();
     }
 
     @Override

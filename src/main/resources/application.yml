@@ -1,0 +1,4 @@
+weather:
+  api:
+    base-url: https://api.openweathermap.org
+    key: 0a9e69a6badb67b5a37e55022112500b

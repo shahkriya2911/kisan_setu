@@ -1,6 +1,5 @@
 package com.project.kisan_setu.service;
 
-import com.project.kisan_setu.dto.RequestDto.BidHistoryDto;
 import com.project.kisan_setu.dto.RequestDto.BuyingRequirementRequestDto;
 import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyerListingResponseDto;
@@ -24,8 +23,6 @@ public interface BuyerService {
     Object placeBid(
             Long listingId,
             PlaceBidRequestDto dto);
-
-    List<BidHistoryDto> getBidHistory(Long listingId);
 
     ListingSummaryResponseDto getListingSummary(Long listingId);
 

@@ -22,7 +22,10 @@ public class BidMapper {
         dto.setBidStatus(bid.getBidStatus());
         dto.setImages(ListingMapper.mapImages(listing));
         dto.setCurrentHighestBid(highestBid);
-
+        dto.setListingId(bid.getListing().getListingId());
+        dto.setDistrict(bid.getListing().getDistrict().getName());
+        dto.setUnit(bid.getListing().getUnit().getUnitName());
+        dto.setMinimumBidIncrement(bid.getListing().getMinimumBidIncrement());
         return dto;
     }
 }

@@ -14,6 +14,7 @@ import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.entity.*;
 
 import javax.swing.text.html.Option;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -350,11 +351,6 @@ public class ListingMapper {
         dto.setCreatedAt(listing.getCreatedAt());
         dto.setAuctionStatus(listing.getStatus());
         dto.setTopBid(topBid);
-        dto.setBidAccepted(listing.getBidAccepted());
-//        if(topBid != null){
-//            dto.setHighestBid(topBid.getBuyerAmount());
-//            dto.setTopBidderName(topBid.getBuyer().getFullName());
-//        }
 
         return dto;
     }

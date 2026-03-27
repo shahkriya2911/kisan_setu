@@ -59,4 +59,8 @@ public class ListingResponseDto {
 
     private LocalDateTime createdAt;
     private AuctionStatus auctionStatus;
+    private BigDecimal highestBid;
+    private String topBidderName;
+    private Long topBid;
+    private Long bidId;
 }

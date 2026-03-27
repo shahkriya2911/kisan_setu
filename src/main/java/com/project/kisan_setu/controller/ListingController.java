@@ -214,20 +214,6 @@ public class ListingController {
         return ResponseEntity.ok(listingService.getRecentBids());
     }
 
-    @PutMapping("/recent-bids/{bidId}/accept")
-    public ResponseEntity<String> acceptBid(@PathVariable Long bidId) {
-        logger.debug("Accept bid request attempt for bid with id : {} ",bidId);
-        logger.info("Bid accepted by user successfully");
-        return ResponseEntity.ok(listingService.acceptBid(bidId));
-    }
-
-    @PutMapping("/recent-bids/{bidId}/reject")
-    public ResponseEntity<String> rejectBid(@PathVariable Long bidId) {
-        logger.debug("Reject bid request attempt for bid with id : {}",bidId);
-        logger.info("Bid rejected bu user successfully");
-        return ResponseEntity.ok(listingService.rejectBid(bidId));
-    }
-
     @GetMapping("/my-pending-summary")
     public ResponseEntity<Page<ListingSummaryResponseDto>> pendingSummaryListings(Authentication authentication, Pageable pageable){
         logger.debug("Get all pending listings for user with id : {}",Long.parseLong(authentication.getName()));

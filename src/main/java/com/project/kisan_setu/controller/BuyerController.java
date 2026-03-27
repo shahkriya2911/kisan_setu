@@ -87,17 +87,6 @@ public class BuyerController {
 
     }
 
-    //git bid history of a particular auction or fixed listing
-    @GetMapping("/auctions/{listingId}/bids")
-    public ResponseEntity<?> getBidHistory(
-            @PathVariable Long listingId) {
-        logger.debug("Get bid history for listing with id : {} request attempt",listingId);
-        logger.info("Fetched bid history successfully");
-        return ResponseEntity.ok(
-                buyerService.getBidHistory(listingId)
-        );
-    }
-
     @GetMapping("/listings/{listingId}/summary")
     public ResponseEntity<ListingSummaryResponseDto> getListingSummary(
             @PathVariable Long listingId) {

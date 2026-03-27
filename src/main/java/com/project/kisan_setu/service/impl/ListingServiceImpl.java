@@ -402,7 +402,7 @@ public class ListingServiceImpl implements ListingService {
 
         List<BidResponseDto> top5Bids =
                 bidRepository
-                        .findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(listingId,BidStatus.PENDING)
+                        .findTop5ByListingListingIdOrderByBuyerAmountDesc(listingId)  //
                         .stream()
                         .map(bid -> new BidResponseDto(
                                 bid.getBidId(),
@@ -410,7 +410,7 @@ public class ListingServiceImpl implements ListingService {
                                 bid.getBuyerAmount(),
                                 bid.getBuyer().getFullName(),
                                 bid.getBidTime(),
-                                BidStatus.PENDING
+                                bid.getBidStatus()  //
                         ))
                         .toList();
 
@@ -551,7 +551,23 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
         logger.info("Getting all my listings...");
         Page<Listing> listings = listingRepository.findBySeller_UserId(userId,pageable);
         logger.info("Fetching my listings success...");
-        return listings.map(ListingMapper::toResponse);
+        return listings.map(listing -> {
+            ListingResponseDto dto = ListingMapper.toResponse(listing);
+
+            // Fetch top bid for this listing
+            Bid topBid = bidRepository.findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
+                    listing.getListingId(), BidStatus.PENDING
+            ).orElse(null);
+
+            if (topBid != null) {
+                dto.setBidId(topBid.getBidId());
+                dto.setHighestBid(topBid.getBuyerAmount());
+                dto.setTopBidderName(topBid.getBuyer().getFullName());
+                dto.setTopBid(topBid.getBidId());
+            }
+
+            return dto;
+        });
     }
 
     @Override
@@ -753,37 +769,6 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
         }
         logger.info("Fetching recent bids success...");
         return response;
-    }
-
-    @Override
-    public String acceptBid(Long bidId) {
-        logger.info("Accepting bid...");
-        orderService.createOrderFromAcceptedBid(bidId);
-        logger.info("Bid accepted successfully, order created and listing moved to pending.");
-        return "Bid Accepted Successfully";
-    }
-
-    @Override
-    public String rejectBid(Long bidId) {
-        logger.info("Rejecting bid...");
-        logger.info("Validating user...");
-        Long userId = validatorMethods.getCurrentUserId();
-
-        Bid bid = bidRepository.findById(bidId)
-                .orElseThrow(() -> new RuntimeException("Bid not found"));
-
-        if (!bid.getListing().getSeller().getUserId().equals(userId)) {
-            throw new RuntimeException("You are not authorized to reject this bid");
-        }
-
-        if (bid.getBidStatus() != BidStatus.PENDING) {
-            throw new RuntimeException("Bid is already " + bid.getBidStatus());
-        }
-
-        bid.setBidStatus(BidStatus.REJECTED);
-        bidRepository.save(bid);
-        logger.info("Bid rejected success...");
-        return "Bid Rejected Successfully";
     }
 
 //    @Override

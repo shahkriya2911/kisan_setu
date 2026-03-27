@@ -1,5 +1,6 @@
 package com.project.kisan_setu.dto.ResponseDto;
 
+import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.BidStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,4 +25,8 @@ public class MyBiddingsResponseDto {
     private BidStatus bidStatus;
     private List<ProductImageResponseDto> images;
     private BigDecimal currentHighestBid;
+    private Long listingId;
+    private String unit;
+    private String district;
+    private BigDecimal minimumBidIncrement;
 }

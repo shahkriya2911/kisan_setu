@@ -65,5 +65,4 @@ public class AuctionListingResponseDto {
     private BigDecimal highestBid;
     private String topBidderName;
     private Long topBid;
-    private Boolean bidAccepted;
 }

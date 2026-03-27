@@ -45,8 +45,6 @@ public interface ListingService {
     List<BuyingRequirementResponseDto> getBuyerRequirementsForSeller();
     BuyerContactResponseDto getBuyerContact(Long requirementId);
     List<RecentBidResponseDto> getRecentBids();
-    String acceptBid(Long bidId);
-    String rejectBid(Long bidId);
 
 //    Page<ListingSummaryResponseDto> activeSummaryListings(Long sellerId, Pageable pageable);
 

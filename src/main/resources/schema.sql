@@ -28,3 +28,6 @@ ALTER TABLE terms_and_policies
     ALTER COLUMN cookie_policy TYPE TEXT,
     ALTER COLUMN refund_policy TYPE TEXT,
     ALTER COLUMN community_guidelines TYPE TEXT;
+
+ALTER TABLE fraud_type_master
+ADD CONSTRAINT unique_fraud_type_name UNIQUE (type_name);
