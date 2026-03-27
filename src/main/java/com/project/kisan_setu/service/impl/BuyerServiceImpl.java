@@ -58,19 +58,38 @@ public class BuyerServiceImpl implements BuyerService {
     // Get Active Auction Listings
     @Override
     public List<BuyerListingResponseDto> getActiveAuctionListings(Long userId) {
-
-        return listingRepository.findBySaleTypeAndSellerUserIdNotAndStatus(SaleType.AUCTION, userId, AuctionStatus.ACTIVE)
+        closeExpiredListings();
+        return listingRepository
+                .findActiveAuctionListings(
+                        SaleType.AUCTION,
+                        AuctionStatus.ACTIVE,
+                        userId
+                )
+                .stream()
+                .map(this::toBuyerListingResponse)
+                .toList();
+    }
+    // ACTIVE FIXED LISTINGS
+    @Override
+    public List<BuyerListingResponseDto> getActiveFixedListings(Long userId) {
+        closeExpiredListings();
+        return listingRepository
+                .findActiveFixedListings(
+                        SaleType.FIXED,
+                        AuctionStatus.ACTIVE,
+                        userId
+                )
                 .stream()
                 .map(this::toBuyerListingResponse)
                 .toList();
     }
 
+    // CLOSE EXPIRED AUCTIONS
     @Override
-    public List<BuyerListingResponseDto> getActiveFixedListings(Long userId) {
-        return listingRepository.findBySaleTypeAndSellerUserIdNotAndStatus(SaleType.FIXED, userId,AuctionStatus.ACTIVE)
-                .stream()
-                .map(this::toBuyerListingResponse)
-                .toList();
+    @Transactional
+    public void closeExpiredListings() {
+        listingRepository.closeExpiredAuctions();
+        listingRepository.closeExpiredFixedListings();
     }
 
     @Override
