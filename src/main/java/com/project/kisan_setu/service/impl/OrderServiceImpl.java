@@ -421,25 +421,37 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public String verifyDeliveryOtp(Long orderId, String otp) {
-        Order order = orderRepository.findById(orderId).
-                orElseThrow(()->new RuntimeException("Order not found"));
-        if (order.isOtpVerified()){
-            throw new RuntimeException("Otp already used");
+
+        Long currentUserId = validatorMethods.getCurrentUserId();
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (!order.getSeller().getUserId().equals(currentUserId)) {
+            throw new RuntimeException("Only seller can verify delivery OTP");
         }
-        if (order.getStatus() != OrderStatus.PAYMENT_HELD
-                && order.getStatus() != OrderStatus.OUT_FOR_DELIVERY) {
+        if (order.isOtpVerified()) {
+            throw new RuntimeException("OTP already used");
+        }
+
+        if (order.getStatus() != OrderStatus.OUT_FOR_DELIVERY &&
+                order.getStatus() != OrderStatus.PAYMENT_HELD) {
             throw new RuntimeException("Order is not ready for delivery confirmation");
         }
+
         if (order.getDeliveryOtp() == null || order.getOtpGeneratedAt() == null) {
             throw new RuntimeException("OTP not generated for this order");
         }
-        if (order.getOtpGeneratedAt().plusHours(24).isBefore(LocalDateTime.now())){
-            throw new RuntimeException("Otp expired");
+
+        if (order.getOtpGeneratedAt().plusHours(24).isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("OTP expired");
         }
+
         if (!order.getDeliveryOtp().equals(otp)) {
 
             int attempts = (order.getOtpAttempts() == null ? 0 : order.getOtpAttempts()) + 1;
             order.setOtpAttempts(attempts);
+
             orderRepository.save(order);
 
             if (attempts >= 5) {
@@ -448,13 +460,13 @@ public class OrderServiceImpl implements OrderService {
 
             throw new RuntimeException("Invalid OTP");
         }
+
         order.setOtpVerified(true);
-
         order.setStatus(OrderStatus.COMPLETED);
-
         order.setEscrowStatus(EscrowStatus.RELEASED);
 
         orderRepository.save(order);
+
 
         notificationService.createNotification(
                 order.getSeller(),
@@ -464,6 +476,7 @@ public class OrderServiceImpl implements OrderService {
                 null,
                 order
         );
+
         return "Delivery confirmed, payment released.";
     }
 }

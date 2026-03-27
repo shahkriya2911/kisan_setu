@@ -646,3 +646,13 @@ INSERT INTO fraud_type_master (type_name) VALUES
 ('Other')
 
 ON CONFLICT (type_name) DO NOTHING;
+
+INSERT INTO report_reason_master (reason_name) VALUES
+('Poor product quality'),
+('Late or no delivery'),
+('Product not as described'),
+('Payment issues'),
+('Poor communication'),
+('Suspected fraud'),
+('Other')
+ON CONFLICT (reason_name) DO NOTHING;

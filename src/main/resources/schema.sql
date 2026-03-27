@@ -29,5 +29,10 @@ ALTER TABLE terms_and_policies
     ALTER COLUMN refund_policy TYPE TEXT,
     ALTER COLUMN community_guidelines TYPE TEXT;
 
+CREATE TABLE IF NOT EXISTS report_reason_master (
+    id SERIAL PRIMARY KEY,
+    reason_name VARCHAR(100) UNIQUE NOT NULL
+);
+
 ALTER TABLE fraud_type_master
 ADD CONSTRAINT unique_fraud_type_name UNIQUE (type_name);

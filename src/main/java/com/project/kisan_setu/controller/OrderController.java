@@ -78,9 +78,13 @@ public class OrderController {
     }
 
 
-    @PostMapping("/{orderId}/out-for-delivery")
-    public ResponseEntity<OrderResponseDto> markOutForDelivery(@PathVariable Long orderId){
-        return ResponseEntity.ok(orderService.markOutForDelivery(orderId));
+    @PostMapping("/verify-delivery-otp/{orderId}")
+    public ResponseEntity<String> verifyDeliveryOtp(
+            @PathVariable Long orderId,
+            @RequestBody OrderResponseDto request
+    ) {
+        String response = orderService.verifyDeliveryOtp(orderId, request.getOtp());
+        return ResponseEntity.ok(response);
     }
 
 }

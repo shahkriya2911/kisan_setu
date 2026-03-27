@@ -16,6 +16,6 @@ public interface OrderHistoryService {
     void verifyReceiptOtp(Long orderId, Long buyerId, String otpInput);
     void validateSellerCanDownload(Long orderId, Long buyerId);
     byte[] generateReceipt(Long orderId);
-    String verifyDeliveryOtp(Long orderId, Long sellerId, String otp);
+
 
 }

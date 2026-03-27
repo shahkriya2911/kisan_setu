@@ -222,7 +222,7 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
             dto.setTransactionId("TXN" + report.getOrder().getOrderId());
             dto.setBuyerName(String.valueOf(report.getBuyer()));
             dto.setSellerName(String.valueOf(report.getSeller()));
-            dto.setIssueType(report.getReason().name());
+            dto.setIssueType(report.getReason());
             dto.setStatus(report.getReportStatus().name());
             dto.setCreatedAt(report.getCreatedAt());
 
