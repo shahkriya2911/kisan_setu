@@ -41,4 +41,5 @@ public class BuyerListingResponseDto {
     private List<ProductImageResponseDto> images;
     private BigDecimal minimumOrderQuantity;
 
+
 }

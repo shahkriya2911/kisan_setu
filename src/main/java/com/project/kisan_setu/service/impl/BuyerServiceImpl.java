@@ -132,6 +132,14 @@ public class BuyerServiceImpl implements BuyerService {
         return new PageImpl<>(dtoList, pageable, listingPage.getTotalElements());
     }
 
+    // CLOSE EXPIRED AUCTIONS
+    @Override
+    @Transactional
+    public void closeExpiredListings() {
+        listingRepository.closeExpiredAuctions();
+        listingRepository.closeExpiredFixedListings();
+    }
+
     @Override
     public BuyerListingResponseDto getAuctionListingDetail(Long listingId) {
         Listing listing = validatorMethods.validateExists(listingId);

@@ -34,11 +34,8 @@ CREATE TABLE IF NOT EXISTS report_reason_master (
     reason_name VARCHAR(100) UNIQUE NOT NULL
 );
 
-ALTER TABLE fraud_type_master
-DROP CONSTRAINT IF EXISTS unique_fraud_type_name;
-
-ALTER TABLE fraud_type_master
-ADD CONSTRAINT unique_fraud_type_name UNIQUE (type_name);
+CREATE UNIQUE INDEX IF NOT EXISTS unique_fraud_type_name
+ON fraud_type_master (type_name);
 
 CREATE TABLE IF NOT EXISTS report_reason_master_Buyer (
     id SERIAL PRIMARY KEY,
