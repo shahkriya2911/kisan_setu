@@ -96,7 +96,7 @@ public class BidServiceImpl implements BidService {
         public List<MyBiddingsResponseDto> getMyOutbidBids() {
                 Long buyerId = validatorMethods.getCurrentUserId();
                 List<Bid> outbidBids = bidRepository
-                                .findOutbidBids(buyerId, BidStatus.PENDING, AuctionStatus.CLOSED);
+                                .findOutbidBids(buyerId, BidStatus.PENDING, AuctionStatus.EXPIRED);
                 return outbidBids.stream()
                                 .map(bid -> {
                                         BigDecimal highestBid = bidRepository

@@ -656,3 +656,16 @@ INSERT INTO report_reason_master (reason_name) VALUES
 ('Suspected fraud'),
 ('Other')
 ON CONFLICT (reason_name) DO NOTHING;
+
+INSERT INTO report_reason_master_Buyer (reason_name) VALUES
+('Payment not completed'),
+('Delayed payment'),
+('Refused to accept delivery'),
+('Cancelled order after confirmation'),
+('Negotiation abuse / price manipulation'),
+('Unresponsive / poor communication'),
+('Provided incorrect delivery details'),
+('Requested off-platform transaction'),
+('Suspected fraud'),
+('Other')
+ON CONFLICT (reason_name) DO NOTHING;

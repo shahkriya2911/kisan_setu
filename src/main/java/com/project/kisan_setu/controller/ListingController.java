@@ -197,7 +197,7 @@ public class ListingController {
         logger.info("Get buyer requirements for seller");
         logger.info("Buyer requirements for seller fetched successfully");
         return ResponseEntity.ok(
-                listingService.getBuyerRequirementsForSeller()
+                listingService.getAllRequirementsForSeller()
         );
     }
     @GetMapping("/requirements/contact/{requirementId}")

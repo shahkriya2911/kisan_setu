@@ -30,19 +30,38 @@ public class OrderHistoryController {
         return ResponseEntity.ok(orderHistoryService.getSoldOrderHistory());
     }
 
-    @PostMapping("/{orderId}/review")
-    public ResponseEntity<String> submitSellerReview(
+    @PostMapping("/seller/{orderId}")
+    public ResponseEntity<String> reviewSeller(
             @PathVariable Long orderId,
-            @Valid @RequestBody ReviewRequestDto requestDto) {
-        return ResponseEntity.ok(orderHistoryService.submitSellerReview(orderId, requestDto));
+            @RequestBody ReviewRequestDto requestDto) {
+
+        return ResponseEntity.ok(
+                orderHistoryService.submitSellerReview(orderId, requestDto)
+        );
+    }
+    @PostMapping("/buyer/{orderId}")
+    public ResponseEntity<String> reviewBuyer(
+            @PathVariable Long orderId,
+            @RequestBody ReviewRequestDto requestDto) {
+
+        return ResponseEntity.ok(
+               orderHistoryService.submitBuyerReview(orderId, requestDto)
+        );
     }
 
-    @PostMapping("/report/{orderId}")
+    @PostMapping("/report-Seller/{orderId}")
     public ResponseEntity<String> reportSeller(
             @PathVariable Long orderId,
             @RequestBody ReportUserRequestDto requestDto) {
 
         return ResponseEntity.ok(orderHistoryService.reportSeller(orderId, requestDto));
+    }
+    @PostMapping("/report-Buyer/{orderId}")
+    public ResponseEntity<String> reportBuyer(
+            @PathVariable Long orderId,
+            @RequestBody ReportUserRequestDto requestDto) {
+
+        return ResponseEntity.ok(orderHistoryService.reportBuyer(orderId, requestDto));
     }
 
 

@@ -38,7 +38,7 @@ public class QualityPricingListingDto {
     @NotNull(message = "moq price per kg is required")
     private BigDecimal moqPricePerKg;
     @Enumerated(EnumType.STRING)
-    private SaleType saleType;  // FIXED or AUCTION
+    private SaleType saleType;
     @NotNull
     private LocalDateTime auctionEndTime;
 }

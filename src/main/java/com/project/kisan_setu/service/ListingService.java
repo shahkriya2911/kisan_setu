@@ -42,7 +42,9 @@ public interface ListingService {
     Page<ListingResponseDto> closedListings(Long sellerId, Pageable pageable);
 
     String extendAuctionTime(ExtendAuctionDto dto);
-    List<BuyingRequirementResponseDto> getBuyerRequirementsForSeller();
+
+    List<BuyingRequirementResponseDto> getAllRequirementsForSeller();
+
     BuyerContactResponseDto getBuyerContact(Long requirementId);
     List<RecentBidResponseDto> getRecentBids();
 

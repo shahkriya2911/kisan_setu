@@ -21,11 +21,9 @@ public class BuyingRequirement {
     private Long requirementId;
 
     //buying requirement info
-    private String cropName;
     private String variety;
     private String grade;
     private BigDecimal quantityRequired;
-    private String unit;
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
     private String deliveryAddress;
@@ -49,4 +47,12 @@ public class BuyingRequirement {
     @ManyToOne()
     @JoinColumn(name = "district_id")
     private DistrictMaster district;
+
+    @ManyToOne
+    @JoinColumn(name = "crop_id")
+    private CropMaster crop;
+
+    @ManyToOne
+    @JoinColumn(name = "unit_id")
+    private UnitMaster unit;
 }

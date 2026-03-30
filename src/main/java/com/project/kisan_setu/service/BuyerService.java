@@ -5,17 +5,18 @@ import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyerListingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.ListingSummaryResponseDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface BuyerService {
 
-    public BuyingRequirementResponseDto postRequirement(BuyingRequirementRequestDto dto) ;
+    BuyingRequirementResponseDto postRequirement(BuyingRequirementRequestDto dto) ;
 
+    Page<BuyerListingResponseDto> getActiveAuctionListings(Long userId,Pageable pageable);
 
-        List<BuyerListingResponseDto> getActiveAuctionListings(Long userId);
-
-    List<BuyerListingResponseDto> getActiveFixedListings(Long userId);
+    Page<BuyerListingResponseDto> getActiveFixedListings(Long userId, Pageable pageable);
 
     BuyerListingResponseDto getAuctionListingDetail(Long listingId);
 

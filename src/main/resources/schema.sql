@@ -35,4 +35,12 @@ CREATE TABLE IF NOT EXISTS report_reason_master (
 );
 
 ALTER TABLE fraud_type_master
+DROP CONSTRAINT IF EXISTS unique_fraud_type_name;
+
+ALTER TABLE fraud_type_master
 ADD CONSTRAINT unique_fraud_type_name UNIQUE (type_name);
+
+CREATE TABLE IF NOT EXISTS report_reason_master_Buyer (
+    id SERIAL PRIMARY KEY,
+    reason_name VARCHAR(100) UNIQUE NOT NULL
+);

@@ -13,20 +13,22 @@ public class BuyingRequirementMapper {
             BuyingRequirementRequestDto dto, User buyer, CropMaster crop, UnitMaster unit, StateMaster state,DistrictMaster district) {
 
         BuyingRequirement br = new BuyingRequirement();
-        br.setCropName(String.valueOf(crop));
+        br.setCrop(crop);
         br.setVariety(dto.getVariety());
         br.setGrade(dto.getGrade());
         br.setQuantityRequired(dto.getQuantityRequired());
-        br.setUnit(String.valueOf(unit));
+        br.setUnit(unit);
         br.setMinPrice(dto.getMinPrice());
         br.setMaxPrice(dto.getMaxPrice());
+//        br.setState(state);
+//        br.setDistrict(district);
         br.setDeliveryAddress(dto.getDeliveryAddress());
         br.setDeadline(dto.getDeadline());
         br.setUrgency(dto.getUrgency());
         br.setAdditionalNote(dto.getAdditionalNotes());
         br.setBuyer(buyer);
         br.setCreatedAt(LocalDateTime.now());
-        br.setRequirementStatus(RequirementStatus.ACTIVE);
+        br.setRequirementStatus(RequirementStatus.OPEN);
 
         return br;
     }
@@ -34,20 +36,20 @@ public class BuyingRequirementMapper {
     public static BuyingRequirementResponseDto toDto(BuyingRequirement br) {
         return new BuyingRequirementResponseDto(
                 br.getRequirementId(),
-                br.getCropName(),
+                br.getCrop() != null ? br.getCrop().getCropName() : null,
                 br.getVariety(),
                 br.getGrade(),
                 br.getQuantityRequired(),
-                br.getUnit(),
+                br.getUnit() != null ? br.getUnit().getUnitName() : null,
                 br.getMinPrice(),
                 br.getMaxPrice(),
-                br.getState().getName(),
-                br.getDistrict().getName(),
+                br.getState() != null ? br.getState().getName() : null,
+                br.getDistrict() != null ? br.getDistrict().getName() : null,
                 br.getDeliveryAddress(),
                 br.getDeadline(),
                 br.getUrgency(),
                 br.getAdditionalNote(),
-                br.getBuyer().getFullName()
+                br.getBuyer() != null ? br.getBuyer().getFullName() : null
         );
     }
 }

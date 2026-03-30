@@ -1,6 +1,7 @@
 package com.project.kisan_setu.controller;
 
 import com.project.kisan_setu.dto.RequestDto.BuyingRequirementRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.BuyerListingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
 import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.ListingSummaryResponseDto;
@@ -12,6 +13,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -40,22 +43,20 @@ public class BuyerController {
 
     //get all auction listings
     @GetMapping("/auctions")
-    public ResponseEntity<?> getAuctionListings() {
-        logger.info("Get all auction listings request attempt");
-        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
-        logger.info("Fetched all auction listings successfully");
-        return ResponseEntity.ok(
-                buyerService.getActiveAuctionListings(userId));
+    public Page<BuyerListingResponseDto> getAuctionListings(Pageable pageable) {
+
+        Long userId = validatorMethods.getCurrentUserId();
+
+        return buyerService.getActiveAuctionListings(userId, pageable);
     }
 
     //get all fixed listings
     @GetMapping("/fixed")
-    public ResponseEntity<?> getFixedListings() {
-        logger.info("Get all fixed listings request attempt");
-        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
-        logger.info("Fetched all fixed listings successfully");
-        return ResponseEntity.ok(
-                buyerService.getActiveFixedListings(userId));
+    public Page<BuyerListingResponseDto> getFixedListings(Pageable pageable
+    ) {
+        Long userId = validatorMethods.getCurrentUserId();
+
+        return buyerService.getActiveAuctionListings(userId, pageable);
     }
 
     @GetMapping("/auctions/{listingId}")

@@ -12,7 +12,9 @@ public interface OrderHistoryService {
     List<OrderHistoryResponseDto> getPurchasedOrderHistory();
     List<OrderHistoryResponseDto> getSoldOrderHistory();
     String submitSellerReview(Long orderId, ReviewRequestDto requestDto);
+    String submitBuyerReview(Long orderId, ReviewRequestDto requestDto);
     String reportSeller(Long orderId, ReportUserRequestDto requestDto);
+    String reportBuyer(Long orderId, ReportUserRequestDto requestDto);
     void verifyReceiptOtp(Long orderId, Long buyerId, String otpInput);
     void validateSellerCanDownload(Long orderId, Long buyerId);
     byte[] generateReceipt(Long orderId);

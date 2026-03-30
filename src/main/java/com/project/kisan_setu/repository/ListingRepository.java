@@ -24,7 +24,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
     List<Listing> findBySaleType(SaleType saleType); //type of listing (fixed or auction)
     Page<Listing> findBySeller_UserIdAndStatus(Long sellerId,AuctionStatus status,Pageable pageable);
     Long countBySeller_UserIdAndStatus(Long sellerId, AuctionStatus status);
-    List<Listing> findBySaleTypeAndSellerUserIdNotAndStatus(SaleType saleType, Long sellerId,AuctionStatus auctionStatus);
+    Page<Listing> findBySaleTypeAndSellerUserIdNotAndStatus(SaleType saleType, Long sellerId,AuctionStatus auctionStatus,Pageable pageable);
     List<Listing> findByStatus(AuctionStatus auctionStatus);
 
     Long countBySaleTypeAndStatus(SaleType saleType, AuctionStatus listingStatus);

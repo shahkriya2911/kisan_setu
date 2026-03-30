@@ -1,5 +1,6 @@
 package com.project.kisan_setu.dto.ResponseDto;
 
+import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.SaleType;
 import lombok.AllArgsConstructor;
@@ -34,6 +35,7 @@ public class BuyerListingResponseDto {
     private BigDecimal pricePerKg;
     private PurchaseType purchaseType;
     private String district;
+    private AuctionStatus auctionStatus;
     private LocalDateTime auctionEndTime;
     private BigDecimal currentHighestBid;
     private List<ProductImageResponseDto> images;

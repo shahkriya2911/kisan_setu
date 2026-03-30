@@ -37,8 +37,10 @@ public class BuyingRequirementRequestDto {
     @Positive(message = "Maximum price must be greater than 0")
     private BigDecimal maxPrice;
 
+    @NotNull(message = "State is required")
     private String stateId;
 
+    @NotNull(message = "District is required")
     private String districtId;
 
     @NotBlank(message = "Delivery address is required")

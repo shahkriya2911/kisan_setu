@@ -347,7 +347,7 @@ public class OrderServiceImpl implements OrderService {
         order.setPricePerKg(listing.getPricePerKg());
         order.setAmount(totalPrice);
         order.setCreatedAt(LocalDateTime.now());
-        order.setStatus(OrderStatus.PAYMENT_PENDING);
+        order.setStatus(OrderStatus.PAYMENT_HELD);
         order.setEscrowStatus(EscrowStatus.HELD);
 
         String otp = otpGenerator.generateOtp();

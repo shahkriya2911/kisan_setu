@@ -4,10 +4,7 @@ import com.project.kisan_setu.dto.RequestDto.ReviewRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.OrderHistoryResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.ProductImageResponseDto;
 import com.project.kisan_setu.entity.*;
-import com.project.kisan_setu.enums.EscrowStatus;
-import com.project.kisan_setu.enums.NotificationStatus;
-import com.project.kisan_setu.enums.OrderStatus;
-import com.project.kisan_setu.enums.ReportStatus;
+import com.project.kisan_setu.enums.*;
 import com.project.kisan_setu.repository.OrderRepository;
 import com.project.kisan_setu.repository.OtpRepository;
 import com.project.kisan_setu.repository.RatingReviewRepository;
@@ -16,7 +13,6 @@ import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.service.OrderHistoryService;
 import com.project.kisan_setu.util.OtpGenerator;
 import com.project.kisan_setu.util.ValidatorMethods;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -46,7 +42,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         Long userId = validatorMethods.getCurrentUserId();;
         return orderRepository.findByBuyer_UserId(userId)
                 .stream()
-                .filter(order -> order.getStatus() == OrderStatus.PAYMENT_PENDING
+                .filter(order -> order.getStatus() == OrderStatus.PAYMENT_HELD
                         || order.getStatus() == OrderStatus.COMPLETED)
                 .map(order -> mapToDto(order, userId))
                 .toList();
@@ -54,31 +50,43 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
 
     @Override
     public List<OrderHistoryResponseDto> getSoldOrderHistory() {
+
         Long userId = validatorMethods.getCurrentUserId();
+
         return orderRepository.findBySeller_UserId(userId)
                 .stream()
-                .filter(order -> order.getStatus() == OrderStatus.COMPLETED)
+                .filter(order ->
+                        (order.getStatus() == OrderStatus.COMPLETED ||
+                                order.getStatus() == OrderStatus.PAYMENT_HELD) &&
+
+                                order.getListing() != null &&
+
+                                order.getListing().getSaleType() == SaleType.AUCTION
+                )
                 .map(order -> mapToDto(order, userId))
                 .toList();
     }
 
     @Override
     public String submitSellerReview(Long orderId, ReviewRequestDto requestDto) {
+
         Long buyerId = validatorMethods.getCurrentUserId();
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
+        // Check buyer ownership
         if (!order.getBuyer().getUserId().equals(buyerId)) {
             throw new RuntimeException("You are not allowed to review this order");
         }
 
+        // Only completed orders
         if (order.getStatus() != OrderStatus.COMPLETED) {
             throw new RuntimeException("Review allowed only for completed orders");
         }
 
-        if (ratingReviewRepository.existsByOrder_OrderId(orderId)) {
-            throw new RuntimeException("Review already submitted for this order");
+        if (ratingReviewRepository.existsByOrder_OrderIdAndBuyer_UserId(orderId, buyerId)) {
+            throw new RuntimeException("Review already submitted");
         }
 
         RatingAndReview review = new RatingAndReview();
@@ -91,7 +99,39 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
 
         ratingReviewRepository.save(review);
 
-        return "Review submitted successfully";
+        return "Seller reviewed successfully";
+    }
+    @Override
+    public String submitBuyerReview(Long orderId, ReviewRequestDto requestDto) {
+
+        Long sellerId = validatorMethods.getCurrentUserId();
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (!order.getListing().getSeller().getUserId().equals(sellerId)) {
+            throw new RuntimeException("You are not allowed to review this order");
+        }
+
+        if (order.getStatus() != OrderStatus.COMPLETED) {
+            throw new RuntimeException("Review allowed only for completed orders");
+        }
+
+        if (ratingReviewRepository.existsByOrder_OrderIdAndSeller_UserId(orderId, sellerId)) {
+            throw new RuntimeException("Review already submitted");
+        }
+
+        RatingAndReview review = new RatingAndReview();
+        review.setOrder(order);
+        review.setBuyer(order.getBuyer());
+        review.setSeller(order.getListing().getSeller());
+        review.setRating(requestDto.getRating());
+        review.setReview(requestDto.getReview());
+        review.setCreatedAt(LocalDateTime.now());
+
+        ratingReviewRepository.save(review);
+
+        return "Buyer reviewed successfully";
     }
 
     @Override
@@ -123,6 +163,40 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         reportSellerRepository.save(report);
 
         return "Seller reported successfully";
+    }
+
+    @Override
+    public String reportBuyer(Long orderId, ReportUserRequestDto requestDto) {
+
+        Long sellerId = validatorMethods.getCurrentUserId();
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (order.getListing() == null ||
+                order.getListing().getSeller() == null ||
+                !order.getListing().getSeller().getUserId().equals(sellerId)) {
+
+            throw new RuntimeException("This seller is not allowed to report this buyer");
+        }
+
+        if (order.getBuyer() == null) {
+            throw new RuntimeException("Buyer not found for this order");
+        }
+
+        Report report = new Report();
+        report.setOrder(order);
+        report.setSeller(order.getListing().getSeller());
+        report.setBuyer(order.getBuyer());
+
+        report.setReason(requestDto.getReason());
+        report.setDescription(requestDto.getDescription());
+        report.setCreatedAt(LocalDateTime.now());
+        report.setReportStatus(ReportStatus.OPEN);
+
+        reportSellerRepository.save(report);
+
+        return "Buyer reported successfully";
     }
 
 

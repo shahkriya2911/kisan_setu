@@ -13,6 +13,7 @@ import com.project.kisan_setu.service.BuyerService;
 import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,42 +36,100 @@ public class BuyerServiceImpl implements BuyerService {
     @Override
     public BuyingRequirementResponseDto postRequirement(BuyingRequirementRequestDto dto) {
 
-       Long userId = validatorMethods.getCurrentUserId();
+        Long userId = validatorMethods.getCurrentUserId();
+
         User buyer = validatorMethods.validateUserById(userId);
         CropMaster crop = validatorMethods.validateCrop(Long.valueOf(dto.getCropId()));
         UnitMaster unit = validatorMethods.validateUnit(Long.valueOf(dto.getUnitId()));
         StateMaster state = validatorMethods.validateState(Long.valueOf(dto.getStateId()));
         DistrictMaster district = validatorMethods.validateDistrict(Long.valueOf(dto.getDistrictId()));
 
-        BuyingRequirement requirement=
-                BuyingRequirementMapper.toEntity(dto, buyer,crop,unit,state,district);
+        BuyingRequirement requirement =
+                BuyingRequirementMapper.toEntity(dto, buyer, crop, unit, state, district);
 
-        requirement.setState(state);
-        requirement.setDistrict(district);
-
-        BuyingRequirement saved =
-                buyingRequirementRepository.save(requirement);
+        BuyingRequirement saved = buyingRequirementRepository.save(requirement);
 
         return BuyingRequirementMapper.toDto(saved);
     }
-
-
-    // Get Active Auction Listings
     @Override
-    public List<BuyerListingResponseDto> getActiveAuctionListings(Long userId) {
+    @Transactional
+    public Page<BuyerListingResponseDto> getActiveAuctionListings(Long userId,Pageable pageable) {
 
-        return listingRepository.findBySaleTypeAndSellerUserIdNotAndStatus(SaleType.AUCTION, userId, AuctionStatus.ACTIVE)
-                .stream()
+        Page<Listing> listingPage = listingRepository
+                .findBySaleTypeAndSellerUserIdNotAndStatus(
+                        SaleType.AUCTION,
+                        userId,
+                        AuctionStatus.ACTIVE,
+                        pageable
+                );
+
+
+        List<Listing> listings = listingPage.getContent();
+
+        LocalDateTime now = LocalDateTime.now();
+        boolean updated = false;
+        for (Listing listing : listings) {
+
+            boolean isTimeExpired = listing.getAuctionEndTime() != null &&
+                    listing.getAuctionEndTime().isBefore(now);
+
+            boolean isAlreadySold = listing.getIsSold() != null &&
+                    listing.getIsSold();
+
+            if (isTimeExpired || isAlreadySold) {
+                listing.setStatus(AuctionStatus.EXPIRED);
+                updated = true;
+            }
+        }
+
+        if (updated) {
+            listingRepository.saveAll(listings);
+        }
+
+        List<BuyerListingResponseDto> dtoList = listings.stream()
+                .filter(l -> l.getStatus() == AuctionStatus.ACTIVE)
                 .map(this::toBuyerListingResponse)
                 .toList();
+
+        return new PageImpl<>(dtoList, pageable, listingPage.getTotalElements());
     }
 
     @Override
-    public List<BuyerListingResponseDto> getActiveFixedListings(Long userId) {
-        return listingRepository.findBySaleTypeAndSellerUserIdNotAndStatus(SaleType.FIXED, userId,AuctionStatus.ACTIVE)
-                .stream()
+    @Transactional
+    public Page<BuyerListingResponseDto> getActiveFixedListings(Long userId,Pageable pageable){
+
+        Page<Listing> listingPage = listingRepository
+                .findBySaleTypeAndSellerUserIdNotAndStatus(
+                        SaleType.FIXED,
+                        userId,
+                        AuctionStatus.ACTIVE,
+                        pageable
+
+                );
+        List<Listing> listings = listingPage.getContent();
+        boolean updated = false;
+        for (Listing listing : listings) {
+
+            boolean isOutOfStock =
+                    listing.getRemainingQuantity() != null &&
+                            listing.getRemainingQuantity().compareTo(BigDecimal.ZERO) <= 0;
+
+            if (isOutOfStock) {
+                listing.setStatus(AuctionStatus.EXPIRED);
+                updated = true;
+            }
+        }
+
+        if (updated) {
+            listingRepository.saveAll(listings);
+        }
+
+        List<BuyerListingResponseDto> dtoList = listings.stream()
+                .filter(l -> l.getStatus() == AuctionStatus.ACTIVE)
                 .map(this::toBuyerListingResponse)
                 .toList();
+
+        return new PageImpl<>(dtoList, pageable, listingPage.getTotalElements());
     }
 
     @Override
@@ -243,6 +302,7 @@ public class BuyerServiceImpl implements BuyerService {
                 listing.getPricePerKg(),
                 listing.getPurchaseType(),
                 listing.getDistrict() != null ? listing.getDistrict().getName() : null,
+                listing.getStatus(),
                 listing.getAuctionEndTime(),
                 currentHighest,
                 images,

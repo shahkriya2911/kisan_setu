@@ -75,6 +75,8 @@ public class Listing {
     private boolean thirtyMinuteNotified = false;
     @Column(nullable = false)
     private boolean sellerFlagProcessed = false;
+    private Boolean isSold;
+    private BigDecimal remainingQuantity;
 
 
     // Relationship with user

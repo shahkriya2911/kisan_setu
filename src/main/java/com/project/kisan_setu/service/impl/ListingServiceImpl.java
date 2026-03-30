@@ -18,13 +18,11 @@ import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.service.OrderService;
 import com.project.kisan_setu.util.ValidatorMethods;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -32,7 +30,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -138,7 +135,7 @@ public class ListingServiceImpl implements ListingService {
             if (listing.getAuctionEndTime().isAfter(LocalDateTime.now())) {
                 listing.setStatus(AuctionStatus.ACTIVE);
             } else {
-                listing.setStatus(AuctionStatus.CLOSED);
+                listing.setStatus(AuctionStatus.EXPIRED);
             }
 
         } else {
@@ -639,7 +636,7 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
     @Override
     public Page<ListingResponseDto> closedListings(Long sellerId, Pageable pageable) {
         logger.info("Getting closed listings...");
-        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.CLOSED,pageable);
+        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.EXPIRED,pageable);
         logger.info("Fetching closed listings success...");
         return listings.map(ListingMapper::toResponse);
     }
@@ -679,51 +676,21 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
     }
 
     @Override
-    public List<BuyingRequirementResponseDto> getBuyerRequirementsForSeller() {
-//        validatorMethods.validateUserAccess();
-        logger.info("Getting buyer requirements for seller...");
-        logger.info("Validating user...");
-        Long userId = validatorMethods.getCurrentUserId();
-        User seller = validatorMethods.validateUserById(userId);
+    public List<BuyingRequirementResponseDto> getAllRequirementsForSeller() {
 
-        logger.info("Checking if listing exists in DB or not...");
-        List<Listing> sellerListings = listingRepository.findBySellerUserId(seller.getUserId());
-        List<BuyingRequirement> requirements = new ArrayList<>();
-        for (Listing listing : sellerListings) {
+        Long currentUserId = validatorMethods.getCurrentUserId();
 
-            List<BuyingRequirement> requirement =
-                    buyingRequirementRepository
-                            .findByCropNameIgnoreCase(
-                                    listing.getCrop().getCropName());
+        List<BuyingRequirement> list =
+                buyingRequirementRepository
+                        .findByRequirementStatusAndBuyer_UserIdNot(
+                                RequirementStatus.OPEN,
+                                currentUserId
+                        );
 
-            requirements.addAll(requirement);
-            logger.info("Validating requirements...");
-            for (BuyingRequirement req : requirements) {
-
-                // Skip if seller is same as buyer
-                if (!req.getBuyer().getUserId().equals(seller.getUserId())) {
-                    continue;
-                }
-                if (req.getDeadline() != null &&
-                        req.getDeadline().isBefore(ChronoLocalDate.from(LocalDateTime.now()))) {
-                    continue;
-                }
-                if (req.getRequirementStatus() != RequirementStatus.ACTIVE) {
-                    continue;
-                }
-                if (listing.getQuantity()
-                        .compareTo(req.getQuantityRequired()) < 0) {
-                    continue;
-                }
-                requirements.add(req);
-            }
-        }
-        logger.info("Fetching buyer requirements success...");
-        return requirements.stream()
+        return list.stream()
                 .map(BuyingRequirementMapper::toDto)
                 .toList();
     }
-
     @Override
     public BuyerContactResponseDto getBuyerContact(Long requirementId) {
 //        validatorMethods.validateUserAccess();
@@ -738,9 +705,9 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
                 requirement.getRequirementId(),
                 buyer.getFullName(),
                 buyer.getMobileNumber(),
-                requirement.getCropName(),
+                requirement.getCrop().getCropName(),
                 requirement.getQuantityRequired(),
-                requirement.getUnit()
+                requirement.getUnit().getUnitName()
         );
     }
 
@@ -810,7 +777,7 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
     @Override
     public Page<ListingSummaryResponseDto> closedSummaryListings(Long sellerId, Pageable pageable) {
         logger.info("Getting closed listings...");
-        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.CLOSED,pageable);
+        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId,AuctionStatus.EXPIRED,pageable);
         logger.info("Fetching closed listings success...");
         return listings.map(listing -> {
             ListingSummaryResponseDto dto = ListingMapper.toSummaryResponse(listing);
