@@ -6,12 +6,10 @@ import com.project.kisan_setu.dto.ResponseDto.ProductImageResponseDto;
 import com.project.kisan_setu.entity.*;
 import com.project.kisan_setu.enums.*;
 import com.project.kisan_setu.repository.OrderRepository;
-import com.project.kisan_setu.repository.OtpRepository;
 import com.project.kisan_setu.repository.RatingReviewRepository;
 import com.project.kisan_setu.repository.ReportUserRepository;
-import com.project.kisan_setu.service.NotificationService;
+import com.project.kisan_setu.service.InvoiceService;
 import com.project.kisan_setu.service.OrderHistoryService;
-import com.project.kisan_setu.util.OtpGenerator;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,9 +23,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
     private final ValidatorMethods validatorMethods;
     private final RatingReviewRepository ratingReviewRepository;
     private final ReportUserRepository reportSellerRepository;
-    private final OtpGenerator otpGenerator;
-    private final OtpRepository otpRepository;
-    private final NotificationService notificationService;
+    private final InvoiceService invoiceService;
     @Override
     public List<OrderHistoryResponseDto> getAllOrderHistory() {
         Long userId = validatorMethods.getCurrentUserId();
@@ -201,58 +197,22 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
 
 
     @Override
-    public void verifyReceiptOtp(Long orderId, Long buyerId, String otpInput) {
-        OrderOtp orderOtp = otpRepository
-                .findTopByOrderIdAndBuyerIdOrderByIdDesc(orderId, buyerId)
-                .orElseThrow(() -> new RuntimeException("OTP not found"));
-
-        if (orderOtp.getAttempts() >= 3) {
-            throw new RuntimeException("Too many attempts. Try again later.");
-        }
-
-        if (orderOtp.getExpiryTime().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("OTP expired");
-        }
-
-        if (!orderOtp.getOtp().equals(otpInput)) {
-            orderOtp.setAttempts(orderOtp.getAttempts() + 1);
-            otpRepository.save(orderOtp);
-            throw new RuntimeException("Invalid OTP");
-        }
-
-        if (orderOtp.isVerified()) {
-            throw new RuntimeException("OTP already used");
-        }
-        orderOtp.setVerified(true);
-        otpRepository.save(orderOtp);
-
-    }
-    public void validateSellerCanDownload(Long orderId, Long buyerId) {
-
+    public byte[] downloadInvoice(Long orderId) {
+        Long currentUserId = validatorMethods.getCurrentUserId();
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        if (!order.getBuyer().getUserId().equals(buyerId)) {
-            throw new RuntimeException("Unauthorized: Not your order");
+        if (order.getStatus() != OrderStatus.COMPLETED) {
+            throw new RuntimeException("Invoice is available only for completed orders");
         }
 
-        OrderOtp orderOtp =otpRepository
-                .findByOrderIdAndBuyerIdAndVerifiedTrue(orderId, buyerId)
-                .orElseThrow(() -> new RuntimeException("OTP verification required"));
-
-        if (orderOtp.getExpiryTime().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("OTP expired. Request again.");
+        boolean isBuyer = order.getBuyer() != null && order.getBuyer().getUserId().equals(currentUserId);
+        boolean isSeller = order.getSeller() != null && order.getSeller().getUserId().equals(currentUserId);
+        if (!isBuyer && !isSeller) {
+            throw new RuntimeException("Unauthorized: You cannot access this invoice");
         }
 
-        orderOtp.setVerified(false);
-        otpRepository.save(orderOtp);
-    }
-
-    public byte[] generateReceipt(Long orderId) {
-
-        String content = "Receipt for Order ID: " + orderId;
-
-        return content.getBytes();
+        return invoiceService.generateInvoice(order);
     }
 
 

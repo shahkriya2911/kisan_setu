@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Invoice</title>
+
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            margin: 0;
+            background: #e5e5e5;
+            font-family: Arial, sans-serif;
+        }
+
+        .page {
+            width: 210mm;
+            height: 297mm;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .invoice {
+            width: 320px;
+            background: #ffffff;
+            padding: 22px 20px;
+            border-radius: 10px;
+            border: 1px solid #dcdcdc;
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: rgb(121, 192, 14);
+        }
+
+        .subtitle {
+            font-size: 11px;
+            color: #666666;
+            margin-top: 4px;
+        }
+
+        .divider {
+            border-top: 1px dashed #cccccc;
+            margin: 14px 0;
+        }
+
+        .check {
+            text-align: center;
+            color: rgb(121, 192, 14);
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .success {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin: 6px 0;
+            gap: 12px;
+        }
+
+        .label {
+            color: #555555;
+        }
+
+        .value {
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .amount {
+            color: rgb(121, 192, 14);
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        .section-title {
+            font-size: 10px;
+            color: #777777;
+            margin-top: 18px;
+            margin-bottom: 2px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .text {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            margin-left: 10px;
+        }
+
+        .status-label {
+            text-align: center;
+            font-size: 10px;
+            color: #777777;
+            margin-top: 8px;
+        }
+
+        .status {
+            text-align: center;
+            color: rgb(121, 192, 14);
+            font-weight: 700;
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            margin-top: 10px;
+        }
+
+        .date-row {
+            margin-top: 12px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="page">
+    <div class="invoice">
+        <div class="header">
+            <div class="logo">Kisan<span>Setu</span></div>
+            <div class="subtitle">Verified agricultural trade invoice</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="check">OK</div>
+        <div class="success">Transaction Successful</div>
+
+        <div class="divider"></div>
+
+        <div class="row">
+            <div class="label">Amount:</div>
+            <div class="amount" th:text="${amount}">Rs. 52,000</div>
+        </div>
+
+        <div class="section-title">BUYER</div>
+        <div class="text" th:text="${buyerName}">Suresh Singh</div>
+
+        <div class="section-title">SELLER</div>
+        <div class="text" th:text="${sellerName}">Mahesh Agro</div>
+
+        <div class="section-title">CROP</div>
+        <div class="text" th:text="${cropName}">Wheat</div>
+
+        <div class="section-title" th:if="${variety != null and !#strings.isEmpty(variety)}">VARIETY</div>
+        <div class="text" th:if="${variety != null and !#strings.isEmpty(variety)}" th:text="${variety}">Sharbati</div>
+
+        <div class="divider"></div>
+
+        <div class="row date-row">
+            <div class="label">Date:</div>
+            <div class="value" th:text="${invoiceDate}">March 10, 2026</div>
+        </div>
+
+        <div class="row date-row">
+            <div class="label">Order ID:</div>
+            <div class="value" th:text="${orderReference}">#ORD-2026-001198</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row">
+            <div class="label">Payment Mode:</div>
+            <div class="value" th:text="${paymentMode}">Escrow</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Quantity:</div>
+            <div class="value" th:text="${quantity}">520 Kg</div>
+        </div>
+
+        <div class="row" th:if="${pricePerKg != null}">
+            <div class="label">Price / Unit:</div>
+            <div class="value" th:text="${pricePerKg}">Rs. 100 / Kg</div>
+        </div>
+
+        <div class="row" th:if="${listingLocation != null}">
+            <div class="label">Location:</div>
+            <div class="value" th:text="${listingLocation}">Nashik, Maharashtra</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="status-label">Status</div>
+        <div class="status" th:text="${statusLabel}">VERIFIED</div>
+
+        <div class="divider"></div>
+
+        <div class="footer">
+            Thank you for your business!<br /><br />
+            KisanSetu Marketplace
+        </div>
+    </div>
+</div>
+</body>
+</html>
