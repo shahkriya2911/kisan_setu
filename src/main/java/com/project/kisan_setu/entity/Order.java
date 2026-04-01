@@ -71,6 +71,8 @@ public class Order {
 
     private LocalDateTime createdAt;
 
+    private LocalDateTime completedAt;
+
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {

@@ -3,7 +3,6 @@ import com.project.kisan_setu.dto.RequestDto.ReportUserRequestDto;
 import com.project.kisan_setu.dto.RequestDto.ReviewRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.OrderHistoryResponseDto;
 import com.project.kisan_setu.service.OrderHistoryService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -64,16 +63,12 @@ public class OrderHistoryController {
         return ResponseEntity.ok(orderHistoryService.reportBuyer(orderId, requestDto));
     }
 
-
-    @GetMapping("/{orderId}/download-receipt")
-    public ResponseEntity<?> downloadReceipt(@PathVariable Long orderId,
-                                             @RequestParam Long buyerId) {
-
-       orderHistoryService.validateSellerCanDownload(orderId, buyerId);
-        byte[] pdf = orderHistoryService.generateReceipt(orderId);
+    @GetMapping({"/{orderId}/download-receipt", "/{orderId}/download-invoice"})
+    public ResponseEntity<byte[]> downloadInvoice(@PathVariable Long orderId) {
+        byte[] pdf = orderHistoryService.downloadInvoice(orderId);
 
         return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=receipt_" + orderId + ".pdf")
+                .header("Content-Disposition", "attachment; filename=invoice_" + orderId + ".pdf")
                 .header("Content-Type", "application/pdf")
                 .body(pdf);
     }

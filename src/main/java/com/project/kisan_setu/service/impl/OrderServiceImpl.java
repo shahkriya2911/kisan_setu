@@ -464,6 +464,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOtpVerified(true);
         order.setStatus(OrderStatus.COMPLETED);
         order.setEscrowStatus(EscrowStatus.RELEASED);
+        order.setCompletedAt(LocalDateTime.now());
 
         orderRepository.save(order);
 
@@ -477,6 +478,6 @@ public class OrderServiceImpl implements OrderService {
                 order
         );
 
-        return "Delivery confirmed, payment released.";
+        return "Delivery confirmed, payment released, invoice ready for download.";
     }
 }
