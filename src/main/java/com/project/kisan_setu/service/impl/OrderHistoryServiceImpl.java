@@ -13,6 +13,7 @@ import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.service.OrderHistoryService;
 import com.project.kisan_setu.util.OtpGenerator;
 import com.project.kisan_setu.util.ValidatorMethods;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -48,20 +49,26 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
                 .toList();
     }
 
+    @Transactional
     @Override
     public List<OrderHistoryResponseDto> getSoldOrderHistory() {
-
         Long userId = validatorMethods.getCurrentUserId();
+        System.out.println("Fetching for userId: " + userId);
 
-        return orderRepository.findBySeller_UserId(userId)
-                .stream()
+        List<Order> orders = orderRepository.findBySeller_UserId(userId);
+        System.out.println("Total orders found: " + orders.size());
+
+        return orders.stream()
+                .peek(order -> System.out.println(
+                        "OrderId: " + order.getOrderId() +
+                                ", Status: " + order.getStatus() +
+                                ", Listing: " + order.getListing() +
+                                ", SaleType: " + (order.getListing() != null ? order.getListing().getSaleType() : "N/A")
+                ))
                 .filter(order ->
                         (order.getStatus() == OrderStatus.COMPLETED ||
                                 order.getStatus() == OrderStatus.PAYMENT_HELD) &&
-
-                                order.getListing() != null &&
-
-                                order.getListing().getSaleType() == SaleType.AUCTION
+                                order.getListing() != null
                 )
                 .map(order -> mapToDto(order, userId))
                 .toList();
