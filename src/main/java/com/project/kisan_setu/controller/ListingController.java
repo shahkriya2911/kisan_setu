@@ -7,7 +7,7 @@ import com.project.kisan_setu.dto.ResponseDto.DashboardDto;
 import com.project.kisan_setu.dto.ResponseDto.ListingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.SellerListingDto;
 import com.project.kisan_setu.dto.*;
-import com.project.kisan_setu.dto.ResponseDto.SellerListingFixedDto;
+import com.project.kisan_setu.dto.SellerListingFixedDto;
 import com.project.kisan_setu.entity.Order;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.enums.BidStatus;
