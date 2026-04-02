@@ -71,12 +71,12 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     private String formatCurrency(BigDecimal amount) {
         if (amount == null) {
-            return "Rs. 0";
+            return "0";
         }
         NumberFormat currencyFormatter = NumberFormat.getNumberInstance(INDIA_LOCALE);
         currencyFormatter.setMinimumFractionDigits(0);
         currencyFormatter.setMaximumFractionDigits(2);
-        return "Rs. " + currencyFormatter.format(amount);
+        return currencyFormatter.format(amount);
     }
 
     private String formatDecimal(BigDecimal value) {
