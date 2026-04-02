@@ -1,11 +1,8 @@
 package com.project.kisan_setu.service.impl;
 
 import com.project.kisan_setu.entity.CropMaster;
-import com.project.kisan_setu.entity.DistrictMaster;
 import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.entity.Order;
-import com.project.kisan_setu.entity.StateMaster;
-import com.project.kisan_setu.entity.UnitMaster;
 import com.project.kisan_setu.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +14,8 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InvoiceServiceImplTest {
@@ -40,47 +39,114 @@ class InvoiceServiceImplTest {
 
     @Test
     void generateInvoiceReturnsRealPdfBytes() {
-        Order order = new Order();
-        order.setOrderId(23L);
-        order.setAmount(new BigDecimal("52000"));
-        order.setQuantity(new BigDecimal("520"));
-        order.setPricePerKg(new BigDecimal("100"));
-        order.setCreatedAt(LocalDateTime.now().minusDays(1));
-        order.setCompletedAt(LocalDateTime.now());
-
-        User buyer = new User();
-        buyer.setFullName("Suresh Singh");
-        order.setBuyer(buyer);
-
-        User seller = new User();
-        seller.setFullName("Mahesh Agro");
-        order.setSeller(seller);
-
-        CropMaster crop = new CropMaster();
-        crop.setCropName("Wheat");
-
-        UnitMaster unit = new UnitMaster();
-        unit.setUnitName("Kg");
-
-        StateMaster state = new StateMaster();
-        state.setName("Maharashtra");
-
-        DistrictMaster district = new DistrictMaster();
-        district.setName("Nashik");
-        district.setState(state);
-
-        Listing listing = new Listing();
-        listing.setCrop(crop);
-        listing.setVariety("Sharbati");
-        listing.setUnit(unit);
-        listing.setState(state);
-        listing.setDistrict(district);
-        order.setListing(listing);
-
+        Order order = buildOrder(
+                23L,
+                "52000",
+                "Suresh Singh",
+                "Mahesh Agro",
+                "Wheat",
+                "Sharbati",
+                LocalDateTime.now()
+        );
         byte[] pdf = invoiceService.generateInvoice(order);
         String header = new String(pdf, 0, Math.min(pdf.length, 5), StandardCharsets.US_ASCII);
 
         assertTrue(pdf.length > 0);
         assertTrue(header.startsWith("%PDF-"));
+    }
+
+    @Test
+    void renderInvoiceHtmlUsesActualOrderValues() {
+        Order firstOrder = buildOrder(
+                23L,
+                "52000",
+                "Asha Traders",
+                "Green Farms",
+                "Wheat",
+                "Sharbati",
+                LocalDateTime.of(2026, 3, 10, 11, 0)
+        );
+        Order secondOrder = buildOrder(
+                24L,
+                "18650",
+                "Ravi Exports",
+                "Sunrise Agro",
+                "Maize",
+                "Sweet Corn",
+                LocalDateTime.of(2026, 3, 11, 12, 30)
+        );
+
+        String firstHtml = invoiceService.renderInvoiceHtml(firstOrder);
+        String secondHtml = invoiceService.renderInvoiceHtml(secondOrder);
+
+        assertTrue(firstHtml.contains("Asha Traders"));
+        assertTrue(firstHtml.contains("Green Farms"));
+        assertTrue(firstHtml.contains("Wheat"));
+        assertTrue(firstHtml.contains("Sharbati"));
+        assertTrue(firstHtml.contains("52,000"));
+        assertTrue(firstHtml.contains("#ORD-2026-000023"));
+
+        assertTrue(secondHtml.contains("Ravi Exports"));
+        assertTrue(secondHtml.contains("Sunrise Agro"));
+        assertTrue(secondHtml.contains("Maize"));
+        assertTrue(secondHtml.contains("Sweet Corn"));
+        assertTrue(secondHtml.contains("18,650"));
+        assertTrue(secondHtml.contains("#ORD-2026-000024"));
+        assertFalse(secondHtml.contains("Suresh Singh"));
+        assertFalse(secondHtml.contains("Mahesh Agro"));
+
+        assertTrue(firstHtml.contains("Escrow"));
+        assertTrue(secondHtml.contains("Escrow"));
+        assertNotEquals(firstHtml, secondHtml);
+    }
+
+    @Test
+    void renderInvoiceHtmlFallsBackForMissingOptionalFields() {
+        Order order = buildOrder(
+                25L,
+                "0",
+                null,
+                null,
+                null,
+                null,
+                LocalDateTime.of(2026, 3, 12, 9, 15)
+        );
+
+        String html = invoiceService.renderInvoiceHtml(order);
+
+        assertTrue(html.contains("N/A"));
+        assertTrue(html.contains(">-</div>"));
+    }
+
+    private Order buildOrder(Long orderId,
+                             String amount,
+                             String buyerName,
+                             String sellerName,
+                             String cropName,
+                             String variety,
+                             LocalDateTime completedAt) {
+        Order order = new Order();
+        order.setOrderId(orderId);
+        order.setAmount(new BigDecimal(amount));
+        order.setCreatedAt(completedAt.minusDays(1));
+        order.setCompletedAt(completedAt);
+
+        User buyer = new User();
+        buyer.setFullName(buyerName);
+        order.setBuyer(buyer);
+
+        User seller = new User();
+        seller.setFullName(sellerName);
+        order.setSeller(seller);
+
+        Listing listing = new Listing();
+        if (cropName != null) {
+            CropMaster crop = new CropMaster();
+            crop.setCropName(cropName);
+            listing.setCrop(crop);
+        }
+        listing.setVariety(variety);
+        order.setListing(listing);
+        return order;
     }
 }
