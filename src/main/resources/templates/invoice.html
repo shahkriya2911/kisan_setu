@@ -153,24 +153,24 @@
 
         <div class="row">
             <div class="label">Amount:</div>
-            <div class="amount">&#8377;<span th:text="${amount}">52,000</span></div>
+            <div class="amount">&#8377;<span th:text="${amount}">0</span></div>
         </div>
 
         <div class="split-row">
             <div class="split-column">
                 <div class="section-title">BUYER</div>
-                <div class="text" th:text="${buyerName}">Suresh Singh</div>
+                <div class="text" th:text="${buyerName}">Buyer Name</div>
 
                 <div class="section-title">SELLER</div>
-                <div class="text" th:text="${sellerName}">Mahesh Agro</div>
+                <div class="text" th:text="${sellerName}">Seller Name</div>
             </div>
 
             <div class="split-column">
                 <div class="section-title">CROP</div>
-                <div class="text" th:text="${cropName}">Wheat</div>
+                <div class="text" th:text="${cropName}">Crop Name</div>
 
                 <div class="section-title">VARIETY</div>
-                <div class="text" th:text="${variety != null and !#strings.isEmpty(variety) ? variety : '-'}">Sharbati</div>
+                <div class="text" th:text="${variety}">-</div>
             </div>
         </div>
 
@@ -178,19 +178,19 @@
 
         <div class="row date-row">
             <div class="label">Date:</div>
-            <div class="value" th:text="${invoiceDate}">March 10, 2026</div>
+            <div class="value" th:text="${invoiceDate}">Invoice Date</div>
         </div>
 
         <div class="row date-row">
             <div class="label">Order ID:</div>
-            <div class="value" th:text="${orderReference}">#ORD-2026-001198</div>
+            <div class="value" th:text="${orderReference}">#ORD-2026-000001</div>
         </div>
 
         <div class="divider"></div>
 
         <div class="row">
             <div class="label">Payment Mode:</div>
-            <div class="value" th:text="${paymentMode}">Card</div>
+            <div class="value" th:text="${paymentMode}">Escrow</div>
         </div>
 
         <div class="divider"></div>
