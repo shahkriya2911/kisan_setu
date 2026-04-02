@@ -255,7 +255,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
                         ? order.getListing().getDistrict().getName()
                         : null,
                 isBuyer ? "PURCHASED" : "SOLD",
-                order.getDeliveryOtp(),
+                !isBuyer ? null : order.getDeliveryOtp(),
                 getPaymentLabel(order, isBuyer),
                 order.getStatus() != null ? order.getStatus().name() : null,
                 order.getCreatedAt()
@@ -269,7 +269,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         }
         if(order.getStatus() == OrderStatus.COMPLETED)
         {
-            return isBuyer ? "IN_ESCROW" : "RELEASED";
+            return "RELEASED";
         }
         return order.getStatus().name();
     }
