@@ -63,7 +63,7 @@ public class OrderHistoryController {
         return ResponseEntity.ok(orderHistoryService.reportBuyer(orderId, requestDto));
     }
 
-    @GetMapping({"/{orderId}/download-receipt", "/{orderId}/download-invoice"})
+    @GetMapping({"/{orderId}/download-invoice"} /*"/{orderId}/download-receipt"}*/)
     public ResponseEntity<byte[]> downloadInvoice(@PathVariable Long orderId) {
         byte[] pdf = orderHistoryService.downloadInvoice(orderId);
 

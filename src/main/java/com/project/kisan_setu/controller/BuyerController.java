@@ -56,7 +56,7 @@ public class BuyerController {
     ) {
         Long userId = validatorMethods.getCurrentUserId();
 
-        return buyerService.getActiveAuctionListings(userId, pageable);
+        return buyerService.getActiveFixedListings(userId, pageable);
     }
 
     @GetMapping("/auctions/{listingId}")
