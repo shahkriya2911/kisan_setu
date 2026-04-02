@@ -24,17 +24,7 @@ class InvoiceServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
-        templateResolver.setPrefix("templates/");
-        templateResolver.setSuffix(".html");
-        templateResolver.setTemplateMode(TemplateMode.HTML);
-        templateResolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        templateResolver.setCacheable(false);
-
-        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
-        templateEngine.setTemplateResolver(templateResolver);
-
-        invoiceService = new InvoiceServiceImpl(templateEngine);
+        invoiceService = new InvoiceServiceImpl(templateEngine());
     }
 
     @Test
@@ -48,6 +38,32 @@ class InvoiceServiceImplTest {
                 "Sharbati",
                 LocalDateTime.now()
         );
+        byte[] pdf = invoiceService.generateInvoice(order);
+        String header = new String(pdf, 0, Math.min(pdf.length, 5), StandardCharsets.US_ASCII);
+
+        assertTrue(pdf.length > 0);
+        assertTrue(header.startsWith("%PDF-"));
+    }
+
+    @Test
+    void generateInvoiceFallsBackToDirectPdfWhenHtmlRenderingFails() {
+        invoiceService = new InvoiceServiceImpl(templateEngine()) {
+            @Override
+            String renderInvoiceHtml(Order order) {
+                throw new RuntimeException("broken html");
+            }
+        };
+
+        Order order = buildOrder(
+                29L,
+                "14500",
+                "Mehul Shah",
+                "Kisan Agro",
+                "Wheat",
+                "Lokwan",
+                LocalDateTime.now()
+        );
+
         byte[] pdf = invoiceService.generateInvoice(order);
         String header = new String(pdf, 0, Math.min(pdf.length, 5), StandardCharsets.US_ASCII);
 
@@ -116,6 +132,19 @@ class InvoiceServiceImplTest {
 
         assertTrue(html.contains("N/A"));
         assertTrue(html.contains(">-</div>"));
+    }
+
+    private SpringTemplateEngine templateEngine() {
+        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+        templateResolver.setPrefix("templates/");
+        templateResolver.setSuffix(".html");
+        templateResolver.setTemplateMode(TemplateMode.HTML);
+        templateResolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        templateResolver.setCacheable(false);
+
+        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+        templateEngine.setTemplateResolver(templateResolver);
+        return templateEngine;
     }
 
     private Order buildOrder(Long orderId,
