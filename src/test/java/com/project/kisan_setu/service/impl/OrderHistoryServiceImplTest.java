@@ -83,6 +83,22 @@ class OrderHistoryServiceImplTest {
         assertEquals("Unauthorized: You cannot access this invoice", exception.getMessage());
     }
 
+    @Test
+    void downloadInvoiceRejectsPendingOrder() {
+        Order order = createCompletedOrder(4L, 8L);
+        order.setStatus(OrderStatus.PENDING_BUYER_CONFIRMATION);
+
+        when(validatorMethods.getCurrentUserId()).thenReturn(4L);
+        when(orderRepository.findById(10L)).thenReturn(Optional.of(order));
+
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> orderHistoryService.downloadInvoice(10L)
+        );
+
+        assertEquals("Invoice is available only for completed orders", exception.getMessage());
+    }
+
     private Order createCompletedOrder(Long buyerId, Long sellerId) {
         User buyer = new User();
         buyer.setUserId(buyerId);
