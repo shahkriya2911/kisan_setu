@@ -5,6 +5,7 @@ import com.project.kisan_setu.dto.ResponseDto.OrderHistoryResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.ProductImageResponseDto;
 import com.project.kisan_setu.entity.*;
 import com.project.kisan_setu.enums.*;
+import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.repository.OrderRepository;
 import com.project.kisan_setu.repository.RatingReviewRepository;
 import com.project.kisan_setu.repository.ReportUserRepository;
@@ -200,16 +201,16 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
     public byte[] downloadInvoice(Long orderId) {
         Long currentUserId = validatorMethods.getCurrentUserId();
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new UserException("Order not found"));
 
         if (order.getStatus() != OrderStatus.COMPLETED) {
-            throw new RuntimeException("Invoice is available only for completed orders");
+            throw new UserException("Invoice is available only for completed orders");
         }
 
         boolean isBuyer = order.getBuyer() != null && order.getBuyer().getUserId().equals(currentUserId);
         boolean isSeller = order.getSeller() != null && order.getSeller().getUserId().equals(currentUserId);
         if (!isBuyer && !isSeller) {
-            throw new RuntimeException("Unauthorized: You cannot access this invoice");
+            throw new UserException("Unauthorized: You cannot access this invoice");
         }
 
         return invoiceService.generateInvoice(order);
