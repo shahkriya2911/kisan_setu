@@ -18,6 +18,7 @@ import com.project.kisan_setu.service.InvoiceService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -37,6 +38,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     private static final Logger log = LoggerFactory.getLogger(InvoiceServiceImpl.class);
     private static final Locale INDIA_LOCALE = Locale.forLanguageTag("en-IN");
+    private static final String PAYMENT_MODE = "Escrow";
     private static final DateTimeFormatter INVOICE_DATE_FORMAT =
             DateTimeFormatter.ofPattern("MMMM dd, yyyy", Locale.ENGLISH);
 
@@ -86,6 +88,8 @@ public class InvoiceServiceImpl implements InvoiceService {
         User buyer = order.getBuyer();
         User seller = resolveSeller(order);
 
+        context.setVariable("logoImageSrc", resolveImageSrc("static/images/invoice-logo.png"));
+        context.setVariable("tickImageSrc", resolveImageSrc("static/images/invoice-tick.png"));
         context.setVariable("amount", formatCurrency(order.getAmount()));
         context.setVariable(
                 "buyerName",
@@ -96,14 +100,14 @@ public class InvoiceServiceImpl implements InvoiceService {
                 seller != null ? defaultText(seller.getFullName(), "N/A") : "N/A"
         );
         context.setVariable("invoiceDate", invoiceDate != null ? invoiceDate.format(INVOICE_DATE_FORMAT) : "N/A");
-        context.setVariable("orderReference", formatOrderReference(order.getOrderId(), invoiceDate));
-        context.setVariable("paymentMode", "Escrow");
-        context.setVariable("statusLabel", "VERIFIED");
+        context.setVariable("orderReference", formatOrderReference(order.getOrderId()));
+        context.setVariable("paymentMode", PAYMENT_MODE);
+        context.setVariable("statusLabel", resolveStatusLabel(order));
         context.setVariable(
                 "cropName",
-                listing != null && listing.getCrop() != null ? defaultText(listing.getCrop().getCropName(), "-") : "-"
+                listing != null && listing.getCrop() != null ? defaultText(listing.getCrop().getCropName(), "N/A") : "N/A"
         );
-        context.setVariable("variety", listing != null ? defaultText(listing.getVariety(), "-") : "-");
+        context.setVariable("variety", listing != null ? defaultText(listing.getVariety(), "N/A") : "N/A");
     }
 
     private byte[] generateDirectPdf(Order order) {
@@ -135,13 +139,13 @@ public class InvoiceServiceImpl implements InvoiceService {
 
             addDetailsRow(detailsTable, "Amount", formatAmountLabel(order), labelFont, valueFont);
             addDetailsRow(detailsTable, "Buyer", resolveBuyerName(order), labelFont, valueFont);
-            addDetailsRow(detailsTable, "Seller", resolveSellerName(order), labelFont, valueFont);
             addDetailsRow(detailsTable, "Crop", resolveCropName(order), labelFont, valueFont);
+            addDetailsRow(detailsTable, "Seller", resolveSellerName(order), labelFont, valueFont);
             addDetailsRow(detailsTable, "Variety", resolveVariety(order), labelFont, valueFont);
             addDetailsRow(detailsTable, "Invoice Date", formatInvoiceDate(resolveInvoiceDate(order)), labelFont, valueFont);
-            addDetailsRow(detailsTable, "Order ID", formatOrderReference(order.getOrderId(), resolveInvoiceDate(order)), labelFont, valueFont);
-            addDetailsRow(detailsTable, "Payment Mode", "Escrow", labelFont, valueFont);
-            addDetailsRow(detailsTable, "Status", "VERIFIED", labelFont, valueFont);
+            addDetailsRow(detailsTable, "Order ID", formatOrderReference(order.getOrderId()), labelFont, valueFont);
+            addDetailsRow(detailsTable, "Payment Mode", PAYMENT_MODE, labelFont, valueFont);
+            addDetailsRow(detailsTable, "Status", resolveStatusLabel(order), labelFont, valueFont);
 
             document.add(detailsTable);
 
@@ -180,10 +184,9 @@ public class InvoiceServiceImpl implements InvoiceService {
         return currencyFormatter.format(amount);
     }
 
-    private String formatOrderReference(Long orderId, LocalDateTime invoiceDate) {
-        int year = invoiceDate != null ? invoiceDate.getYear() : LocalDateTime.now().getYear();
+    private String formatOrderReference(Long orderId) {
         long safeOrderId = orderId != null ? orderId : 0L;
-        return String.format("#ORD-%d-%06d", year, safeOrderId);
+        return String.valueOf(safeOrderId);
     }
 
     private String defaultText(String value, String fallback) {
@@ -219,13 +222,13 @@ public class InvoiceServiceImpl implements InvoiceService {
     private String resolveCropName(Order order) {
         Listing listing = order.getListing();
         return listing != null && listing.getCrop() != null
-                ? defaultText(listing.getCrop().getCropName(), "-")
-                : "-";
+                ? defaultText(listing.getCrop().getCropName(), "N/A")
+                : "N/A";
     }
 
     private String resolveVariety(Order order) {
         Listing listing = order.getListing();
-        return listing != null ? defaultText(listing.getVariety(), "-") : "-";
+        return listing != null ? defaultText(listing.getVariety(), "N/A") : "N/A";
     }
 
     private String formatInvoiceDate(LocalDateTime invoiceDate) {
@@ -234,5 +237,40 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     private String formatAmountLabel(Order order) {
         return "INR " + formatCurrency(order.getAmount());
+    }
+
+    private String resolveImageSrc(String classpathLocation) {
+        try {
+            return new ClassPathResource(classpathLocation).getURL().toExternalForm();
+        } catch (Exception exception) {
+            log.warn("Failed to resolve invoice image {}", classpathLocation, exception);
+            return "";
+        }
+    }
+
+    private String resolveStatusLabel(Order order) {
+        if (order == null) {
+            return "VERIFIED";
+        }
+
+        if (order.getStatus() != null) {
+            return switch (order.getStatus()) {
+                case COMPLETED -> "VERIFIED";
+                default -> formatEnumLabel(order.getStatus().name());
+            };
+        }
+
+        if (order.getEscrowStatus() != null) {
+            return switch (order.getEscrowStatus()) {
+                case RELEASED -> "VERIFIED";
+                default -> formatEnumLabel(order.getEscrowStatus().name());
+            };
+        }
+
+        return "VERIFIED";
+    }
+
+    private String formatEnumLabel(String value) {
+        return value.replace('_', ' ');
     }
 }
