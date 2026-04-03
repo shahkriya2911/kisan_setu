@@ -38,5 +38,6 @@ public class UserProfileResponseDto {
         private LocalDateTime bankAccountVerifiedAt;
         private LocalDateTime panCardVerifiedAt;
 
+
 }
 

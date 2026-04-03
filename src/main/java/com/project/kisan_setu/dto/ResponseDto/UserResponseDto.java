@@ -29,5 +29,7 @@ public class UserResponseDto {
         this.role = user.getRole();
 
     }
+
+
 }
 

@@ -1,5 +1,6 @@
 package com.project.kisan_setu.repository;
 
+import com.project.kisan_setu.dto.RequestDto.UserProfileRequestDto;
 import com.project.kisan_setu.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +22,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "LEFT JOIN FETCH u.bankAccountVerification " +
             "WHERE u.userId = :userId")
     Optional<User> findByIdWithVerifications(@Param("userId") Long userId);
+
+
 }
