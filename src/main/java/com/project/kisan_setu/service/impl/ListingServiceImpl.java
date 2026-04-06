@@ -4,7 +4,6 @@ import com.project.kisan_setu.dto.AuctionListingResponseDto;
 import com.project.kisan_setu.dto.RequestDto.*;
 import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.dto.*;
-import com.project.kisan_setu.dto.SellerListingFixedDto;
 import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.entity.*;
@@ -507,40 +506,41 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
     }
 
 
-    public void markAsSold(Long listingId, Long sellerId) {
-//        validatorMethods.validateUserAccess();
-        logger.info("Marking listing as sold...");
-        Listing listing = validatorMethods.validateExists(listingId);
-        // Check seller ownership
-        if (!listing.getSeller().getUserId().equals(sellerId)) {
-            logger.error("You are not authorized to mark this listing as sold");
-            throw new UserException("You are not authorized to mark this listing as sold");
-        }
-        validatorMethods.checkStatus(listing, AuctionStatus.ACTIVE);
-        if (listing.getSaleType() == SaleType.AUCTION) {
-            if (listing.getAuctionEndTime().isAfter(LocalDateTime.now())) {
-                logger.error("auction has not ended yet");
-                throw new UserException("auction has not ended yet");
-            }
-            Bid highestBid = bidRepository
-                    .findTopByListingListingIdOrderByBuyerAmountDesc(listingId)
-                    .orElseThrow(() ->
-                            new UserException("Cannot mark as sold. No bids placed."));
-
-            Order order = new Order();
-            order.setBuyer(highestBid.getBuyer());
-            order.setListing(listing);
-            order.setQuantity(listing.getQuantity());
-            order.setPricePerKg(highestBid.getBuyerAmount());
-            order.setAmount(
-                    highestBid.getBuyerAmount()
-                            .multiply(listing.getQuantity())
-            );
-            order.setCreatedAt(LocalDateTime.now());
-
-            orderRepository.save(order);
-        }
-    }
+//    public void markAsSold(Long listingId, Long sellerId) {
+////        validatorMethods.validateUserAccess();
+//        logger.info("Marking listing as sold...");
+//        Listing listing = validatorMethods.validateExists(listingId);
+//        // Check seller ownership
+//        if (!listing.getSeller().getUserId().equals(sellerId)) {
+//            logger.error("You are not authorized to mark this listing as sold");
+//            throw new UserException("You are not authorized to mark this listing as sold");
+//        }
+//        validatorMethods.checkStatus(listing, AuctionStatus.ACTIVE);
+//        if (listing.getSaleType() == SaleType.AUCTION) {
+//            if (listing.getAuctionEndTime().isAfter(LocalDateTime.now())) {
+//                logger.error("auction has not ended yet");
+//                throw new UserException("auction has not ended yet");
+//            }
+//            Bid highestBid = bidRepository
+//                    .findTopByListingListingIdOrderByBuyerAmountDesc(listingId)
+//                    .orElseThrow(() ->
+//                            new UserException("Cannot mark as sold. No bids placed."));
+//
+//            Order order = new Order();
+//            order.setBuyer(highestBid.getBuyer());
+//            order.setListing(listing);
+//            order.setQuantity(listing.getQuantity());
+//            order.setPricePerKg(highestBid.getBuyerAmount());
+//            order.setAmount(
+//                    highestBid.getBuyerAmount()
+//                            .multiply(listing.getQuantity())
+//            );
+//            order.setCreatedAt(LocalDateTime.now());
+//            listing.setStatus(AuctionStatus.SOLD);
+//            listingRepository.save(listing);
+//            orderRepository.save(order);
+//        }
+//    }
 
 
     @Override

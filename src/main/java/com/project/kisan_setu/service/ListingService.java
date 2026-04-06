@@ -31,7 +31,7 @@ public interface ListingService {
     SellerListingFixedDto getSellerFixedListingDetail(Long listingId);
     DashboardDto getSellerOverview();
 
-    void markAsSold(Long listingId,Long userId);
+//    void markAsSold(Long listingId,Long userId);
 
     Page<ListingResponseDto> activeListings(Long sellerId, Pageable pageable);
     Page<Object> activeSummaryListings(Long sellerId, Pageable pageable);

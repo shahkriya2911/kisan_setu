@@ -1,18 +1,7 @@
 package com.project.kisan_setu.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.kisan_setu.dto.RequestDto.CreateListingRequest;
-import com.project.kisan_setu.dto.RequestDto.ExtendAuctionDto;
-import com.project.kisan_setu.dto.ResponseDto.DashboardDto;
-import com.project.kisan_setu.dto.ResponseDto.ListingResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.SellerListingDto;
-import com.project.kisan_setu.dto.*;
-import com.project.kisan_setu.dto.*;
-import com.project.kisan_setu.entity.Order;
-import com.project.kisan_setu.entity.User;
-import com.project.kisan_setu.enums.BidStatus;
-import com.project.kisan_setu.dto.RequestDto.CreateListingRequest;
-import com.project.kisan_setu.dto.ResponseDto.DashboardDto;
+import com.project.kisan_setu.dto.RequestDto.*;
 import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.UserService;
@@ -23,10 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
@@ -119,15 +108,15 @@ public class ListingController {
     }
 
 
-    @PutMapping("/seller/{listingId}/mark-sold")
-    public ResponseEntity<String> markAsSold(
-            @PathVariable Long listingId,
-            @RequestParam Long sellerId) {
-        logger.debug("Listing marked as sold request attempt for listing with id : {}",listingId);
-        listingService.markAsSold(listingId, sellerId);
-        logger.info("Listing marked as sold successfully");
-        return ResponseEntity.ok("Listing marked as SOLD successfully");
-    }
+//    @PutMapping("/seller/{listingId}/mark-sold")
+//    public ResponseEntity<String> markAsSold(
+//            @PathVariable Long listingId,
+//            @RequestParam Long sellerId) {
+//        logger.debug("Listing marked as sold request attempt for listing with id : {}",listingId);
+//        listingService.markAsSold(listingId, sellerId);
+//        logger.info("Listing marked as sold successfully");
+//        return ResponseEntity.ok("Listing marked as SOLD successfully");
+//    }
 
     @PostMapping("/extend-auction")
     public ResponseEntity<String> extendAuction(
@@ -183,7 +172,8 @@ public class ListingController {
 //    }
 
     @GetMapping("my-listings")
-    public ResponseEntity<Page<ListingResponseDto>> myListings(Authentication authentication,Pageable pageable){
+    public ResponseEntity<Page<ListingResponseDto>> myListings(Authentication authentication,
+                                                               @PageableDefault(size = 20,sort = "postedOn") Pageable pageable){
         logger.debug("Get all my listings for user with id : {}",Long.parseLong(authentication.getName()));
         Long userId = Long.parseLong(authentication.getName());
         Page<ListingResponseDto> listings = listingService.myListings(userId,pageable);
