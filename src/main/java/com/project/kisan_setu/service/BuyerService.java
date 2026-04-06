@@ -24,12 +24,10 @@ public interface BuyerService {
 
     BuyerListingResponseDto getAuctionListingDetail(Long listingId);
 
-    // Place Bid
+
     Object placeBid(
             Long listingId,
             PlaceBidRequestDto dto);
-
-    ListingSummaryResponseDto getListingSummary(Long listingId);
 
     BuyerListingResponseDto getFixedListingDetail(Long listingId);
 }

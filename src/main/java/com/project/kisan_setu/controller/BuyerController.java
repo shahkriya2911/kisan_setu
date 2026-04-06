@@ -88,14 +88,6 @@ public class BuyerController {
 
     }
 
-    @GetMapping("/listings/{listingId}/summary")
-    public ResponseEntity<ListingSummaryResponseDto> getListingSummary(
-            @PathVariable Long listingId) {
-        logger.debug("Get listing summary for listing with id : {}", listingId);
-        logger.info("Listing summary fetched successfully");
-        return ResponseEntity.ok(buyerService.getListingSummary(listingId));
-    }
-
     @GetMapping("/my-all-bids")
     public ResponseEntity<List<MyBiddingsResponseDto>> getAllMyBids(){
         return ResponseEntity.ok(bidService.getAllMyBids());
