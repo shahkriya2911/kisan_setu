@@ -88,7 +88,6 @@ public class BuyerController {
 
     }
 
-
     @GetMapping("/my-all-bids")
     public ResponseEntity<List<MyBiddingsResponseDto>> getAllMyBids(){
         return ResponseEntity.ok(bidService.getAllMyBids());

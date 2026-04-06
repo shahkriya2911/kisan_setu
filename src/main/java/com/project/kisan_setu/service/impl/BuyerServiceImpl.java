@@ -323,6 +323,7 @@ public class BuyerServiceImpl implements BuyerService {
     }
 
 
+
     private BigDecimal resolveCurrentHighestBid(Listing listing) {
         BigDecimal basePrice = listing.getTotalBasePrice();
         if (basePrice == null && listing.getPricePerKg() != null && listing.getQuantity() != null) {
