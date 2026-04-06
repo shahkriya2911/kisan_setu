@@ -1,8 +1,16 @@
 package com.project.kisan_setu.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.kisan_setu.dto.RequestDto.CreateListingRequest;
+import com.project.kisan_setu.dto.RequestDto.ExtendAuctionDto;
+import com.project.kisan_setu.dto.ResponseDto.DashboardDto;
+import com.project.kisan_setu.dto.ResponseDto.ListingResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.SellerListingDto;
+import com.project.kisan_setu.dto.*;
+import com.project.kisan_setu.dto.*;
 import com.project.kisan_setu.dto.RequestDto.*;
 import com.project.kisan_setu.dto.ResponseDto.*;
+import com.project.kisan_setu.dto.ResponseDto.SellerListingFixedDto;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.UserService;
 import com.project.kisan_setu.util.ValidatorMethods;
@@ -172,8 +180,7 @@ public class ListingController {
 //    }
 
     @GetMapping("my-listings")
-    public ResponseEntity<Page<ListingResponseDto>> myListings(Authentication authentication,
-                                                               @PageableDefault(size = 20,sort = "postedOn") Pageable pageable){
+    public ResponseEntity<Page<ListingResponseDto>> myListings(Authentication authentication,Pageable pageable){
         logger.debug("Get all my listings for user with id : {}",Long.parseLong(authentication.getName()));
         Long userId = Long.parseLong(authentication.getName());
         Page<ListingResponseDto> listings = listingService.myListings(userId,pageable);
