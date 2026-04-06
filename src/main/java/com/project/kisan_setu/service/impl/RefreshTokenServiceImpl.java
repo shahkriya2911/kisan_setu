@@ -26,7 +26,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         this.refreshTokenRepository = refreshTokenRepository;
     }
 
-    //CREATE
     @Override
     public RefreshToken createRefreshToken(User user) {
         logger.info("Creating refresh token...");
