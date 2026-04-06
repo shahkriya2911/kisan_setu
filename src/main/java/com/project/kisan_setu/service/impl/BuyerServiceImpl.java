@@ -131,8 +131,6 @@ public class BuyerServiceImpl implements BuyerService {
 
         return new PageImpl<>(dtoList, pageable, listingPage.getTotalElements());
     }
-
-    // CLOSE EXPIRED AUCTIONS
     @Override
     @Transactional
     public void closeExpiredListings() {
@@ -157,8 +155,6 @@ public class BuyerServiceImpl implements BuyerService {
         }
         return toBuyerListingResponse(listing);
     }
-
-    // Place Bid
 
     @Override
     @Transactional
@@ -201,7 +197,6 @@ public class BuyerServiceImpl implements BuyerService {
             }
         }
 
-        //  LOT AUCTION
         if (listing.getPurchaseType() == PurchaseType.WHOLE_LOT_ONLY) {
 
             if (dto.getBuyerAmount() == null) {
@@ -327,13 +322,6 @@ public class BuyerServiceImpl implements BuyerService {
         return dto;
     }
 
-    @Override
-    public ListingSummaryResponseDto getListingSummary(Long listingId) {
-        Listing listing = validatorMethods.validateExists(listingId);
-        ListingSummaryResponseDto dto = ListingMapper.toSummaryResponse(listing);
-        dto.setCurrentHighestBid(resolveCurrentHighestBid(listing));
-        return dto;
-    }
 
     private BigDecimal resolveCurrentHighestBid(Listing listing) {
         BigDecimal basePrice = listing.getTotalBasePrice();

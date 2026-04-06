@@ -29,7 +29,5 @@ public interface BuyerService {
             Long listingId,
             PlaceBidRequestDto dto);
 
-    ListingSummaryResponseDto getListingSummary(Long listingId);
-
     BuyerListingResponseDto getFixedListingDetail(Long listingId);
 }
