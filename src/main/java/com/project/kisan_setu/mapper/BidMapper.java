@@ -8,7 +8,7 @@ import com.project.kisan_setu.entity.Listing;
 import java.math.BigDecimal;
 
 public class BidMapper {
-    public static MyBiddingsResponseDto toResponse(Bid bid, BigDecimal highestBid){
+    public static MyBiddingsResponseDto toResponse(Bid bid, BigDecimal highestBid,Long orderId){
         MyBiddingsResponseDto dto = new MyBiddingsResponseDto();
         Listing listing = bid.getListing();
         dto.setCropName(listing.getCrop().getCropName());
@@ -26,6 +26,7 @@ public class BidMapper {
         dto.setDistrict(bid.getListing().getDistrict().getName());
         dto.setUnit(bid.getListing().getUnit().getUnitName());
         dto.setMinimumBidIncrement(bid.getListing().getMinimumBidIncrement());
+        dto.setOrderId(orderId);
         return dto;
     }
 }

@@ -1,5 +1,6 @@
 package com.project.kisan_setu.repository;
 
+import aj.org.objectweb.asm.commons.Remapper;
 import com.project.kisan_setu.entity.Bid;
 import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.entity.Order;
@@ -7,10 +8,12 @@ import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.enums.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import javax.swing.text.html.Option;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order,Long> {
     List<Order> findByStatusAndConfirmationDeadlineBefore(OrderStatus orderStatus, LocalDateTime time);
@@ -32,6 +35,8 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     List<Order> findByBuyer_UserId(Long userId);
 
     List<Order> findBySeller_UserId(Long userId);
+
+    Optional<Order> findByAcceptBid(Bid bid);
 
 //    long countDistinctBuyers();
 }
