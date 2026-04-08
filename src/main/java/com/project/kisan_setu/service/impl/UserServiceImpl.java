@@ -92,7 +92,6 @@ public class UserServiceImpl implements UserService {
 
         User user = UserMapper.toEntity(dto);
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        user.setCreatedAt(LocalDateTime.now());
 
         if (dto.getAdminSecret() != null && dto.getAdminSecret().equals(adminSecret)) {
             user.setRole(Role.ADMIN);

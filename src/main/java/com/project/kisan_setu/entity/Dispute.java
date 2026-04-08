@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Dispute {
+public class Dispute extends Auditable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long disputeId;
@@ -39,7 +39,6 @@ public class Dispute {
 
     private String description;
 
-    private LocalDateTime createdAt;
     private Boolean evidenceRequested = false;
     private Boolean evidenceSubmitted = false;
 

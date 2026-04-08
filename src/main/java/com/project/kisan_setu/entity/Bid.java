@@ -16,7 +16,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Bid {
+public class Bid extends Auditable{
 
     @Id //primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +26,6 @@ public class Bid {
     private BigDecimal buyerAmount;
     private LocalDateTime bidTime;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
     @Enumerated(EnumType.STRING)
     private BidStatus bidStatus =  BidStatus.PENDING;
 

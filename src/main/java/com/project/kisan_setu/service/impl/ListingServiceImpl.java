@@ -91,7 +91,6 @@ public class ListingServiceImpl implements ListingService {
     private static final Logger logger = LoggerFactory.getLogger(ListingServiceImpl.class);
 
 
-
     @Override
     public ListingResponseDto createListing(CreateListingRequest request,
                                             List<MultipartFile> imageFiles,

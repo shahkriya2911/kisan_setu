@@ -18,6 +18,4 @@ public class DistrictMaster {
     @JoinColumn(name = "state_id")
     private StateMaster state;
 
-
-
 }

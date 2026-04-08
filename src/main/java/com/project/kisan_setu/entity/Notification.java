@@ -12,13 +12,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "notifications")
-public class Notification {
+public class Notification extends Auditable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long notificationId;
     private String message;
     private Boolean isRead = false;
-    private LocalDateTime createdAt = LocalDateTime.now();
     @ManyToOne
     @JoinColumn(name="user_id")
     private User user;

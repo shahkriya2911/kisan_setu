@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Report {
+public class Report extends Auditable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reportId;
@@ -23,9 +23,6 @@ public class Report {
 
     @Enumerated(EnumType.STRING)
     private ReportStatus reportStatus;
-
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)

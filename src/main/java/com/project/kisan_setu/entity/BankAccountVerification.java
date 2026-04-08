@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BankAccountVerification {
+public class BankAccountVerification extends Auditable{
 
 
     @Id
