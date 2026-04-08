@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PanCardVerification {
+public class PanCardVerification extends Auditable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

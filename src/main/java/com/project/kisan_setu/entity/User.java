@@ -19,7 +19,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class User extends Auditable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
@@ -29,8 +29,6 @@ public class User {
     private String mobileNumber;
     @Column(nullable = false)
     private String password;
-    @Column(nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
     private String dateOfBirth;
     private String bankName;
     private String accountNumber;

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "ratingsAndReview")
 @Data
-public class RatingAndReview {
+public class RatingAndReview extends Auditable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId;
@@ -19,9 +19,6 @@ public class RatingAndReview {
 
     @Column(nullable = false, length = 1000)
     private String review;
-
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
 
     @OneToOne
     @JoinColumn(name = "order_id", nullable = false, unique = true)

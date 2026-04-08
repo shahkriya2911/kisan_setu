@@ -535,7 +535,6 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
 //                    highestBid.getBuyerAmount()
 //                            .multiply(listing.getQuantity())
 //            );
-//            order.setCreatedAt(LocalDateTime.now());
 //            listing.setStatus(AuctionStatus.SOLD);
 //            listingRepository.save(listing);
 //            orderRepository.save(order);

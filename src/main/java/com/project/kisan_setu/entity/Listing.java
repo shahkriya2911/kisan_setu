@@ -24,7 +24,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "listings")
-public class Listing {
+public class Listing extends Auditable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,14 +46,10 @@ public class Listing {
     @Enumerated(EnumType.STRING)
     private SaleType saleType;
     private BigDecimal minimumBidIncrement;
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
     private LocalDateTime postedOn;
 
     @PrePersist
     protected void onCreate() {
-        if(createdAt == null){
-        this.createdAt = LocalDateTime.now();}
         if(postedOn == null){
             this.postedOn = LocalDateTime.now();
         }

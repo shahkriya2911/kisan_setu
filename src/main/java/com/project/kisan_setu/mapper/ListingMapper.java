@@ -201,8 +201,6 @@ public class ListingMapper {
         // Certificate (already created in service)
         listing.setCertificate(certificate);
 
-        listing.setCreatedAt(LocalDateTime.now());
-
         listing.setDescription(description);
 
         return listing;

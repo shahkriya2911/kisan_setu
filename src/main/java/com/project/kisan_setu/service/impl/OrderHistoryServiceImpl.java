@@ -99,7 +99,6 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         review.setSeller(order.getListing().getSeller());
         review.setRating(requestDto.getRating());
         review.setReview(requestDto.getReview());
-        review.setCreatedAt(LocalDateTime.now());
 
         ratingReviewRepository.save(review);
 
@@ -131,7 +130,6 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         review.setSeller(order.getListing().getSeller());
         review.setRating(requestDto.getRating());
         review.setReview(requestDto.getReview());
-        review.setCreatedAt(LocalDateTime.now());
 
         ratingReviewRepository.save(review);
 
@@ -160,7 +158,6 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         report.setSeller(order.getListing().getSeller());
         report.setReason(requestDto.getReason());
         report.setDescription(requestDto.getDescription());
-        report.setCreatedAt(LocalDateTime.now());
 
         report.setReportStatus(ReportStatus.OPEN);
 
@@ -195,7 +192,6 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
 
         report.setReason(requestDto.getReason());
         report.setDescription(requestDto.getDescription());
-        report.setCreatedAt(LocalDateTime.now());
         report.setReportStatus(ReportStatus.OPEN);
 
         reportSellerRepository.save(report);
