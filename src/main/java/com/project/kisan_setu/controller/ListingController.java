@@ -1,5 +1,4 @@
 package com.project.kisan_setu.controller;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.kisan_setu.dto.RequestDto.*;
@@ -175,16 +174,16 @@ public class ListingController {
         return ResponseEntity.ok(listingService.getSellerOverview());
     }
 
-    // @PutMapping("/seller/{listingId}/mark-sold")
-    // public ResponseEntity<String> markAsSold(
-    // @PathVariable Long listingId,
-    // @RequestParam Long sellerId) {
-    // logger.debug("Listing marked as sold request attempt for listing with id :
-    // {}",listingId);
-    // listingService.markAsSold(listingId, sellerId);
-    // logger.info("Listing marked as sold successfully");
-    // return ResponseEntity.ok("Listing marked as SOLD successfully");
-    // }
+
+//    @PutMapping("/seller/{listingId}/mark-sold")
+//    public ResponseEntity<String> markAsSold(
+//            @PathVariable Long listingId,
+//            @RequestParam Long sellerId) {
+//        logger.debug("Listing marked as sold request attempt for listing with id : {}",listingId);
+//        listingService.markAsSold(listingId, sellerId);
+//        logger.info("Listing marked as sold successfully");
+//        return ResponseEntity.ok("Listing marked as SOLD successfully");
+//    }
 
     @PostMapping("/extend-auction")
     @Operation(summary = "Extend auction time", description = "Used by seller to extend auction time")
@@ -403,18 +402,14 @@ public class ListingController {
         return ResponseEntity.ok(listings);
     }
 
-    // @GetMapping("/my-active-summary")
-    // public ResponseEntity<Page<ListingSummaryResponseDto>>
-    // activeSummaryListings(Authentication authentication, Pageable pageable){
-    // logger.debug("Get all active listings for user with id :
-    // {}",Long.parseLong(authentication.getName()));
-    // Long userId = Long.parseLong(authentication.getName());
-    // Page<ListingSummaryResponseDto> listings =
-    // listingService.activeSummaryListings(userId,pageable);
-    // logger.info("Fetched all active listings for user with id : {}
-    // successfully",userId);
-    // return ResponseEntity.ok(listings);
-    // }
+//    @GetMapping("/my-active-summary")
+//    public ResponseEntity<Page<ListingSummaryResponseDto>> activeSummaryListings(Authentication authentication, Pageable pageable){
+//        logger.debug("Get all active listings for user with id : {}",Long.parseLong(authentication.getName()));
+//        Long userId = Long.parseLong(authentication.getName());
+//        Page<ListingSummaryResponseDto> listings = listingService.activeSummaryListings(userId,pageable);
+//        logger.info("Fetched all active listings for user with id : {} successfully",userId);
+//        return ResponseEntity.ok(listings);
+//    }
 
     @GetMapping("/my-active-summary")
     @Operation(summary = "Get active listings summary", description = "Used by seller to get a summary of their active listings")
