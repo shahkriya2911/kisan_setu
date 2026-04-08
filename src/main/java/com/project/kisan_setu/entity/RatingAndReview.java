@@ -1,9 +1,6 @@
 package com.project.kisan_setu.entity;
-
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-
 import java.time.LocalDateTime;
 
 @Entity

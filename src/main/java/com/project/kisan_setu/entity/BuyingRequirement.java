@@ -1,23 +1,21 @@
 package com.project.kisan_setu.entity;
-
 import com.project.kisan_setu.enums.RequirementStatus;
 import com.project.kisan_setu.enums.Urgency;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity //table creation
-@Table(name = "buying_requirements") //table name
+@Entity
+@Table(name = "buying_requirements")
 @Data
-@NoArgsConstructor //needed by JPA
-@AllArgsConstructor //constructor
+@NoArgsConstructor
+@AllArgsConstructor
 public class BuyingRequirement {
 
     @Id //primary key
-    @GeneratedValue(strategy = GenerationType.IDENTITY) //auto-increment
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long requirementId;
 
     //buying requirement info

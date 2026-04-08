@@ -1,5 +1,4 @@
 package com.project.kisan_setu.entity;
-
 import com.project.kisan_setu.enums.NotificationStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

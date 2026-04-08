@@ -1,10 +1,8 @@
 package com.project.kisan_setu.controller;
-
 import com.project.kisan_setu.dto.RequestDto.IdNameDto;
 import com.project.kisan_setu.service.MasterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController

@@ -8,6 +8,7 @@ import com.project.kisan_setu.service.RefreshTokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -43,16 +44,16 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         logger.info("Validating refresh token...");
         RefreshToken refreshToken = refreshTokenRepository
                 .findByRefreshToken(requestToken)
-                .orElseThrow(() -> new UserException("Invalid refresh token"));
+                .orElseThrow(() -> new UserException("Invalid refresh token", HttpStatus.BAD_REQUEST));
 
         if (refreshToken.isRevoked()) {
-            throw new UserException("Refresh token revoked");
+            throw new UserException("Refresh token revoked",HttpStatus.UNAUTHORIZED);
         }
 
         if (refreshToken.getExpiryDate().isBefore(LocalDateTime.now())) {
             refreshToken.setRevoked(true);
             refreshTokenRepository.save(refreshToken);
-            throw new UserException("Refresh token expired");
+            throw new UserException("Refresh token expired",HttpStatus.UNAUTHORIZED);
         }
 
         User user = refreshToken.getUser();
@@ -90,7 +91,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         logger.info("Revoking token...");
         RefreshToken refreshToken = refreshTokenRepository
                 .findByRefreshToken(token)
-                .orElseThrow(() -> new UserException("Token not found"));
+                .orElseThrow(() -> new UserException("Token not found",HttpStatus.NOT_FOUND));
 
         refreshToken.setRevoked(true);
         logger.info("Token revoked success...");

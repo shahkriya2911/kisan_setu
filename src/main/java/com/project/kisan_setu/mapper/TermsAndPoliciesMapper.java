@@ -1,5 +1,4 @@
 package com.project.kisan_setu.mapper;
-
 import com.project.kisan_setu.dto.ResponseDto.TermsAndPoliciesResponseDto;
 import com.project.kisan_setu.entity.TermsAndPolicies;
 

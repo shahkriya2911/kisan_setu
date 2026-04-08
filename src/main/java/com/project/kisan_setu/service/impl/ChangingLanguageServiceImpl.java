@@ -9,6 +9,7 @@ import com.project.kisan_setu.mapper.ChangingLanguageMapper;
 import com.project.kisan_setu.repository.ChangingLanguageRepository;
 import com.project.kisan_setu.service.ChangingLanguageService;
 import com.project.kisan_setu.util.ValidatorMethods;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,7 +27,7 @@ public class ChangingLanguageServiceImpl implements ChangingLanguageService {
     public ChangingLanguageResponseDto getMyChangingLanguage() {
         Long userId = validatorMethods.getCurrentUserId();
         ChangingLanguage changingLanguage = changingLanguageRepository.findByUserUserId(userId)
-                .orElseThrow(() -> new UserException("Language preferences not found"));
+                .orElseThrow(() -> new UserException("Language preferences not found", HttpStatus.NOT_FOUND));
         return ChangingLanguageMapper.toDto(changingLanguage);
     }
 
@@ -45,7 +46,7 @@ public class ChangingLanguageServiceImpl implements ChangingLanguageService {
     @Override
     public ChangingLanguageResponseDto updateChangingLanguage(Long changingLanguageId,ChangingLanguageRequestDto changingLanguageRequestDto) {
         ChangingLanguage changingLanguage = changingLanguageRepository.findById(changingLanguageId)
-                .orElseThrow(() -> new UserException("Language preferences not found"));
+                .orElseThrow(() -> new UserException("Language preferences not found",HttpStatus.NOT_FOUND));
         validateOwnership(changingLanguage);
         ChangingLanguageMapper.updateEntity(changingLanguage, changingLanguageRequestDto);
         ChangingLanguage saved = changingLanguageRepository.save(changingLanguage);
@@ -56,7 +57,7 @@ public class ChangingLanguageServiceImpl implements ChangingLanguageService {
         Long currentUserId = validatorMethods.getCurrentUserId();
         if (changingLanguage.getUser() == null
                 || !currentUserId.equals(changingLanguage.getUser().getUserId())) {
-            throw new UserException("You are not authorized to access language preferences");
+            throw new UserException("You are not authorized to access language preferences",HttpStatus.FORBIDDEN);
         }
     }
 

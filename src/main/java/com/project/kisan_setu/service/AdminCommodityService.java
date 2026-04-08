@@ -1,7 +1,5 @@
 package com.project.kisan_setu.service;
-
 import com.project.kisan_setu.dto.ResponseDto.CommodityListingDto;
-
 import java.util.List;
 
 public interface AdminCommodityService {

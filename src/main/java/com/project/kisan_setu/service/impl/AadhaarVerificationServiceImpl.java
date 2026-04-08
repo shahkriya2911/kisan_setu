@@ -1,5 +1,4 @@
 package com.project.kisan_setu.service.impl;
-
 import com.project.kisan_setu.dto.RequestDto.AadhaarRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.AadhaarResponseDto;
 import com.project.kisan_setu.entity.AadhaarVerification;
@@ -7,13 +6,11 @@ import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.repository.AadhaarVerificationRepository;
 import com.project.kisan_setu.service.AadhaarVerificationService;
 import com.project.kisan_setu.service.FileStorageService;
-import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +21,6 @@ public class AadhaarVerificationServiceImpl implements AadhaarVerificationServic
     private final AadhaarVerificationRepository aadhaarVerificationRepository;
     private final ValidatorMethods validatorMethods;
     private final FileStorageService fileStorageService;
-    private final NotificationService notificationService;
     private final static Logger logger = LoggerFactory.getLogger(AadhaarVerificationServiceImpl.class);
 
     @Override

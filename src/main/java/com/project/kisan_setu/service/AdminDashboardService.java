@@ -1,8 +1,6 @@
 package com.project.kisan_setu.service;
-
 import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.entity.User;
-
 import java.util.List;
 
 public interface AdminDashboardService {

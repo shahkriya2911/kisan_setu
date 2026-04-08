@@ -4,7 +4,6 @@ import com.project.kisan_setu.dto.RequestDto.*;
 import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.entity.User;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 
 public interface UserService {

@@ -1,24 +1,44 @@
 package com.project.kisan_setu.service.impl;
-import com.project.kisan_setu.dto.RequestDto.*;
-import com.project.kisan_setu.dto.ResponseDto.*;
-import com.project.kisan_setu.entity.*;
+
+import com.project.kisan_setu.dto.RequestDto.AccountSettingRequestDto;
+import com.project.kisan_setu.dto.RequestDto.ChangePasswordRequestDto;
+import com.project.kisan_setu.dto.RequestDto.CreateUserRequestDto;
+import com.project.kisan_setu.dto.RequestDto.LoginRequestDto;
+import com.project.kisan_setu.dto.RequestDto.UpdateUserRequestDto;
+import com.project.kisan_setu.dto.RequestDto.UserProfileRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.AccountSettingResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ChangePasswordResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.KycStatusResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.LoginResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.SignupResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.UserProfileResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.UserResponseDto;
+import com.project.kisan_setu.entity.AadhaarVerification;
+import com.project.kisan_setu.entity.BankAccountVerification;
+import com.project.kisan_setu.entity.PanCardVerification;
+import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.enums.Role;
 import com.project.kisan_setu.enums.UserStatus;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.UserMapper;
-import com.project.kisan_setu.repository.*;
+import com.project.kisan_setu.repository.AadhaarVerificationRepository;
+import com.project.kisan_setu.repository.BankAccountVerificationRepository;
+import com.project.kisan_setu.repository.PanCardVerificationRepository;
+import com.project.kisan_setu.repository.UserRepository;
 import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.service.RefreshTokenService;
 import com.project.kisan_setu.service.UserService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,9 +61,11 @@ public class UserServiceImpl implements UserService {
     private final PanCardVerificationRepository panCardVerificationRepository;
     private final AadhaarVerificationRepository aadhaarVerificationRepository;
     private final NotificationService notificationService;
+
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
-    private static final long   MAX_SIZE  = 5 * 1024 * 1024L;
-    private static final String[] ALLOWED  = {"image/jpeg", "image/png", "image/jpg"};
+    private static final long MAX_SIZE = 5 * 1024 * 1024L;
+    private static final String[] ALLOWED = {"image/jpeg", "image/png", "image/jpg"};
+
     @Value("${app.upload.dir:uploads/profile-photos}")
     private String uploadDir;
 
@@ -55,18 +77,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public SignupResponseDto signup(CreateUserRequestDto dto) {
-        logger.info("Signing up for user...");
-        logger.info("Checking validations...");
+
         if (!dto.getPassword().equals(dto.getConfirmPassword())) {
-            throw new UserException("Passwords do not match");
+            throw new UserException("Passwords do not match", HttpStatus.BAD_REQUEST);
         }
 
         if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new UserException("Email already registered");
+            throw new UserException("Email already registered", HttpStatus.CONFLICT);
         }
 
         if (userRepository.existsByMobileNumber(dto.getMobileNumber())) {
-            throw new UserException("Mobile number already registered");
+            throw new UserException("Mobile number already registered", HttpStatus.CONFLICT);
         }
 
         User user = UserMapper.toEntity(dto);
@@ -78,112 +99,99 @@ public class UserServiceImpl implements UserService {
         } else {
             user.setRole(Role.USER);
         }
-        userRepository.save(user);
+
         user.setStatus(UserStatus.ACTIVE);
-        UserResponseDto userResponseDto = UserMapper.toResponse(user);
-        logger.info("Signup success...");
+        userRepository.save(user);
+
         return new SignupResponseDto(
                 201,
                 "Registration successful",
-                userResponseDto
+                UserMapper.toResponse(user)
         );
     }
 
     @Override
     public LoginResponseDto login(LoginRequestDto dto) {
-        logger.info("Logging in for user...");
-        logger.info("Checking validations for user...");
+
         User user = userRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new UserException("Email not registered"));
+                .orElseThrow(() -> new UserException("Email not registered", HttpStatus.NOT_FOUND));
 
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new BadCredentialsException("Invalid Password");
+            throw new UserException("Invalid password", HttpStatus.UNAUTHORIZED);
         }
-        UserResponseDto userResponseDto = UserMapper.toResponse(user);
-        logger.info("Login success...");
+
         return new LoginResponseDto(
                 200,
                 "Login successful",
-                userResponseDto
+                UserMapper.toResponse(user)
         );
     }
 
     @Override
     public User getUserById(Long userId) {
-        logger.info("Getting user by id...");
-        logger.info("Fetching user by id success...");
         return userRepository.findById(userId)
-                .orElseThrow(() -> new UserException("User not found"));
+                .orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
     }
 
     @Override
     public List<User> getAllUsers() {
-        logger.info("Getting all users...");
-        logger.info("Fetching all users success...");
         return userRepository.findAll();
     }
 
     @Override
     public UserResponseDto updateUserById(Long userId, UpdateUserRequestDto dto) {
-        logger.info("Updating user with id...");
+
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException("User not found"));
+                .orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
 
-        UserMapper.updateEntity(user, dto,passwordEncoder);
+        UserMapper.updateEntity(user, dto, passwordEncoder);
 
-        User updatedUser = userRepository.save(user);
-        logger.info("Update user success...");
-        return UserMapper.toResponse(updatedUser);
+        return UserMapper.toResponse(userRepository.save(user));
     }
 
     @Override
     public void deleteUserById(Long userId) {
-        logger.info("Deleting user by id...");
+
         if (!userRepository.existsById(userId)) {
-            throw new UserException("User not found");
+            throw new UserException("User not found", HttpStatus.NOT_FOUND);
         }
-        logger.info("User deleted by id...");
+
         userRepository.deleteById(userId);
     }
 
     @Override
     public User findByEmail(String email) {
-        logger.info("Finding user by email...");
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
     }
 
     @Override
     public UserProfileResponseDto completeUserProfileData(UserProfileRequestDto dto) {
-        logger.info("Updating User profile data...");
-        logger.info("Checking user validations...");
+
         Long userId = validatorMethods.getCurrentUserId();
         User user = validatorMethods.validateUserById(userId);
 
-        UserMapper.updateUserEntity(user,dto);
+        UserMapper.updateUserEntity(user, dto);
         userRepository.save(user);
 
         User updatedUser = userRepository.findByIdWithVerifications(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        logger.info("Profile data updated success...");
+                .orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
+
         return UserMapper.toDto(updatedUser);
     }
 
     @Override
     public UserProfileResponseDto uploadProfilePhoto(MultipartFile file) {
-        logger.info("Uploading profile photo...");
 
         validateFile(file);
 
         Long userId = validatorMethods.getCurrentUserId();
-        User user   = validatorMethods.validateUserById(userId);
+        User user = validatorMethods.validateUserById(userId);
 
-        // Delete previous photo from disk if present
         if (user.getProfilePhoto() != null && !user.getProfilePhoto().isBlank()) {
             deleteOldPhoto(user.getProfilePhoto());
         }
 
-        // Build unique filename and save to disk
         String filename = buildFilename(userId, file.getOriginalFilename());
         saveFileToDisk(file, filename);
 
@@ -191,31 +199,30 @@ public class UserServiceImpl implements UserService {
         user.setProfilePhoto(photoUrl);
         userRepository.save(user);
 
-        User updatedUser = userRepository.findByIdWithVerifications(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        logger.info("Profile photo uploaded successfully for userId: {}", userId);
         return UserProfileResponseDto.builder()
                 .userId(userId)
                 .profilePhotoUrl(photoUrl)
                 .build();
-
     }
 
     private void validateFile(MultipartFile file) {
-        if (file == null || file.isEmpty())
-            throw new IllegalArgumentException("File must not be empty");
 
-        if (file.getSize() > MAX_SIZE)
-            throw new IllegalArgumentException("File size must not exceed 5 MB");
+        if (file == null || file.isEmpty()) {
+            throw new UserException("File must not be empty", HttpStatus.BAD_REQUEST);
+        }
+
+        if (file.getSize() > MAX_SIZE) {
+            throw new UserException("File size must not exceed 5 MB", HttpStatus.BAD_REQUEST);
+        }
 
         String ct = file.getContentType();
-        for (String allowed : ALLOWED)
+        for (String allowed : ALLOWED) {
             if (allowed.equalsIgnoreCase(ct)) return;
+        }
 
-        throw new IllegalArgumentException("Only JPEG, PNG, JPG, WEBP images are allowed");
-
+        throw new UserException("Only JPEG, PNG, JPG allowed", HttpStatus.BAD_REQUEST);
     }
+
     private String buildFilename(Long userId, String original) {
         String ext = (original != null && original.contains("."))
                 ? original.substring(original.lastIndexOf("."))
@@ -229,8 +236,7 @@ public class UserServiceImpl implements UserService {
             Files.createDirectories(dir);
             Files.copy(file.getInputStream(), dir.resolve(filename), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            logger.error("Failed to save photo: {}", e.getMessage());
-            throw new RuntimeException("Could not save profile photo. Please try again.");
+            throw new UserException("Could not save profile photo", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -238,113 +244,78 @@ public class UserServiceImpl implements UserService {
         try {
             String filename = oldUrl.substring(oldUrl.lastIndexOf("/") + 1);
             Files.deleteIfExists(Paths.get(uploadDir, filename));
-            logger.info("Deleted old photo: {}", filename);
-        } catch (IOException e) {
-            logger.warn("Could not delete old photo: {}", e.getMessage());
-        }
+        } catch (IOException ignored) {}
     }
 
     @Override
     public AccountSettingResponseDto getAccountSettings() {
-        logger.info("Fetching account settings...");
+
         Long userId = validatorMethods.getCurrentUserId();
 
         User user = userRepository.findByIdWithVerifications(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
 
         return UserMapper.toAccountSettingDto(user);
     }
+
     @Override
     public AccountSettingResponseDto updateAccountSettings(AccountSettingRequestDto dto) {
-        logger.info("Updating account settings...");
-        Long userId = validatorMethods.getCurrentUserId();
-        User user   = validatorMethods.validateUserById(userId);
 
-        if (dto.getFullName() != null)     user.setFullName(dto.getFullName());
+        Long userId = validatorMethods.getCurrentUserId();
+        User user = validatorMethods.validateUserById(userId);
+
+        if (dto.getFullName() != null) user.setFullName(dto.getFullName());
         if (dto.getMobileNumber() != null) user.setMobileNumber(dto.getMobileNumber());
         if (dto.getFarmLocation() != null) user.setFarmLocation(dto.getFarmLocation());
 
         userRepository.save(user);
 
-        User updatedUser = userRepository.findByIdWithVerifications(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        logger.info("Account settings updated successfully.");
         return UserMapper.toAccountSettingDto(user);
     }
 
     @Override
     public ChangePasswordResponseDto changePassword(ChangePasswordRequestDto dto) {
-        Long userId = validatorMethods.getCurrentUserId();
-        User user=validatorMethods.validateUserById(userId);
-        logger.info("Changing/Updating Password...");
 
-        if(!passwordEncoder.matches(dto.getCurrentPassword(),user.getPassword())){
-            throw new UserException("Current Password is Incorrect");
+        Long userId = validatorMethods.getCurrentUserId();
+        User user = validatorMethods.validateUserById(userId);
+
+        if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+            throw new UserException("Current password incorrect", HttpStatus.UNAUTHORIZED);
         }
+
         if (!dto.getNewPassword().equals(dto.getConfirmNewPassword())) {
-            throw new UserException("New password and confirm password do not match");
+            throw new UserException("Passwords do not match", HttpStatus.BAD_REQUEST);
         }
+
         if (passwordEncoder.matches(dto.getNewPassword(), user.getPassword())) {
-            throw new UserException("New password cannot be same as current password");
+            throw new UserException("New password cannot be same", HttpStatus.BAD_REQUEST);
         }
+
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         userRepository.save(user);
-
-        logger.info("Password changed successfully for userId: {}", userId);
 
         return ChangePasswordResponseDto.builder()
                 .status(200)
                 .message("Password changed successfully")
                 .userId(user.getUserId())
-                .fullName(user.getFullName())
-                .email(user.getEmail())
-                .passwordChangedAt(LocalDateTime.now())
                 .build();
     }
 
     @Override
     public KycStatusResponseDto getKycStatus() {
-        logger.info("Fetching KYC Status...");
+
         Long userId = validatorMethods.getCurrentUserId();
         User user = validatorMethods.validateUserById(userId);
 
         Optional<AadhaarVerification> aadhaar = aadhaarVerificationRepository.findByUserUserId(userId);
-        boolean aadhaarVerified = aadhaar.isPresent() && aadhaar.get().isVerified();
-        String aadhaarNumber = aadhaar.map(AadhaarVerification::getAadhaarNumber).orElse("Aadhaar Not Submitted");
+        Optional<PanCardVerification> pan = panCardVerificationRepository.findByUserUserId(userId);
+        Optional<BankAccountVerification> bank = bankAccountVerificationRepository.findByUserUserId(userId);
 
-        Optional<PanCardVerification> panCard = panCardVerificationRepository.findByUserUserId(userId);
-        boolean panCardVerified = panCard.isPresent() && panCard.get().isVerified();
-        String panNumber = panCard.map(PanCardVerification::getPanNumber).orElse("PanCard not Submitted");
-
-        Optional<BankAccountVerification> bank =
-                bankAccountVerificationRepository.findByUserUserId(userId);
-        boolean bankVerified = bank.isPresent() && bank.get().isVerified();
-        String bankAccountStatus = bankVerified ? "Verified and linked" : "Pending";
-
-        boolean fullyVerified = aadhaarVerified && panCardVerified && bankVerified;
-        String overallMessage = fullyVerified
-                ? "Your account is verified"
-                : "Some documents are pending verification";
-
-//        if (fullyVerified) {
-//            notificationService.notifyUser(user,
-//                    " KYC Verification Complete! All documents verified.");
-//        }
-
-        logger.info("KYC status fetched successfully for userId: {}", userId);
+        boolean fullyVerified = aadhaar.isPresent() && pan.isPresent() && bank.isPresent();
 
         return KycStatusResponseDto.builder()
                 .fullyVerified(fullyVerified)
-                .overallMessage(overallMessage)
-                .aadhaarVerified(aadhaarVerified)
-                .aadhaarNumber(aadhaarNumber)
-                .panVerified(panCardVerified)
-                .panNumber(panNumber)
-                .bankVerified(bankVerified)
-                .bankAccountStatus(bankAccountStatus)
+                .overallMessage(fullyVerified ? "Verified" : "Pending verification")
                 .build();
-
     }
-
 }

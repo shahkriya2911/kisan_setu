@@ -1,13 +1,11 @@
 package com.project.kisan_setu.entity;
 import com.project.kisan_setu.enums.Role;
 import com.project.kisan_setu.enums.UserStatus;
-import com.project.kisan_setu.service.PanCardVerificationService;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

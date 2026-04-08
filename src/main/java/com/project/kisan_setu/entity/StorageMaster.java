@@ -1,5 +1,4 @@
 package com.project.kisan_setu.entity;
-
 import jakarta.persistence.*;
 import lombok.*;
 @Data

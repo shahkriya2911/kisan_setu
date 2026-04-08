@@ -6,9 +6,6 @@ import com.project.kisan_setu.dto.RequestDto.ExtendAuctionDto;
 import com.project.kisan_setu.dto.ResponseDto.DashboardDto;
 import com.project.kisan_setu.dto.ResponseDto.ListingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.SellerListingDto;
-import com.project.kisan_setu.dto.*;
-import com.project.kisan_setu.dto.*;
-import com.project.kisan_setu.dto.RequestDto.*;
 import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.dto.ResponseDto.SellerListingFixedDto;
 import com.project.kisan_setu.service.ListingService;
@@ -20,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -93,7 +89,6 @@ public class ListingController {
     public ResponseEntity<SellerListingDto> getAuctionListingDetail(
             @PathVariable Long listingId) {
         logger.debug("Get top 5 bids for listing with id : {} request attempt",listingId);
-        Long sellerId = validatorMethods.getCurrentUserId();
         logger.info("Fetched top 5 bids successfully for listing with id : {}",listingId);
         return ResponseEntity.ok(listingService.getSellerAuctionListingDetail(listingId));
     }
@@ -103,7 +98,6 @@ public class ListingController {
             @PathVariable Long listingId
     ){
         logger.debug("Get fixed listing with id : {} request attempt",listingId);
-        Long sellerId = validatorMethods.getCurrentUserId();
         logger.info("Fetched fixed listing with id : {}",listingId);
         return ResponseEntity.ok(listingService.getSellerFixedListingDetail(listingId));
     }

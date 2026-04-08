@@ -6,5 +6,5 @@ import lombok.Data;
 public class ExtendAuctionDto {
     private Long listingId;
     private Long sellerId;
-    private int minutes;
+    private Integer minutes;
 }

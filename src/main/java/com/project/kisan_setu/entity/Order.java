@@ -1,7 +1,4 @@
 package com.project.kisan_setu.entity;
-
-import com.project.kisan_setu.entity.Listing;
-import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.enums.EscrowStatus;
 import com.project.kisan_setu.enums.OrderStatus;
 import jakarta.persistence.*;

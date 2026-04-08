@@ -1,14 +1,28 @@
 package com.project.kisan_setu.service.impl;
-
 import com.project.kisan_setu.dto.RequestDto.BuyingRequirementRequestDto;
 import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
-import com.project.kisan_setu.dto.ResponseDto.*;
+import com.project.kisan_setu.dto.ResponseDto.BidResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.BuyerListingResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ProductImageResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
 import com.project.kisan_setu.embedded.ListingImage;
-import com.project.kisan_setu.entity.*;
-import com.project.kisan_setu.enums.*;
+import com.project.kisan_setu.entity.BuyingRequirement;
+import com.project.kisan_setu.entity.CropMaster;
+import com.project.kisan_setu.entity.DistrictMaster;
+import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.entity.UnitMaster;
+import com.project.kisan_setu.entity.StateMaster;
+import com.project.kisan_setu.entity.Listing;
+import com.project.kisan_setu.entity.Bid;
+import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.enums.PurchaseType;
+import com.project.kisan_setu.enums.BidStatus;
+import com.project.kisan_setu.enums.NotificationStatus;
+import com.project.kisan_setu.enums.SaleType;
 import com.project.kisan_setu.mapper.BuyingRequirementMapper;
-import com.project.kisan_setu.mapper.ListingMapper;
-import com.project.kisan_setu.repository.*;
+import com.project.kisan_setu.repository.BidRepository;
+import com.project.kisan_setu.repository.BuyingRequirementRepository;
+import com.project.kisan_setu.repository.ListingRepository;
 import com.project.kisan_setu.service.BuyerService;
 import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.util.ValidatorMethods;
@@ -16,7 +30,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -53,7 +66,7 @@ public class BuyerServiceImpl implements BuyerService {
     }
     @Override
     @Transactional
-    public Page<BuyerListingResponseDto> getActiveAuctionListings(Long userId,Pageable pageable) {
+    public Page<BuyerListingResponseDto> getActiveAuctionListings(Long userId, Pageable pageable) {
 
         Page<Listing> listingPage = listingRepository
                 .findBySaleTypeAndSellerUserIdNotAndStatus(

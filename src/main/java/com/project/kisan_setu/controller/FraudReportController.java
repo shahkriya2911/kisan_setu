@@ -1,6 +1,4 @@
 package com.project.kisan_setu.controller;
-
-
 import com.project.kisan_setu.dto.RequestDto.FraudReportRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.FraudReportResponseDto;
 import com.project.kisan_setu.service.FraudReportService;

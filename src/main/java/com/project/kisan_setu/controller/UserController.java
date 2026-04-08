@@ -25,14 +25,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@RestController //handling of rest apis
+@RestController
 @RequestMapping("api/users")
-@RequiredArgsConstructor//api starts with /users
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;

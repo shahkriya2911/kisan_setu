@@ -1,9 +1,7 @@
 package com.project.kisan_setu.mapper;
-
 import com.project.kisan_setu.dto.ResponseDto.MarketListingResponseDto;
 import com.project.kisan_setu.entity.Listing;
 import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 
 @Component

@@ -1,10 +1,8 @@
 package com.project.kisan_setu.service.impl;
-
 import com.project.kisan_setu.dto.ResponseDto.CommodityListingDto;
 import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.entity.Order;
 import com.project.kisan_setu.enums.AuctionStatus;
-import com.project.kisan_setu.enums.OrderStatus;
 import com.project.kisan_setu.repository.BidRepository;
 import com.project.kisan_setu.repository.ListingRepository;
 import com.project.kisan_setu.repository.OrderRepository;

@@ -3,15 +3,13 @@ package com.project.kisan_setu.util;
 import com.project.kisan_setu.entity.*;
 import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.Role;
-import com.project.kisan_setu.exception.ResourceNotFoundException;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -32,7 +30,7 @@ public class ValidatorMethods {
     public Listing validateExists(Long listingId){
         return listingRepository.findById(listingId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Listing not found"));
+                        new UserException("Listing not found",HttpStatus.NOT_FOUND));
     }
 
     public Long getCurrentUserId() {
@@ -46,11 +44,11 @@ public class ValidatorMethods {
     }
 
     public User validateUserById(Long userId){
-        return userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("User Not Found"));
+        return userRepository.findById(userId).orElseThrow(()->new UserException("User Not Found", HttpStatus.NOT_FOUND));
     }
     public void checkStatus(Listing listing, AuctionStatus requiredStatus){
         if(listing.getStatus() != requiredStatus){
-            throw new UserException("Operation allowed only when listing is "+requiredStatus);
+            throw new UserException("Operation allowed only when listing is "+requiredStatus,HttpStatus.BAD_REQUEST);
         }
     }
     public CropMaster validateCrop(Long cropId) {

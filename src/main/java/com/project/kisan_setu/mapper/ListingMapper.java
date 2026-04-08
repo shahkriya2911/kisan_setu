@@ -1,5 +1,4 @@
 package com.project.kisan_setu.mapper;
-
 import com.project.kisan_setu.dto.AuctionListingResponseDto;
 import com.project.kisan_setu.dto.ListingFixedResponseDto;
 import com.project.kisan_setu.dto.RequestDto.ProductListingDto;
@@ -12,12 +11,8 @@ import com.project.kisan_setu.dto.ResponseDto.QualityCertificateResponseDto;
 import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.entity.*;
-
-import javax.swing.text.html.Option;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ListingMapper {

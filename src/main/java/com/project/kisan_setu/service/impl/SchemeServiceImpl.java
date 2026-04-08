@@ -10,6 +10,7 @@ import com.project.kisan_setu.service.SchemeService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -73,7 +74,7 @@ public class SchemeServiceImpl implements SchemeService {
 
         Scheme existingScheme = schemeRepository.findById(schemeId)
                 .orElseThrow(() ->
-                     new UserException("Scheme not found with id: " + schemeId));
+                     new UserException("Scheme not found with id: " + schemeId, HttpStatus.NOT_FOUND));
 
 
         SchemeMapper.updateEntity(existingScheme, dto);

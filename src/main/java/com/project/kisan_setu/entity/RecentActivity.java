@@ -1,6 +1,4 @@
 package com.project.kisan_setu.entity;
-
-import com.fasterxml.jackson.databind.BeanProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

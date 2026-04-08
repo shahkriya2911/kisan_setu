@@ -1,16 +1,12 @@
 package com.project.kisan_setu.controller;
-
 import com.project.kisan_setu.dto.RequestDto.ChangingLanguageRequestDto;
 import com.project.kisan_setu.service.ChangingLanguageService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/changing_languages")
 public class ChangingLanguageController {
-    private static final Logger logger = LoggerFactory.getLogger(ChangingLanguageController.class);
     private final ChangingLanguageService changingLanguageService;
 
     public ChangingLanguageController(ChangingLanguageService changingLanguageService) {

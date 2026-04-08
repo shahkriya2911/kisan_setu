@@ -1,8 +1,9 @@
 package com.project.kisan_setu.controller;
-import com.project.kisan_setu.dto.RequestDto.ReportUserRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.service.AdminDashboardService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminDashboardController {
     private final AdminDashboardService adminDashboardService;
+    private static final Logger logger = LoggerFactory.getLogger(AdminDashboardController.class);
 
     @GetMapping("/overview")
     public ResponseEntity<AdminDashboardResponseDto> getDashboardOverview() {
@@ -33,7 +35,7 @@ public class AdminDashboardController {
     public List<UserManagementDto> getAllUsersForAdmin(
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String status) {
-        System.out.println("Controller status = " + status);
+        logger.info("Controller status = " + status);
         return adminDashboardService.getAllUsersForAdmin(type, status);
     }
 

@@ -1,14 +1,16 @@
 package com.project.kisan_setu.mapper;
-
 import com.project.kisan_setu.dto.RequestDto.CreateUserRequestDto;
 import com.project.kisan_setu.dto.RequestDto.UpdateUserRequestDto;
 import com.project.kisan_setu.dto.RequestDto.UserProfileRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.AccountSettingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.UserProfileResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.UserResponseDto;
-import com.project.kisan_setu.entity.*;
+import com.project.kisan_setu.entity.BankAccountVerification;
+import com.project.kisan_setu.entity.MobileVerification;
+import com.project.kisan_setu.entity.PanCardVerification;
+import com.project.kisan_setu.entity.AadhaarVerification;
+import com.project.kisan_setu.entity.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
 import java.time.format.DateTimeFormatter;
 
 public class UserMapper {
@@ -19,7 +21,7 @@ public class UserMapper {
         user.setFullName(dto.getFullName());
         user.setEmail(dto.getEmail());
         user.setMobileNumber(dto.getMobileNumber());
-        user.setPassword(dto.getPassword()); // encoding happens in service
+        user.setPassword(dto.getPassword());
         return user;
     }
 

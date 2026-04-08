@@ -3,7 +3,6 @@ package com.project.kisan_setu.service.impl;
 import com.project.kisan_setu.dto.ResponseDto.MyBiddingsResponseDto;
 import com.project.kisan_setu.entity.Bid;
 import com.project.kisan_setu.entity.Order;
-import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.BidStatus;
 import com.project.kisan_setu.mapper.BidMapper;
@@ -12,10 +11,8 @@ import com.project.kisan_setu.repository.OrderRepository;
 import com.project.kisan_setu.service.BidService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class BidServiceImpl implements BidService {

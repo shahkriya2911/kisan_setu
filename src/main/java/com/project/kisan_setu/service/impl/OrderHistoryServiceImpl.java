@@ -14,6 +14,7 @@ import com.project.kisan_setu.service.OrderHistoryService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -208,16 +209,16 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
     public byte[] downloadInvoice(Long orderId) {
         Long currentUserId = validatorMethods.getCurrentUserId();
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new UserException("Order not found"));
+                .orElseThrow(() -> new UserException("Order not found", HttpStatus.NOT_FOUND));
 
         if (order.getStatus() != OrderStatus.COMPLETED) {
-            throw new UserException("Invoice is available only for completed orders");
+            throw new UserException("Invoice is available only for completed orders",HttpStatus.BAD_REQUEST);
         }
 
         boolean isBuyer = order.getBuyer() != null && order.getBuyer().getUserId().equals(currentUserId);
         boolean isSeller = order.getSeller() != null && order.getSeller().getUserId().equals(currentUserId);
         if (!isBuyer && !isSeller) {
-            throw new UserException("Unauthorized: You cannot access this invoice");
+            throw new UserException("Unauthorized: You cannot access this invoice",HttpStatus.FORBIDDEN);
         }
 
         return invoiceService.generateInvoice(order);

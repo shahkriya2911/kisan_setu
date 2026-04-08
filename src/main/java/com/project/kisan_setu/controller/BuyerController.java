@@ -4,7 +4,6 @@ import com.project.kisan_setu.dto.RequestDto.BuyingRequirementRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyerListingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
 import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
-import com.project.kisan_setu.dto.ResponseDto.ListingSummaryResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.MyBiddingsResponseDto;
 import com.project.kisan_setu.service.BidService;
 import com.project.kisan_setu.service.BuyerService;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

@@ -1,9 +1,5 @@
 package com.project.kisan_setu.entity;
-
-import com.project.kisan_setu.entity.Listing;
-import com.project.kisan_setu.entity.User;
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity

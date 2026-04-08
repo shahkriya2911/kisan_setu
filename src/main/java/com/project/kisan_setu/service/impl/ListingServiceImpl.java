@@ -1,26 +1,61 @@
 package com.project.kisan_setu.service.impl;
-
 import com.project.kisan_setu.dto.AuctionListingResponseDto;
-import com.project.kisan_setu.dto.RequestDto.*;
-import com.project.kisan_setu.dto.ResponseDto.*;
-import com.project.kisan_setu.dto.*;
+import com.project.kisan_setu.dto.RequestDto.CreateListingRequest;
+import com.project.kisan_setu.dto.RequestDto.ProductListingDto;
+import com.project.kisan_setu.dto.RequestDto.QualityLocationListingDto;
+import com.project.kisan_setu.dto.RequestDto.QualityPricingListingDto;
+import com.project.kisan_setu.dto.RequestDto.ExtendAuctionDto;
+import com.project.kisan_setu.dto.ResponseDto.BuyerContactResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ListingResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.SellerListingDto;
+import com.project.kisan_setu.dto.ResponseDto.SellerListingFixedDto;
+import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ListingSummaryResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.RecentBidResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.BidResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.DashboardDto;
 import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
-import com.project.kisan_setu.entity.*;
-import com.project.kisan_setu.enums.*;
+import com.project.kisan_setu.entity.CropMaster;
+import com.project.kisan_setu.entity.Listing;
+import com.project.kisan_setu.entity.UnitMaster;
+import com.project.kisan_setu.entity.StateMaster;
+import com.project.kisan_setu.entity.DistrictMaster;
+import com.project.kisan_setu.entity.PackagingMaster;
+import com.project.kisan_setu.entity.StorageMaster;
+import com.project.kisan_setu.entity.User;
+import com.project.kisan_setu.entity.Bid;
+import com.project.kisan_setu.entity.BuyingRequirement;
+import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.enums.BidStatus;
+import com.project.kisan_setu.enums.PurchaseType;
+import com.project.kisan_setu.enums.SaleType;
+import com.project.kisan_setu.enums.RequirementStatus;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.BuyingRequirementMapper;
 import com.project.kisan_setu.mapper.ListingMapper;
-import com.project.kisan_setu.repository.*;
+import com.project.kisan_setu.repository.BidRepository;
+import com.project.kisan_setu.repository.CropRepository;
+import com.project.kisan_setu.repository.ListingRepository;
+import com.project.kisan_setu.repository.UserRepository;
+import com.project.kisan_setu.repository.UnitRepository;
+import com.project.kisan_setu.repository.OrderRepository;
+import com.project.kisan_setu.repository.PackagingRepository;
+import com.project.kisan_setu.repository.BuyingRequirementRepository;
+import com.project.kisan_setu.repository.StateRepository;
+import com.project.kisan_setu.repository.DistrictRepository;
+import com.project.kisan_setu.repository.StorageRepository;
 import com.project.kisan_setu.service.FileStorageService;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.service.OrderService;
 import com.project.kisan_setu.util.ValidatorMethods;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -35,6 +70,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ListingServiceImpl implements ListingService {
 
     private final ListingRepository listingRepository;
@@ -54,23 +90,6 @@ public class ListingServiceImpl implements ListingService {
     private final PackagingRepository packagingRepository;
     private static final Logger logger = LoggerFactory.getLogger(ListingServiceImpl.class);
 
-    public ListingServiceImpl(ListingRepository listingRepository, UserRepository userRepository, BidRepository bidRepository, NotificationService notificationService, OrderService orderService, FileStorageService fileStorageService, ValidatorMethods validatorMethods, OrderRepository orderRepository, BuyingRequirementRepository buyingRequirementRepository, StateRepository stateRepository, DistrictRepository districtRepository, CropRepository cropRepository, UnitRepository unitRepository, StorageRepository storageRepository, PackagingRepository packagingRepository) {
-        this.listingRepository = listingRepository;
-        this.userRepository = userRepository;
-        this.bidRepository = bidRepository;
-        this.notificationService = notificationService;
-        this.orderService = orderService;
-        this.fileStorageService = fileStorageService;
-        this.validatorMethods = validatorMethods;
-        this.orderRepository = orderRepository;
-        this.buyingRequirementRepository = buyingRequirementRepository;
-        this.stateRepository = stateRepository;
-        this.districtRepository = districtRepository;
-        this.cropRepository = cropRepository;
-        this.unitRepository = unitRepository;
-        this.storageRepository = storageRepository;
-        this.packagingRepository = packagingRepository;
-    }
 
 
     @Override
@@ -217,40 +236,40 @@ public class ListingServiceImpl implements ListingService {
         logger.info("Validating pricing...");
         if (pricingDto.getQuantity() == null ||
                 pricingDto.getQuantity().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new UserException("Quantity must be greater than 0");
+            throw new UserException("Quantity must be greater than 0", HttpStatus.BAD_REQUEST);
         }
 
         if (pricingDto.getPricePerKg() == null ||
                 pricingDto.getPricePerKg().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new UserException("PricePerKg must be greater than 0");
+            throw new UserException("PricePerKg must be greater than 0", HttpStatus.BAD_REQUEST);
         }
 
         if (pricingDto.getSaleType() == null) {
-            throw new UserException("SaleType must be specified");
+            throw new UserException("SaleType must be specified", HttpStatus.BAD_REQUEST);
         }
 
         if (pricingDto.getSaleType() == SaleType.AUCTION) {
 
             if (pricingDto.getAuctionEndTime() == null) {
-                throw new UserException("Auction End Time required");
+                throw new UserException("Auction End Time required", HttpStatus.BAD_REQUEST);
             }
 
             if (pricingDto.getAuctionEndTime().isBefore(LocalDateTime.now())) {
-                throw new UserException("Auction has ended");
+                throw new UserException("Auction has ended", HttpStatus.BAD_REQUEST);
             }
 
             if (pricingDto.getMinimumBidIncrement() == null ||
                     pricingDto.getMinimumBidIncrement()
                             .compareTo(BigDecimal.ZERO) <= 0) {
 
-                throw new UserException("Minimum Bid Increment must be greater than 0");
+                throw new UserException("Minimum Bid Increment must be greater than 0", HttpStatus.BAD_REQUEST);
             }
 
             logger.info("Auction Listing validated");
         } else if (pricingDto.getSaleType() == SaleType.FIXED) {
             logger.info("Fixed Price Listing validated");
         } else {
-            throw new UserException("SaleType must be AUCTION or FIXED");
+            throw new UserException("SaleType must be AUCTION or FIXED", HttpStatus.BAD_REQUEST);
         }
         if (pricingDto.getPurchaseType() == PurchaseType.PARTIAL_ORDER_ALLOWS) {
 
@@ -258,14 +277,14 @@ public class ListingServiceImpl implements ListingService {
                     pricingDto.getMinimumOrderQuantity()
                             .compareTo(BigDecimal.ZERO) <= 0) {
 
-                throw new UserException("Minimum Order Quantity must be greater than 0");
+                throw new UserException("Minimum Order Quantity must be greater than 0", HttpStatus.BAD_REQUEST);
             }
 
             if (pricingDto.getMoqPricePerKg() == null ||
                     pricingDto.getMoqPricePerKg()
                             .compareTo(BigDecimal.ZERO) <= 0) {
 
-                throw new UserException("MOQ PricePerKg must be greater than 0");
+                throw new UserException("MOQ PricePerKg must be greater than 0", HttpStatus.BAD_REQUEST);
             }
 
             logger.info("Partial Order Listing validated");
@@ -304,81 +323,32 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public void deleteListing(Long listingId, Long sellerId) {
-//        validatorMethods.validateUserAccess();
-        logger.info("Deleting listing....");
-        logger.info("Validating listing...");
+
+        logger.info("Deleting listing...");
+
         Listing listing = validatorMethods.validateExists(listingId);
-        validatorMethods.checkStatus(listing, AuctionStatus.SOLD);
-        long bidCount = bidRepository.countTotalBidsBySellerId(sellerId);
+
+        if (!listing.getSeller().getUserId().equals(sellerId)) {
+            throw new UserException("You are not authorized to delete this listing", HttpStatus.FORBIDDEN);
+        }
+
+        if (listing.getStatus() == AuctionStatus.SOLD) {
+            throw new UserException("Cannot delete a SOLD listing", HttpStatus.BAD_REQUEST);
+        }
+
+        long bidCount = bidRepository.countByListing_ListingId(listingId);
+
         if (bidCount > 0) {
-            logger.error("Cannot delete listing...Bid already placed...");
-            throw new UserException("Cannot delete listing. Bids already placed.");
+            logger.error("Cannot delete listing... Bids already placed...");
+            throw new UserException("Cannot delete listing. Bids already placed.", HttpStatus.BAD_REQUEST);
         }
-        logger.info("Listing delete success...");
+
         listingRepository.delete(listing);
+
+        logger.info("Listing deleted successfully ID: {}", listingId);
     }
 
 
-    public Bid placeBid(Long listingId, BigDecimal buyerAmount, Long userId) {
-//        validatorMethods.validateUserAccess();
-        logger.info("Placing bid for listing....");
-        Listing listing = validatorMethods.validateExists(listingId);
-        BigDecimal totalBasePrice = listing.getTotalBasePrice();
-        BigDecimal minimumBidIncrement = listing.getMinimumBidIncrement();
-        long totalBids = bidRepository.countByListing_ListingId(listingId);
-        BigDecimal lastbuyerAmount;
-        logger.info("Validating bid...");
-        Long cuurentUserId = userId;
-        Optional<Bid> lastBidOpt = bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(listingId);
-        if (totalBids > 0) {
-            if (lastBidOpt.isPresent()){
-                Bid lastBid = lastBidOpt.get();
-                if (lastBid.getBuyer().getUserId().equals(cuurentUserId)){
-                    throw new IllegalStateException("You cannot place two consecutive bids. Wait for another buyer.");
-                }
-            }
-            BigDecimal bidCount = BigDecimal.valueOf(totalBids);
-
-            lastbuyerAmount = totalBasePrice.add(
-                    minimumBidIncrement.multiply(bidCount)
-            );
-
-            BigDecimal exactRequired = lastbuyerAmount;
-
-            if (buyerAmount.compareTo(exactRequired) != 0) {
-                logger.error("Invalid bid! Current base is ₹" + lastbuyerAmount +
-                        ". You must bid exactly ₹" + exactRequired +
-                        " (increment is fixed at ₹" + minimumBidIncrement + ")");
-                throw new UserException(
-                        "Invalid bid! Current base is ₹" + lastbuyerAmount +
-                                ". You must bid exactly ₹" + exactRequired +
-                                " (increment is fixed at ₹" + minimumBidIncrement + ")"
-                );
-            }
-        } else {
-            BigDecimal firstBidRequired =
-                    totalBasePrice.add(minimumBidIncrement);
-
-            if (buyerAmount.compareTo(firstBidRequired) != 0) {
-                logger.error("First bid must be exactly ₹" + firstBidRequired +
-                        " (Base ₹" + totalBasePrice +
-                        " + fixed increment ₹" + minimumBidIncrement + ")");
-                throw new UserException(
-                        "First bid must be exactly ₹" + firstBidRequired +
-                                " (Base ₹" + totalBasePrice +
-                                " + fixed increment ₹" + minimumBidIncrement + ")"
-                );
-            }
-        }
-        Bid newBid = new Bid();
-        newBid.setListing(listing);
-        newBid.setBuyerAmount(buyerAmount);
-        newBid.setBidTime(LocalDateTime.now());
-
-        Bid saved = bidRepository.save(newBid);
-        logger.info("Bid saved — Round: {}, UserID: {}, Amount: ₹{}", totalBids + 1, userId, buyerAmount);
-        return saved;
-    }
 
     @Override
     public SellerListingDto getSellerAuctionListingDetail(Long listingId) {
@@ -506,41 +476,6 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
     }
 
 
-//    public void markAsSold(Long listingId, Long sellerId) {
-////        validatorMethods.validateUserAccess();
-//        logger.info("Marking listing as sold...");
-//        Listing listing = validatorMethods.validateExists(listingId);
-//        // Check seller ownership
-//        if (!listing.getSeller().getUserId().equals(sellerId)) {
-//            logger.error("You are not authorized to mark this listing as sold");
-//            throw new UserException("You are not authorized to mark this listing as sold");
-//        }
-//        validatorMethods.checkStatus(listing, AuctionStatus.ACTIVE);
-//        if (listing.getSaleType() == SaleType.AUCTION) {
-//            if (listing.getAuctionEndTime().isAfter(LocalDateTime.now())) {
-//                logger.error("auction has not ended yet");
-//                throw new UserException("auction has not ended yet");
-//            }
-//            Bid highestBid = bidRepository
-//                    .findTopByListingListingIdOrderByBuyerAmountDesc(listingId)
-//                    .orElseThrow(() ->
-//                            new UserException("Cannot mark as sold. No bids placed."));
-//
-//            Order order = new Order();
-//            order.setBuyer(highestBid.getBuyer());
-//            order.setListing(listing);
-//            order.setQuantity(listing.getQuantity());
-//            order.setPricePerKg(highestBid.getBuyerAmount());
-//            order.setAmount(
-//                    highestBid.getBuyerAmount()
-//                            .multiply(listing.getQuantity())
-//            );
-//            order.setCreatedAt(LocalDateTime.now());
-//            listing.setStatus(AuctionStatus.SOLD);
-//            listingRepository.save(listing);
-//            orderRepository.save(order);
-//        }
-//    }
 
 
     @Override
@@ -645,24 +580,29 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
     @Override
     public String extendAuctionTime(ExtendAuctionDto dto) {
 
-        Listing listing = listingRepository.findById(dto.getListingId())
-                .orElseThrow(() -> new RuntimeException("Listing not found"));
+        logger.info("Extending auction time...");
 
+        Listing listing = listingRepository.findById(dto.getListingId())
+                .orElseThrow(() ->
+                        new UserException("Listing not found", HttpStatus.NOT_FOUND)
+                );
+
+        // Check seller ownership
         if (!listing.getSeller().getUserId().equals(dto.getSellerId())) {
-            throw new UserException("You are not authorized to extend this auction");
+            logger.error("Unauthorized auction extension attempt...");
+            throw new UserException("You are not authorized to extend this auction", HttpStatus.FORBIDDEN);
         }
 
         if (listing.getStatus() != AuctionStatus.ACTIVE) {
-            throw new UserException("Auction is not active");
+            throw new UserException("Auction is not active", HttpStatus.BAD_REQUEST);
         }
 
         if (listing.getAuctionEndTime().isBefore(LocalDateTime.now())) {
-            throw new UserException("Cannot extend expired auction");
+            throw new UserException("Cannot extend expired auction", HttpStatus.BAD_REQUEST);
         }
 
-
-        if (dto.getMinutes() <= 0) {
-            throw new UserException("Extension time must be greater than 0");
+        if (dto.getMinutes() == null || dto.getMinutes() <= 0) {
+            throw new UserException("Extension time must be greater than 0", HttpStatus.BAD_REQUEST);
         }
 
 
@@ -672,9 +612,10 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
 
         listingRepository.save(listing);
 
+        logger.info("Auction time extended successfully for listingId: {}", dto.getListingId());
+
         return "Auction time extended successfully";
     }
-
     @Override
     public List<BuyingRequirementResponseDto> getAllRequirementsForSeller() {
 

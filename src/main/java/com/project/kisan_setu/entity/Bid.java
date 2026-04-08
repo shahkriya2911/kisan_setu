@@ -1,13 +1,10 @@
 package com.project.kisan_setu.entity;
-
 import com.project.kisan_setu.enums.BidStatus;
-import jakarta.annotation.Resource;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,7 +19,7 @@ import java.util.List;
 public class Bid {
 
     @Id //primary key
-    @GeneratedValue(strategy = GenerationType.IDENTITY) //auto-increment
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bidId;
 
     //bid info
@@ -35,7 +32,7 @@ public class Bid {
 
     private BigDecimal amountPerKg;
     private LocalDateTime acceptedTime;
-    private String buyerResponse; // or enum (ACCEPT / REJECT)
+    private String buyerResponse;
     private boolean buyerFlagProcessed = false;
 
     //relationship with listing

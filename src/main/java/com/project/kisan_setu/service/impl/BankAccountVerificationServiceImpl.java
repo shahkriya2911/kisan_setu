@@ -12,6 +12,7 @@ import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -49,10 +50,10 @@ public class BankAccountVerificationServiceImpl implements BankAccountVerificati
             throw new RuntimeException("Invalid IFSC code! Format: SBIN0001234");
         }
         if(dto.getAadhaarCard() == null || dto.getAadhaarCard().isEmpty()){
-            throw new UserException("Bank Document Aadhaar Required");
+            throw new UserException("Bank Document Aadhaar Required", HttpStatus.BAD_REQUEST);
         }
         if(dto.getPanCard() == null || dto.getPanCard().isEmpty()){
-            throw new UserException("Bank Document Pan card required ");
+            throw new UserException("Bank Document Pan card required ",HttpStatus.BAD_REQUEST);
         }
         String aadhaar = fileStorageService.storeFile(
                 dto.getAadhaarCard(), "aadhaar");

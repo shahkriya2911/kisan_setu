@@ -1,5 +1,4 @@
 package com.project.kisan_setu.dto.RequestDto;
-
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;

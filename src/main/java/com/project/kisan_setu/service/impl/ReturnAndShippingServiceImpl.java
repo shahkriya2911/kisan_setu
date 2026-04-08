@@ -9,6 +9,7 @@ import com.project.kisan_setu.mapper.ReturnAndShippingMapper;
 import com.project.kisan_setu.repository.ReturnAndShippingRepository;
 import com.project.kisan_setu.service.ReturnAndShippingService;
 import com.project.kisan_setu.util.ValidatorMethods;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -69,7 +70,7 @@ public class ReturnAndShippingServiceImpl implements ReturnAndShippingService {
         Long currentUserId = validatorMethods.getCurrentUserId();
         if (returnAndShipping.getUser() == null
                 || !currentUserId.equals(returnAndShipping.getUser().getUserId())) {
-            throw new UserException("You are not authorized to access this return and shipping entry");
+            throw new UserException("You are not authorized to access this return and shipping entry", HttpStatus.UNAUTHORIZED);
         }
     }
 }
