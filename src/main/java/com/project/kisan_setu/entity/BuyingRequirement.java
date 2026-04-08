@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor //needed by JPA
 @AllArgsConstructor //constructor
-public class BuyingRequirement {
+public class BuyingRequirement extends Auditable{
 
     @Id //primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY) //auto-increment
@@ -31,7 +31,6 @@ public class BuyingRequirement {
     @Enumerated(EnumType.STRING)
     private Urgency urgency;
     private String additionalNote;
-    private LocalDateTime createdAt;
     @Enumerated(EnumType.STRING)
     private RequirementStatus requirementStatus;
 

@@ -21,7 +21,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Order {
+public class Order extends Auditable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,18 +69,6 @@ public class Order {
 
     private Integer otpAttempts = 0;
 
-    private LocalDateTime createdAt;
-
     private LocalDateTime completedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-        if (otpAttempts == null) {
-            otpAttempts = 0;
-        }
-    }
 
 }

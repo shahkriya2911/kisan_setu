@@ -30,7 +30,6 @@ public class FraudReportServiceImpl implements FraudReportService {
        report.setFraudType(fraudType);
        report.setDescription(dto.getDescription());
        report.setStatus("OPEN");
-       report.setCreatedAt(LocalDateTime.now());
 
         FraudReport saved = fraudReportRepository.save(report);
 

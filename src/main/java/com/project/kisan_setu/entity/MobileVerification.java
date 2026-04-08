@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MobileVerification {
+public class MobileVerification extends Auditable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

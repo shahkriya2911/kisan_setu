@@ -93,7 +93,6 @@ public class OrderServiceImpl implements OrderService {
         order.setAcceptBid(bid);
         order.setQuantity(listing.getQuantity());
         order.setAmount(bid.getBuyerAmount());
-        order.setCreatedAt(LocalDateTime.now());
         order.setStatus(OrderStatus.PENDING_BUYER_CONFIRMATION);
         order.setConfirmationDeadline(LocalDateTime.now().plusHours(24));
         listing.setStatus(AuctionStatus.PENDING);
@@ -291,7 +290,6 @@ public class OrderServiceImpl implements OrderService {
         order.setQuantity(quantity);
         order.setPricePerKg(listing.getPricePerKg());
         order.setAmount(totalPrice);
-        order.setCreatedAt(LocalDateTime.now());
 
         order.setStatus(OrderStatus.PAYMENT_HELD);
         order.setEscrowStatus(EscrowStatus.HELD);
@@ -346,7 +344,6 @@ public class OrderServiceImpl implements OrderService {
         order.setSeller(listing.getSeller());
         order.setPricePerKg(listing.getPricePerKg());
         order.setAmount(totalPrice);
-        order.setCreatedAt(LocalDateTime.now());
         order.setStatus(OrderStatus.PAYMENT_HELD);
         order.setEscrowStatus(EscrowStatus.HELD);
 

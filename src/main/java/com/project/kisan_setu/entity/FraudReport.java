@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FraudReport {
+public class FraudReport extends Auditable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,9 +27,6 @@ public class FraudReport {
     private String description;
 
     private String status;
-
-    private LocalDateTime createdAt;
-
 
 
 }

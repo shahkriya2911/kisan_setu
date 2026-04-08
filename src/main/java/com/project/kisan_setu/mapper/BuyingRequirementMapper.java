@@ -27,7 +27,6 @@ public class BuyingRequirementMapper {
         br.setUrgency(dto.getUrgency());
         br.setAdditionalNote(dto.getAdditionalNotes());
         br.setBuyer(buyer);
-        br.setCreatedAt(LocalDateTime.now());
         br.setRequirementStatus(RequirementStatus.OPEN);
 
         return br;

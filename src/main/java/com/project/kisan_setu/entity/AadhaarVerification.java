@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AadhaarVerification {
+public class AadhaarVerification extends Auditable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
