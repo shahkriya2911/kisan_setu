@@ -8,7 +8,6 @@ import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.enums.NotificationStatus;
 import com.project.kisan_setu.mapper.NotificationMapper;
 import com.project.kisan_setu.repository.NotificationRepository;
-import com.project.kisan_setu.repository.UserRepository;
 import com.project.kisan_setu.service.NotificationService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;

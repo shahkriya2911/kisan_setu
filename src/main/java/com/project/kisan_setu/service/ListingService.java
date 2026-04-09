@@ -2,14 +2,17 @@ package com.project.kisan_setu.service;
 
 import com.project.kisan_setu.dto.RequestDto.CreateListingRequest;
 import com.project.kisan_setu.dto.RequestDto.ExtendAuctionDto;
+import com.project.kisan_setu.dto.ResponseDto.BuyerContactResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.DashboardDto;
-import com.project.kisan_setu.dto.ResponseDto.*;
-import com.project.kisan_setu.entity.Bid;
+import com.project.kisan_setu.dto.ResponseDto.ListingResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ListingSummaryResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.RecentBidResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.SellerListingDto;
+import com.project.kisan_setu.dto.ResponseDto.SellerListingFixedDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.math.BigDecimal;
 import java.util.List;
 
 public interface ListingService {
