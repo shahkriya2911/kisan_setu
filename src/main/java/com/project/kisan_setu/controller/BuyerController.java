@@ -96,7 +96,7 @@ public class BuyerController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<?> getAuctionListingDetail(
+    public ResponseEntity<BuyerListingResponseDto> getAuctionListingDetail(
             @Parameter(description = "Listing ID request", required = true)
             @PathVariable Long listingId) {
         logger.debug("Get auction listing detail request attempt for listing id : {}",listingId);
@@ -113,7 +113,7 @@ public class BuyerController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<?> getFixedListingDetail(
+    public ResponseEntity<BuyerListingResponseDto> getFixedListingDetail(
             @Parameter(description = "Listing ID request", required = true)
             @PathVariable("listingId") Long listingId){
         logger.debug("Get fixed listing detail request attempt for listing id : {}",listingId);
@@ -133,7 +133,7 @@ public class BuyerController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<?> placeAction(
+    public ResponseEntity<Object> placeAction(
             @Parameter(description = "Listing ID request", required = true)
             @PathVariable Long listingId,
             @Parameter(description = "Bid details", required = true)

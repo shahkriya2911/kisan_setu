@@ -11,13 +11,11 @@ import com.project.kisan_setu.dto.ResponseDto.QualityCertificateResponseDto;
 import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.entity.*;
-import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ListingMapper {
-
-    private static final String BASE_URL = "http://localhost:8080/api/";
 
     public static ListingResponseDto toResponse(Listing listing) {
 
@@ -119,7 +117,6 @@ public class ListingMapper {
         dto.setListingId(listing.getListingId());
         dto.setCropName(listing.getCrop().getCropName());
         dto.setVariety(listing.getVariety());
-//        dto.setGrade(listing.getGrade());
 
         dto.setQuantity(listing.getQuantity());
         dto.setPricePerKg(listing.getPricePerKg());
@@ -135,12 +132,6 @@ public class ListingMapper {
 
         dto.setState(listing.getState().getName());
         dto.setDistrict(listing.getDistrict().getName());
-
-//        dto.setPickupMethod(listing.getPickupMethod());
-//        dto.setStorage(listing.getStorage().getStorageType());
-
-//        dto.setHarvestDate(listing.getHarvestDate());
-//        dto.setPackagingType(listing.getPackaging().getPackagingType());
 
         dto.setImages(mapImages(listing));
         dto.setTopBid(topBid);
@@ -308,8 +299,6 @@ public class ListingMapper {
         dto.setListingId(listing.getListingId());
         dto.setCropName(listing.getCrop().getCropName());
         dto.setVariety(listing.getVariety());
-//        dto.setGrade(listing.getGrade());
-//        dto.setHarvestDate(listing.getHarvestDate());
         dto.setQuantity(listing.getQuantity());
         dto.setUnit(listing.getUnit().getUnitName());
 
@@ -321,18 +310,13 @@ public class ListingMapper {
 
         // Partial Order fields
         dto.setMinimumOrderQuantity(listing.getMinimumOrderQuantity());
-//        dto.setMoqPricePerKg(listing.getMoqPricePerKg());
 
         // Auction fields
-//        dto.setMinimumBidIncrement(listing.getMinimumBidIncrement());
         dto.setAuctionEndTime(listing.getAuctionEndTime());
 
         // Location
         dto.setState(listing.getState().getName());
         dto.setDistrict(listing.getDistrict().getName());
-//        dto.setPackagingType(listing.getPackaging().getPackagingType());
-//        dto.setStorageType(listing.getStorage().getStorageType());
-//        dto.setPickupMethod(listing.getPickupMethod());
 
         // Images
         dto.setImages(mapImages(listing));

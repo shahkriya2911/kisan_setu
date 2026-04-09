@@ -31,6 +31,8 @@ public class OrderServiceImpl implements OrderService {
     private final ValidatorMethods validatorMethods;
     private final NotificationService notificationService;
     private final OtpGenerator otpGenerator;
+    private final String orderDeliveryOtp = "\"Your delivery OTP for order #\"";
+    private final String orderNotFound = "Order not found";
 
     public OrderServiceImpl(OrderRepository orderRepository, BidRepository bidRepository, ListingRepository listingRepository, ValidatorMethods validatorMethods, NotificationService notificationService, OtpGenerator otpGenerator) {
         this.orderRepository = orderRepository;
@@ -121,7 +123,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public OrderResponseDto confirmOrder(Long orderId, Long buyerId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException(orderNotFound));
         if (!order.getBuyer().getUserId().equals(buyerId)) {
             throw new RuntimeException("Unauthorized Buyer");
         }
@@ -147,7 +149,7 @@ public class OrderServiceImpl implements OrderService {
         notificationService.markOrderNotificationHandled(orderId);
         notificationService.createNotification(
                 order.getBuyer(),
-                "Your delivery OTP for order #" + order.getOrderId() + " is " + otp,
+                orderDeliveryOtp + order.getOrderId() + " is " + otp,
                 NotificationStatus.DELIVERY_OTP_SENT,
                 listing, null, order
         );
@@ -158,7 +160,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void rejectOrder(Long orderId){
         Order order = orderRepository.findById(orderId).
-                orElseThrow(()->new RuntimeException("Order not found"));
+                orElseThrow(()->new RuntimeException(orderNotFound));
         Long buyerId = validatorMethods.getCurrentUserId();
         if (!order.getBuyer().getUserId().equals(buyerId)){
             throw new RuntimeException("Unauthorized Buyer");
@@ -195,34 +197,9 @@ public class OrderServiceImpl implements OrderService {
                 NotificationStatus.ORDER_CANCELLED,listing,bid,order);
     }
 
-//    @Override
-//    public void expirePendingOrders() {
-//        List<Order> orders = orderRepository.
-//                findByStatusAndConfirmationDeadlineBefore(OrderStatus.PENDING_BUYER_CONFIRMATION,
-//                LocalDateTime.now());
-//        for (Order order : orders){
-//            order.setStatus(OrderStatus.EXPIRED);
-//            Bid bid = order.getAcceptBid();
-//            if (bid != null) {
-//                bid.setBidStatus(BidStatus.EXPIRED);
-//                bidRepository.save(bid);
-//            }
-//            Listing listing = order.getListing();
-//            listing.setStatus(AuctionStatus.ACTIVE);
-//            listingRepository.save(listing);
-//            notificationService.createNotification(
-//                    order.getSeller(),
-//                    "Buyer didn't confirmed order for listing #" + order.getListing().getListingId(),
-//                    NotificationStatus.ORDER_EXPIRED,listing,bid,order
-//            );
-//        }
-//        orderRepository.saveAll(orders);
-//
-//    }
-
     @Override
     public Order getOrder(Long orderId) {
-        return orderRepository.findById(orderId).orElseThrow(()->new RuntimeException("Order not found"));
+        return orderRepository.findById(orderId).orElseThrow(()->new RuntimeException(orderNotFound));
     }
 
     @Override
@@ -306,7 +283,7 @@ public class OrderServiceImpl implements OrderService {
 
         notificationService.createNotification(
                 order.getBuyer(),
-                "Your delivery OTP for order #" + order.getOrderId() + " is " + otp,
+                orderDeliveryOtp + order.getOrderId() + " is " + otp,
                 NotificationStatus.DELIVERY_OTP_SENT, listing, null, order
         );
 
@@ -361,7 +338,7 @@ public class OrderServiceImpl implements OrderService {
 
         notificationService.createNotification(
                 order.getBuyer(),
-                "Your delivery OTP for order #" + order.getOrderId() + " is " + otp,
+                orderDeliveryOtp + order.getOrderId() + " is " + otp,
                 NotificationStatus.DELIVERY_OTP_SENT, listing, null, order
         );
         return OrderMapper.toDto(order);
@@ -370,7 +347,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponseDto cancelOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(()->new RuntimeException("Order not found"));
+                .orElseThrow(()->new RuntimeException(orderNotFound));
         if (order.getStatus() == OrderStatus.CANCELLED){
             throw new RuntimeException("Order already cancelled");
         }
@@ -398,7 +375,7 @@ public class OrderServiceImpl implements OrderService {
         Long currentUserId = validatorMethods.getCurrentUserId();
 
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new RuntimeException(orderNotFound));
 
         if (!order.getSeller().getUserId().equals(currentUserId)) {
             throw new RuntimeException("Only seller can verify delivery OTP");

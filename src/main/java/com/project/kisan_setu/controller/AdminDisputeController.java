@@ -1,5 +1,6 @@
 package com.project.kisan_setu.controller;
 
+import com.project.kisan_setu.dto.ResponseDto.DisputeDto;
 import com.project.kisan_setu.service.AdminDisputeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin-dispute")
@@ -29,7 +32,7 @@ public class AdminDisputeController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<?> getDisputes(
+    public ResponseEntity<List<DisputeDto>> getDisputes(
             @Parameter(description = "Dispute status filter", required = false)
             @RequestParam(required = false)String status)
     {
@@ -44,7 +47,7 @@ public class AdminDisputeController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<?> getOpenDispute(
+    public ResponseEntity<List<DisputeDto>> getOpenDispute(
             @Parameter(description = "Dispute status filter", required = false)
             @RequestParam(required = false)String status)
     {
@@ -59,7 +62,7 @@ public class AdminDisputeController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<?> getClosedDispute(
+    public ResponseEntity<List<DisputeDto>> getClosedDispute(
             @Parameter(description = "Dispute status filter", required = false)
             @RequestParam(required = false)String status)
     {
@@ -74,7 +77,7 @@ public class AdminDisputeController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<?> getUnderReviewDispute(
+    public ResponseEntity<List<DisputeDto>> getUnderReviewDispute(
             @Parameter(description = "Dispute status filter", required = false)
             @RequestParam(required = false)String status)
     {

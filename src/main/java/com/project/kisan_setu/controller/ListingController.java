@@ -143,7 +143,6 @@ public class ListingController {
     public ResponseEntity<SellerListingDto> getAuctionListingDetail(
             @Parameter(description = "Listing ID", required = true) @PathVariable Long listingId) {
         logger.debug("Get top 5 bids for listing with id : {} request attempt", listingId);
-        Long sellerId = validatorMethods.getCurrentUserId();
         logger.info("Fetched top 5 bids successfully for listing with id : {}", listingId);
         return ResponseEntity.ok(listingService.getSellerAuctionListingDetail(listingId));
     }
@@ -160,7 +159,6 @@ public class ListingController {
     public ResponseEntity<SellerListingFixedDto> getFixedListingDetail(
             @Parameter(description = "Listing ID", required = true) @PathVariable Long listingId) {
         logger.debug("Get fixed listing with id : {} request attempt", listingId);
-        Long sellerId = validatorMethods.getCurrentUserId();
         logger.info("Fetched fixed listing with id : {}", listingId);
         return ResponseEntity.ok(listingService.getSellerFixedListingDetail(listingId));
     }
@@ -178,17 +176,6 @@ public class ListingController {
         logger.info("Seller overview fetched successfully");
         return ResponseEntity.ok(listingService.getSellerOverview());
     }
-
-
-//    @PutMapping("/seller/{listingId}/mark-sold")
-//    public ResponseEntity<String> markAsSold(
-//            @PathVariable Long listingId,
-//            @RequestParam Long sellerId) {
-//        logger.debug("Listing marked as sold request attempt for listing with id : {}",listingId);
-//        listingService.markAsSold(listingId, sellerId);
-//        logger.info("Listing marked as sold successfully");
-//        return ResponseEntity.ok("Listing marked as SOLD successfully");
-//    }
 
     @PostMapping("/extend-auction")
     @Operation(summary = "Extend auction time", description = "Used by seller to extend auction time")
@@ -277,15 +264,6 @@ public class ListingController {
         logger.info("Fetched all active listings for user with id : {} successfully", userId);
         return ResponseEntity.ok(listings);
     }
-
-//    @GetMapping("/my-active")
-//    public ResponseEntity<Page<Object>> activeListings(Authentication authentication, Pageable pageable){
-//        logger.debug("Get all active listings for user with id : {}",Long.parseLong(authentication.getName()));
-//        Long userId = Long.parseLong(authentication.getName());
-//        Page<Object> listings = listingService.activeListings(userId,pageable);
-//        logger.info("Fetched all active listings for user with id : {} successfully",userId);
-//        return ResponseEntity.ok(listings);
-//    }
 
     @GetMapping("my-listings")
     @Operation(summary = "Get all my listings", description = "Used by seller to get all their listings")
@@ -403,15 +381,6 @@ public class ListingController {
         logger.info("Fetched all closed listings for user with id : {} successfully", userId);
         return ResponseEntity.ok(listings);
     }
-
-//    @GetMapping("/my-active-summary")
-//    public ResponseEntity<Page<ListingSummaryResponseDto>> activeSummaryListings(Authentication authentication, Pageable pageable){
-//        logger.debug("Get all active listings for user with id : {}",Long.parseLong(authentication.getName()));
-//        Long userId = Long.parseLong(authentication.getName());
-//        Page<ListingSummaryResponseDto> listings = listingService.activeSummaryListings(userId,pageable);
-//        logger.info("Fetched all active listings for user with id : {} successfully",userId);
-//        return ResponseEntity.ok(listings);
-//    }
 
     @GetMapping("/my-active-summary")
     @Operation(summary = "Get active listings summary", description = "Used by seller to get a summary of their active listings")

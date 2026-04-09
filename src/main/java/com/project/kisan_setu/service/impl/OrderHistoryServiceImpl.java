@@ -15,6 +15,8 @@ import com.project.kisan_setu.util.ValidatorMethods;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class OrderHistoryServiceImpl implements OrderHistoryService {
+    private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
     private final OrderRepository orderRepository;
     private final ValidatorMethods validatorMethods;
     private final RatingReviewRepository ratingReviewRepository;
@@ -38,7 +41,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
     }
     @Override
     public List<OrderHistoryResponseDto> getPurchasedOrderHistory() {
-        Long userId = validatorMethods.getCurrentUserId();;
+        Long userId = validatorMethods.getCurrentUserId();
         return orderRepository.findByBuyer_UserId(userId)
                 .stream()
                 .filter(order -> order.getStatus() == OrderStatus.PAYMENT_HELD
@@ -51,10 +54,10 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
     @Override
     public List<OrderHistoryResponseDto> getSoldOrderHistory() {
         Long userId = validatorMethods.getCurrentUserId();
-        System.out.println("Fetching for userId: " + userId);
+        logger.debug("Fetching for userId: " + userId);
 
         List<Order> orders = orderRepository.findBySeller_UserId(userId);
-        System.out.println("Total orders found: " + orders.size());
+        logger.debug("Total orders found: " + orders.size());
 
         return orders.stream()
                 .peek(order -> System.out.println(
@@ -254,14 +257,14 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
                         : null,
                 isBuyer ? "PURCHASED" : "SOLD",
                 !isBuyer ? null : order.getDeliveryOtp(),
-                getPaymentLabel(order, isBuyer),
+                getPaymentLabel(order),
                 order.getStatus() != null ? order.getStatus().name() : null,
                 order.getCreatedAt()
         );
     
     }
 
-    private String getPaymentLabel(Order order, boolean isBuyer) {
+    private String getPaymentLabel(Order order) {
         if(order.getStatus() == OrderStatus.PAYMENT_PENDING){
             return "PAYMENT_PENDING";
         }

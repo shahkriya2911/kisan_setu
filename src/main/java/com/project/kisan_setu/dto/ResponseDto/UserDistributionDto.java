@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserDistributionDto {
 
-//    private Long buyers;
     private Long sellers;
-//    private Long both;
 
 }

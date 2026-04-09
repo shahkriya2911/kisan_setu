@@ -6,6 +6,7 @@ import com.project.kisan_setu.mapper.MasterMapper;
 import com.project.kisan_setu.repository.*;
 import com.project.kisan_setu.service.MasterService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class MasterServiceImpl implements MasterService {
     private final DistrictRepository districtRepository;
 
     @Override
+    @Cacheable(value = "masterData")
     public MasterDataResponseDto getAllMasters() {
 
         MasterDataResponseDto response = new MasterDataResponseDto();
@@ -60,6 +62,7 @@ public class MasterServiceImpl implements MasterService {
     }
 
     @Override
+    @Cacheable(value = "districts",key = "#stateId")
     public List<IdNameDto> getDistrictsByState(Long stateId) {
         return districtRepository.findByStateStateId(stateId)
                 .stream()

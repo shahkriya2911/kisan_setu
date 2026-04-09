@@ -138,7 +138,7 @@ public class OrderHistoryController {
         return ResponseEntity.ok(orderHistoryService.reportBuyer(orderId, requestDto));
     }
 
-    @GetMapping({"/{orderId}/download-invoice"} /*"/{orderId}/download-receipt"}*/)
+    @GetMapping("/{orderId}/download-invoice")
     @Operation(summary = "Download invoice method", description = "Used by user to download invoice for an order")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Invoice downloaded successfully"),

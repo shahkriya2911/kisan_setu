@@ -11,14 +11,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class AdminDashboardResponseDto {
     private long totalSellers;
-//    private long totalBuyers;
     private long activeListings;
     private long activeAuctions;
-
-
-//    private long transactionsCompleted;
-//    private BigDecimal escrowFundsHolding;
-//    private BigDecimal platformRevenue;
 
 
 }

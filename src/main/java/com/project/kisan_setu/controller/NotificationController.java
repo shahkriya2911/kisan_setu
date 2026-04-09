@@ -20,12 +20,10 @@ import java.util.List;
 public class NotificationController {
     private final NotificationService notificationService;
     private final ValidatorMethods validatorMethods;
-    private final NotificationRepository notificationRepository;
     private static final Logger logger = LoggerFactory.getLogger(NotificationController.class);
     public NotificationController(NotificationService notificationService, ValidatorMethods validatorMethods, NotificationRepository notificationRepository) {
         this.notificationService = notificationService;
         this.validatorMethods = validatorMethods;
-        this.notificationRepository = notificationRepository;
     }
 
     @GetMapping
