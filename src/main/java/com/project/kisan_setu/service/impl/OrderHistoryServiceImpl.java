@@ -16,17 +16,22 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 @RequiredArgsConstructor
+
 public class OrderHistoryServiceImpl implements OrderHistoryService {
     private final OrderRepository orderRepository;
     private final ValidatorMethods validatorMethods;
     private final RatingReviewRepository ratingReviewRepository;
     private final ReportUserRepository reportSellerRepository;
     private final InvoiceService invoiceService;
+    private static final Logger log = LoggerFactory.getLogger(OrderHistoryServiceImpl.class);
     @Override
     public List<OrderHistoryResponseDto> getAllOrderHistory() {
         Long userId = validatorMethods.getCurrentUserId();
@@ -51,17 +56,18 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
     @Override
     public List<OrderHistoryResponseDto> getSoldOrderHistory() {
         Long userId = validatorMethods.getCurrentUserId();
-        System.out.println("Fetching for userId: " + userId);
+        log.info("Fetching sold order history for userId: {}", userId);
 
         List<Order> orders = orderRepository.findBySeller_UserId(userId);
-        System.out.println("Total orders found: " + orders.size());
+        log.info("Total orders found: {}", orders.size());
 
         return orders.stream()
-                .peek(order -> System.out.println(
-                        "OrderId: " + order.getOrderId() +
-                                ", Status: " + order.getStatus() +
-                                ", Listing: " + order.getListing() +
-                                ", SaleType: " + (order.getListing() != null ? order.getListing().getSaleType() : "N/A")
+                .peek(order -> log.debug(
+                        "OrderId: {}, Status: {}, Listing: {}, SaleType: {}",
+                        order.getOrderId(),
+                        order.getStatus(),
+                        order.getListing(),
+                        order.getListing() != null ? order.getListing().getSaleType() : "N/A"
                 ))
                 .filter(order ->
                         (order.getStatus() == OrderStatus.COMPLETED ||
@@ -78,20 +84,20 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         Long buyerId = validatorMethods.getCurrentUserId();
 
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new NoSuchElementException("Order not found"));
 
         // Check buyer ownership
         if (!order.getBuyer().getUserId().equals(buyerId)) {
-            throw new RuntimeException("You are not allowed to review this order");
+            throw new SecurityException("You are not allowed to review this order");
         }
 
         // Only completed orders
         if (order.getStatus() != OrderStatus.COMPLETED) {
-            throw new RuntimeException("Review allowed only for completed orders");
+            throw new IllegalStateException("Review allowed only for completed orders");
         }
 
         if (ratingReviewRepository.existsByOrder_OrderIdAndBuyer_UserId(orderId, buyerId)) {
-            throw new RuntimeException("Review already submitted");
+            throw new IllegalStateException("Review already submitted");
         }
 
         RatingAndReview review = new RatingAndReview();
@@ -114,15 +120,15 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
         if (!order.getListing().getSeller().getUserId().equals(sellerId)) {
-            throw new RuntimeException("You are not allowed to review this order");
+            throw new SecurityException("You are not allowed to review this order");
         }
 
         if (order.getStatus() != OrderStatus.COMPLETED) {
-            throw new RuntimeException("Review allowed only for completed orders");
+            throw new IllegalStateException("Review allowed only for completed orders");
         }
 
         if (ratingReviewRepository.existsByOrder_OrderIdAndSeller_UserId(orderId, sellerId)) {
-            throw new RuntimeException("Review already submitted");
+            throw new IllegalStateException("Review already submitted");
         }
 
         RatingAndReview review = new RatingAndReview();
@@ -179,11 +185,11 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
                 order.getListing().getSeller() == null ||
                 !order.getListing().getSeller().getUserId().equals(sellerId)) {
 
-            throw new RuntimeException("This seller is not allowed to report this buyer");
+            throw new SecurityException("This seller is not allowed to report this buyer");
         }
 
         if (order.getBuyer() == null) {
-            throw new RuntimeException("Buyer not found for this order");
+            throw new NoSuchElementException("Buyer not found for this order");
         }
 
         Report report = new Report();

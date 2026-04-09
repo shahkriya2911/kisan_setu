@@ -26,8 +26,6 @@ import com.project.kisan_setu.service.RefreshTokenService;
 import com.project.kisan_setu.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -281,7 +279,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping(value = "/updateProfile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/completeProfile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Complete user profile method", description = "This method is used to complete user profile")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Profile completed successfully"),

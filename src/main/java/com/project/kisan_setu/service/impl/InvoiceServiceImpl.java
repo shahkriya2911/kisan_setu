@@ -56,7 +56,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 return generateDirectPdf(order);
             } catch (Exception fallbackException) {
                 htmlException.addSuppressed(fallbackException);
-                throw new RuntimeException("Failed to generate invoice PDF", htmlException);
+                throw new IllegalStateException("Failed to generate invoice PDF", htmlException);
             }
         }
     }
@@ -72,7 +72,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
             return outputStream.toByteArray();
         } catch (Exception exception) {
-            throw new RuntimeException("Failed to generate invoice PDF", exception);
+            throw new IllegalStateException("Failed to generate invoice PDF", exception);
         }
     }
 
@@ -156,7 +156,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             document.close();
             return outputStream.toByteArray();
         } catch (DocumentException exception) {
-            throw new RuntimeException("Failed to generate fallback invoice PDF", exception);
+            throw new IllegalStateException("Failed to generate fallback invoice PDF", exception);
         }
     }
 
@@ -248,26 +248,29 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
     }
 
+    private static final String STATUS_VERIFIED = "VERIFIED";
+
     private String resolveStatusLabel(Order order) {
+
         if (order == null) {
-            return "VERIFIED";
+            return STATUS_VERIFIED;
         }
 
         if (order.getStatus() != null) {
             return switch (order.getStatus()) {
-                case COMPLETED -> "VERIFIED";
+                case COMPLETED -> STATUS_VERIFIED;
                 default -> formatEnumLabel(order.getStatus().name());
             };
         }
 
         if (order.getEscrowStatus() != null) {
             return switch (order.getEscrowStatus()) {
-                case RELEASED -> "VERIFIED";
+                case RELEASED -> STATUS_VERIFIED;
                 default -> formatEnumLabel(order.getEscrowStatus().name());
             };
         }
 
-        return "VERIFIED";
+        return STATUS_VERIFIED;
     }
 
     private String formatEnumLabel(String value) {

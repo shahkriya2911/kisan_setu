@@ -24,7 +24,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         try {
             Files.createDirectories(this.basePath);
         } catch (IOException e) {
-            throw new RuntimeException("Could not create upload directory", e);
+            throw new IllegalArgumentException("Could not create upload directory", e);
         }
     }
 
@@ -48,7 +48,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             return folderName + "/" + fileName;
         } catch (IOException e) {
             logger.error("File stored failure...");
-            throw new RuntimeException("File upload failed", e);
+            throw new IllegalStateException("File upload failed", e);
         }
     }
 }

@@ -42,11 +42,11 @@ public class PanCardVerificationServiceImpl implements PanCardVerificationServic
 
         logger.info("Validating PAN number...");
         if (dto.getPanNumber() == null || !dto.getPanNumber().matches("[A-Z]{5}[0-9]{4}[A-Z]{1}")) {
-            throw new RuntimeException("Invalid PAN format! Example: ABCDE1234F");
+            throw new IllegalArgumentException("Invalid PAN format! Example: ABCDE1234F");
         }
 
         if (dto.getPanImage() == null || dto.getPanImage().isEmpty()) {
-            throw new RuntimeException("PAN image is required");
+            throw new IllegalArgumentException("PAN image is required");
         }
         String imagePath = fileStorageService.storeFile(dto.getPanImage(), "Pan");
         PanCardVerification verification = existing.orElse(new PanCardVerification());
@@ -86,7 +86,7 @@ public class PanCardVerificationServiceImpl implements PanCardVerificationServic
                 .orElseThrow(() -> new RuntimeException("No PAN found"));
 
         if (verification.isVerified()) {
-            throw new RuntimeException("PAN already verified!");
+            throw new IllegalStateException("PAN already verified!");
         }
 
         verification.setVerified(true);

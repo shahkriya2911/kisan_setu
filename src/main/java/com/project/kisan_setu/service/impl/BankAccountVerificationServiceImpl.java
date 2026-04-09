@@ -44,10 +44,10 @@ public class BankAccountVerificationServiceImpl implements BankAccountVerificati
 
         logger.info("Validating bank account...");
         if (dto.getAccountNumber() == null || dto.getAccountNumber().isEmpty()) {
-            throw new RuntimeException("Account number is required");
+            throw new IllegalArgumentException("Account number is required");
         }
         if (dto.getIfscCode() == null || !dto.getIfscCode().matches("[A-Z]{4}0[A-Z0-9]{6}")) {
-            throw new RuntimeException("Invalid IFSC code! Format: SBIN0001234");
+            throw new IllegalArgumentException("Invalid IFSC code! Format: SBIN0001234");
         }
         if(dto.getAadhaarCard() == null || dto.getAadhaarCard().isEmpty()){
             throw new UserException("Bank Document Aadhaar Required", HttpStatus.BAD_REQUEST);
@@ -104,7 +104,7 @@ public class BankAccountVerificationServiceImpl implements BankAccountVerificati
                 .orElseThrow(() -> new RuntimeException("No bank details found"));
 
         if (verification.isVerified()) {
-            throw new RuntimeException("Bank account already verified!");
+            throw new IllegalStateException("Bank account already verified!");
         }
 
         verification.setVerified(true);

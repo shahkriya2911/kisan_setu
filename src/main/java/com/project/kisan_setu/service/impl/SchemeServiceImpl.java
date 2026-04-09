@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,7 +47,7 @@ public class SchemeServiceImpl implements SchemeService {
         }
         Scheme scheme = schemeRepository.findById(schemeId)
                 .orElseThrow(() -> {
-                    return new RuntimeException("Scheme not found with id: " + schemeId);
+                    return new NoSuchElementException("Scheme not found with id: " + schemeId);
                 });
 
         logger.info("Scheme fetched successfully with ID: {}", schemeId);

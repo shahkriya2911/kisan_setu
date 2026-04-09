@@ -1,5 +1,4 @@
 package com.project.kisan_setu.service.impl;
-
 import com.project.kisan_setu.dto.RequestDto.AccountSettingRequestDto;
 import com.project.kisan_setu.dto.RequestDto.ChangePasswordRequestDto;
 import com.project.kisan_setu.dto.RequestDto.CreateUserRequestDto;
@@ -30,7 +29,6 @@ import com.project.kisan_setu.service.RefreshTokenService;
 import com.project.kisan_setu.service.UserService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,13 +36,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -243,7 +239,9 @@ public class UserServiceImpl implements UserService {
         try {
             String filename = oldUrl.substring(oldUrl.lastIndexOf("/") + 1);
             Files.deleteIfExists(Paths.get(uploadDir, filename));
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+
+        }
     }
 
     @Override
@@ -304,7 +302,6 @@ public class UserServiceImpl implements UserService {
     public KycStatusResponseDto getKycStatus() {
 
         Long userId = validatorMethods.getCurrentUserId();
-        User user = validatorMethods.validateUserById(userId);
 
         Optional<AadhaarVerification> aadhaar = aadhaarVerificationRepository.findByUserUserId(userId);
         Optional<PanCardVerification> pan = panCardVerificationRepository.findByUserUserId(userId);

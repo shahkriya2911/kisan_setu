@@ -66,7 +66,6 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -420,7 +419,7 @@ public SellerListingFixedDto getSellerFixedListingDetail(Long listingId) {
     Listing listing = validatorMethods.validateExists(listingId);
 
     if (listing.getSaleType() != SaleType.FIXED) {
-        throw new RuntimeException("Not a fixed listing");
+        throw new IllegalArgumentException("Not a fixed listing");
     }
 
     return new SellerListingFixedDto(

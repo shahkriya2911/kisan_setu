@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -14,7 +13,5 @@ public class ChangePasswordResponseDto {
     private int status;
     private String message;
     private Long userId;
-    private String fullName;
-    private String email;
-    private LocalDateTime passwordChangedAt;
+
 }

@@ -1,15 +1,19 @@
 package com.project.kisan_setu.service.impl;
-
 import com.project.kisan_setu.dto.RequestDto.IdNameDto;
 import com.project.kisan_setu.dto.ResponseDto.MasterDataResponseDto;
 import com.project.kisan_setu.mapper.MasterMapper;
 import com.project.kisan_setu.repository.*;
 import com.project.kisan_setu.service.MasterService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MasterServiceImpl implements MasterService {
@@ -22,7 +26,9 @@ public class MasterServiceImpl implements MasterService {
     private final DistrictRepository districtRepository;
 
     @Override
+    @Cacheable(value = "masterData", key = "'all'")
     public MasterDataResponseDto getAllMasters() {
+        log.info("Cache miss - fetching all master data from DB");
 
         MasterDataResponseDto response = new MasterDataResponseDto();
 
@@ -60,10 +66,27 @@ public class MasterServiceImpl implements MasterService {
     }
 
     @Override
+    @Cacheable(value = "districtsByState", key = "#stateId")
     public List<IdNameDto> getDistrictsByState(Long stateId) {
+        log.info("Cache miss - fetching districts for stateId: {} from DB", stateId);
         return districtRepository.findByStateStateId(stateId)
                 .stream()
                 .map(d -> MasterMapper.toDto(d.getDistrictId(), d.getName()))
                 .toList();
+    }
+
+    @Override
+    @Caching(evict = {
+            @CacheEvict(value = "masterData", allEntries = true),
+            @CacheEvict(value = "districtsByState", allEntries = true)
+    })
+    public void evictAllMasterCaches() {
+        log.info("Evicting all master and district caches");
+    }
+
+    @Override
+    @CacheEvict(value = "districtsByState", key = "#stateId")
+    public void evictDistrictCache(Long stateId) {
+        log.info("Evicting district cache for stateId: {}", stateId);
     }
 }

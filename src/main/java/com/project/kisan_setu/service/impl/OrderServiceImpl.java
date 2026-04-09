@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -121,17 +122,17 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public OrderResponseDto confirmOrder(Long orderId, Long buyerId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NoSuchElementException("Order not found"));
         if (!order.getBuyer().getUserId().equals(buyerId)) {
-            throw new RuntimeException("Unauthorized Buyer");
+            throw new SecurityException("Unauthorized Buyer");
         }
         if (order.getStatus() != OrderStatus.PENDING_BUYER_CONFIRMATION) {
-            throw new RuntimeException("Order cannot be confirmed");
+            throw new IllegalStateException("Order cannot be confirmed");
         }
         if (LocalDateTime.now().isAfter(order.getConfirmationDeadline())) {
             order.setStatus(OrderStatus.EXPIRED);
             orderRepository.save(order);
-            throw new RuntimeException("Order expired");
+            throw new IllegalStateException("Order expired");
         }
         order.setStatus(OrderStatus.PAYMENT_HELD);
         order.setEscrowStatus(EscrowStatus.HELD);
@@ -158,13 +159,13 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void rejectOrder(Long orderId){
         Order order = orderRepository.findById(orderId).
-                orElseThrow(()->new RuntimeException("Order not found"));
+                orElseThrow(()->new NoSuchElementException("Order not found"));
         Long buyerId = validatorMethods.getCurrentUserId();
         if (!order.getBuyer().getUserId().equals(buyerId)){
-            throw new RuntimeException("Unauthorized Buyer");
+            throw new SecurityException("Unauthorized Buyer");
         }
         if (order.getStatus() != OrderStatus.PENDING_BUYER_CONFIRMATION){
-            throw new RuntimeException("Order cannot be rejected");
+            throw new IllegalStateException("Order cannot be rejected");
         }
         order.setStatus(OrderStatus.CANCELLED);
         Bid bid = order.getAcceptBid();
@@ -231,10 +232,10 @@ public class OrderServiceImpl implements OrderService {
 
         Listing listing = listingRepository
                 .findByIdForUpdate(listingId)
-                .orElseThrow(() -> new RuntimeException("Listing not found"));
+                .orElseThrow(() -> new NoSuchElementException("Listing not found"));
 
         if (listing.getSaleType() != SaleType.FIXED) {
-            throw new RuntimeException("Listing is not of fixed type");
+            throw new IllegalArgumentException("Listing is not of fixed type");
         }
 
         if (listing.getStatus() != AuctionStatus.ACTIVE) {
@@ -255,7 +256,7 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal quantity = requestDto.getQuantity();
 
         if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("Quantity must be greater than 0");
+            throw new IllegalArgumentException("Quantity must be greater than 0");
         }
 
         // MOQ validation
@@ -398,13 +399,13 @@ public class OrderServiceImpl implements OrderService {
         Long currentUserId = validatorMethods.getCurrentUserId();
 
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new NoSuchElementException("Order not found"));
 
         if (!order.getSeller().getUserId().equals(currentUserId)) {
-            throw new RuntimeException("Only seller can verify delivery OTP");
+            throw new SecurityException("Only seller can verify delivery OTP");
         }
         if (order.isOtpVerified()) {
-            throw new RuntimeException("OTP already used");
+            throw new IllegalStateException("OTP already used");
         }
 
         if (order.getStatus() != OrderStatus.OUT_FOR_DELIVERY &&
@@ -413,11 +414,11 @@ public class OrderServiceImpl implements OrderService {
         }
 
         if (order.getDeliveryOtp() == null || order.getOtpGeneratedAt() == null) {
-            throw new RuntimeException("OTP not generated for this order");
+            throw new IllegalStateException("OTP not generated for this order");
         }
 
         if (order.getOtpGeneratedAt().plusHours(24).isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("OTP expired");
+            throw new IllegalStateException("OTP expired");
         }
 
         if (!order.getDeliveryOtp().equals(otp)) {
@@ -428,10 +429,10 @@ public class OrderServiceImpl implements OrderService {
             orderRepository.save(order);
 
             if (attempts >= 5) {
-                throw new RuntimeException("Too many invalid attempts");
+                throw new IllegalStateException("Too many invalid attempts");
             }
 
-            throw new RuntimeException("Invalid OTP");
+            throw new IllegalArgumentException("Invalid OTP");
         }
 
         order.setOtpVerified(true);
