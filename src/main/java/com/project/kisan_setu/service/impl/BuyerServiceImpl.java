@@ -27,6 +27,7 @@ import com.project.kisan_setu.service.BuyerService;
 import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -171,6 +172,7 @@ public class BuyerServiceImpl implements BuyerService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "bidDetails",key = "#listingId")
     public Object placeBid(Long listingId, PlaceBidRequestDto dto) {
 
         Long userId = validatorMethods.getCurrentUserId();

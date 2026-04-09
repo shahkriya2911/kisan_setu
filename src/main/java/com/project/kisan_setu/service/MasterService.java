@@ -7,6 +7,5 @@ import java.util.List;
 public interface MasterService {
     MasterDataResponseDto getAllMasters();
     List<IdNameDto> getDistrictsByState(Long stateId);
-    void evictAllMasterCaches();
-    void evictDistrictCache(Long stateId);
+
 }

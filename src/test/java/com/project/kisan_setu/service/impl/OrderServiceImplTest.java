@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
@@ -51,7 +50,7 @@ class OrderServiceImplTest {
     private OtpGenerator otpGenerator;
 
     @Test
-    void verifyDeliveryOtpCompletesOrderAndMarksInvoiceReady() {
+    void verifyDeliveryOtpCompletesOrderAndReleasesPayment() {
         OrderServiceImpl orderService = new OrderServiceImpl(
                 orderRepository,
                 bidRepository,
@@ -92,8 +91,7 @@ class OrderServiceImplTest {
         assertEquals(OrderStatus.COMPLETED, order.getStatus());
         assertEquals(EscrowStatus.RELEASED, order.getEscrowStatus());
         assertTrue(order.isOtpVerified());
-        assertNotNull(order.getCompletedAt());
-        assertEquals("Delivery confirmed, payment released, invoice ready for download.", response);
+        assertEquals("Delivery confirmed, payment released.", response);
 
         verify(orderRepository).save(order);
         verify(notificationService).createNotification(

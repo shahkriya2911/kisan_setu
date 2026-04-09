@@ -1,4 +1,6 @@
 package com.project.kisan_setu.controller;
+
+import com.project.kisan_setu.dto.ResponseDto.TermsAndPoliciesResponseDto;
 import com.project.kisan_setu.service.TermsAndPoliciesService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,8 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/termsandpolicies")
 @Tag(name = "Terms And Policies Management", description = "Endpoints for terms and policies related resources")
 public class TermsAndPoliciesController {
-
-    private static final Logger logger = LoggerFactory.getLogger(TermsAndPoliciesController.class);
     private final TermsAndPoliciesService termsAndPoliciesService;
 
     public TermsAndPoliciesController(TermsAndPoliciesService termsAndPoliciesService) {
@@ -32,7 +32,7 @@ public class TermsAndPoliciesController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<?> getTermsAndPolicies(){
+    public ResponseEntity<TermsAndPoliciesResponseDto> getTermsAndPolicies(){
         return ResponseEntity.ok(termsAndPoliciesService.getTermsAndPolicies());
     }
 }

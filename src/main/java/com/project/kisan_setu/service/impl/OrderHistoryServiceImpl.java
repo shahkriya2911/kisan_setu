@@ -18,6 +18,8 @@ import com.project.kisan_setu.util.ValidatorMethods;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -29,6 +31,7 @@ import org.slf4j.LoggerFactory;
 @RequiredArgsConstructor
 
 public class OrderHistoryServiceImpl implements OrderHistoryService {
+    private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
     private final OrderRepository orderRepository;
     private final ValidatorMethods validatorMethods;
     private final RatingReviewRepository ratingReviewRepository;

@@ -92,9 +92,6 @@ public class PanCardVerificationServiceImpl implements PanCardVerificationServic
         verification.setVerified(true);
         verification.setVerifiedAt(LocalDateTime.now());
         panCardVerificationRepository.save(verification);
-//        notificationService.createNotification(user,
-//                " Your PAN card has been verified successfully!",
-//                user.getFullName());
 
         logger.info("PAN approved successfully for userId: {}...", userId);
         return buildResponse(verification, user, "PAN approved successfully!");

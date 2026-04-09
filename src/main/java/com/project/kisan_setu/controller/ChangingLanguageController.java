@@ -1,5 +1,6 @@
 package com.project.kisan_setu.controller;
 import com.project.kisan_setu.dto.RequestDto.ChangingLanguageRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.ChangingLanguageResponseDto;
 import com.project.kisan_setu.service.ChangingLanguageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,7 +31,7 @@ public class ChangingLanguageController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<?> getMyChangingLanguage() {
+    public ResponseEntity<ChangingLanguageResponseDto> getMyChangingLanguage() {
         return ResponseEntity.ok(changingLanguageService.getMyChangingLanguage());
     }
 
@@ -43,7 +44,7 @@ public class ChangingLanguageController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<?> postChangingLanguage(
+    public ResponseEntity<ChangingLanguageResponseDto> postChangingLanguage(
             @Parameter(description = "Language preference details", required = true)
             @RequestBody ChangingLanguageRequestDto changingLanguageRequestDto){
         return ResponseEntity.ok(changingLanguageService.postChangingLanguage(changingLanguageRequestDto));
@@ -58,7 +59,7 @@ public class ChangingLanguageController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<?> upsertChangingLanguage(
+    public ResponseEntity<ChangingLanguageResponseDto> upsertChangingLanguage(
             @Parameter(description = "Language preference details", required = true)
             @RequestBody ChangingLanguageRequestDto changingLanguageRequestDto){
         return ResponseEntity.ok(changingLanguageService.postChangingLanguage(changingLanguageRequestDto));
@@ -74,7 +75,7 @@ public class ChangingLanguageController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<?> updateChangingLanguage(
+    public ResponseEntity<ChangingLanguageResponseDto> updateChangingLanguage(
             @Parameter(description = "Changing language ID request", required = true)
             @PathVariable Long changingLanguageId,
             @Parameter(description = "Language preference details", required = true)

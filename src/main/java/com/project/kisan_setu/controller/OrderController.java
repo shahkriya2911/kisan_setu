@@ -41,7 +41,7 @@ public class OrderController {
             @ApiResponse(responseCode = "400",description = "Bad input data")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<?> createBid(
+    public ResponseEntity<OrderResponseDto> createBid(
             @Parameter(description = "Bid ID request",required = true)
             @PathVariable Long bidId){
         logger.debug("Create order attempt for bid with id : {}",bidId);
@@ -82,7 +82,7 @@ public class OrderController {
             @ApiResponse(responseCode = "400",description = "Bad input data")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<?> rejectOrder(
+    public ResponseEntity<String> rejectOrder(
             @Parameter(description = "order ID request",required = true)
             @PathVariable Long orderId){
         logger.debug("Reject Order attempt for order with id : {}",orderId);
