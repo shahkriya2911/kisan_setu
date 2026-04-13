@@ -335,7 +335,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping(value = "/completeProfile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/profile/complete", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Complete user profile method", description = "This method is used to complete user profile")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Profile completed successfully"),
