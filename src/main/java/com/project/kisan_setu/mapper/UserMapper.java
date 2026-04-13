@@ -57,7 +57,6 @@ public class UserMapper {
         return UserProfileResponseDto.builder()
                 .userId(user.getUserId())
                 .fullName(user.getFullName())
-                .profilePhotoUrl(user.getProfilePhoto())
                 .email(user.getEmail())
                 .dateOfBirth(user.getDateOfBirth())
                 .mobileNumber(user.getMobileNumber())

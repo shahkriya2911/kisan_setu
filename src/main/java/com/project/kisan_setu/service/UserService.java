@@ -4,6 +4,8 @@ import com.project.kisan_setu.dto.RequestDto.*;
 import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.entity.User;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.util.List;
 
 public interface UserService {
@@ -19,7 +21,9 @@ public interface UserService {
     void deleteUserById(Long userId);
     User findByEmail(String email);
     UserProfileResponseDto completeUserProfileData(UserProfileRequestDto dto);
-    UserProfileResponseDto uploadProfilePhoto(MultipartFile file);
+    void uploadProfilePhoto(MultipartFile file);
+
+    byte[] getProfilePhoto() throws IOException;
     AccountSettingResponseDto getAccountSettings();
     AccountSettingResponseDto updateAccountSettings(AccountSettingRequestDto dto);
     ChangePasswordResponseDto changePassword(ChangePasswordRequestDto dto);

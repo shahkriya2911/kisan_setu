@@ -60,7 +60,11 @@ public class UserServiceImpl implements UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private static final long MAX_SIZE = 5 * 1024 * 1024L;
-    private static final String[] ALLOWED = {"image/jpeg", "image/png", "image/jpg"};
+    private static final List<String> ALLOWED = List.of(
+            "image/jpeg",
+            "image/png",
+            "image/jpg"
+    );
 
     @Value("${app.upload.dir:uploads/profile-photos}")
     private String uploadDir;
@@ -192,71 +196,87 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserProfileResponseDto uploadProfilePhoto(MultipartFile file) {
+    public void uploadProfilePhoto(MultipartFile file) {
 
         validateFile(file);
 
         Long userId = validatorMethods.getCurrentUserId();
         User user = validatorMethods.validateUserById(userId);
 
+        // delete old photo
         if (user.getProfilePhoto() != null && !user.getProfilePhoto().isBlank()) {
             deleteOldPhoto(user.getProfilePhoto());
         }
 
         String filename = buildFilename(userId, file.getOriginalFilename());
-        saveFileToDisk(file, filename);
-
-        String photoUrl = baseUrl + "/" + uploadDir + "/" + filename;
-        user.setProfilePhoto(photoUrl);
+        saveFile(file, filename);
+        
+        user.setProfilePhoto(filename);
         userRepository.save(user);
+    }
 
-        return UserProfileResponseDto.builder()
-                .userId(userId)
-                .profilePhotoUrl(photoUrl)
-                .build();
+    @Override
+    public byte[] getProfilePhoto() throws IOException {
+
+        Long userId = validatorMethods.getCurrentUserId();
+        User user = validatorMethods.validateUserById(userId);
+
+        if (user.getProfilePhoto() == null) {
+            throw new RuntimeException("Profile photo not found");
+        }
+
+        Path path = Paths.get(uploadDir).resolve(user.getProfilePhoto());
+
+        if (!Files.exists(path)) {
+            throw new RuntimeException("File not found on disk");
+        }
+
+        return Files.readAllBytes(path);
     }
 
     private void validateFile(MultipartFile file) {
 
         if (file == null || file.isEmpty()) {
-            throw new UserException("File must not be empty", HttpStatus.BAD_REQUEST);
+            throw new RuntimeException("File must not be empty");
         }
 
         if (file.getSize() > MAX_SIZE) {
-            throw new UserException("File size must not exceed 5 MB", HttpStatus.BAD_REQUEST);
+            throw new RuntimeException("File size must not exceed 5MB");
         }
 
-        String ct = file.getContentType();
-        for (String allowed : ALLOWED) {
-            if (allowed.equalsIgnoreCase(ct)) return;
-        }
+        String contentType = file.getContentType();
 
-        throw new UserException("Only JPEG, PNG, JPG allowed", HttpStatus.BAD_REQUEST);
+        if (contentType == null || ALLOWED.stream().noneMatch(contentType::equalsIgnoreCase)) {
+            throw new RuntimeException("Only JPG, JPEG, PNG allowed");
+        }
     }
 
     private String buildFilename(Long userId, String original) {
         String ext = (original != null && original.contains("."))
                 ? original.substring(original.lastIndexOf("."))
                 : ".jpg";
+
         return "user_" + userId + "_" + UUID.randomUUID() + ext;
     }
 
-    private void saveFileToDisk(MultipartFile file, String filename) {
+    private void saveFile(MultipartFile file, String filename) {
         try {
             Path dir = Paths.get(uploadDir);
             Files.createDirectories(dir);
-            Files.copy(file.getInputStream(), dir.resolve(filename), StandardCopyOption.REPLACE_EXISTING);
+
+            Files.copy(file.getInputStream(),
+                    dir.resolve(filename),
+                    StandardCopyOption.REPLACE_EXISTING);
+
         } catch (IOException e) {
-            throw new UserException("Could not save profile photo", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new RuntimeException("Failed to save file");
         }
     }
 
-    private void deleteOldPhoto(String oldUrl) {
+    private void deleteOldPhoto(String filename) {
         try {
-            String filename = oldUrl.substring(oldUrl.lastIndexOf("/") + 1);
-            Files.deleteIfExists(Paths.get(uploadDir, filename));
+            Files.deleteIfExists(Paths.get(uploadDir).resolve(filename));
         } catch (IOException ignored) {
-
         }
     }
 

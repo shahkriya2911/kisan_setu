@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 public class UserProfileResponseDto {
         private Long userId;
         private String fullName;
-        private String profilePhotoUrl;
         private String email;
         private String mobileNumber;
         private String dateOfBirth;

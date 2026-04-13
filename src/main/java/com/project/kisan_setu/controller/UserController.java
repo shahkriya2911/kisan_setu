@@ -53,6 +53,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -349,19 +351,21 @@ public class UserController {
     }
 
     @PostMapping(value = "/profile-photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Upload profile photo method", description = "This method is used to upload user profile photo")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Profile photo uploaded successfully"),
-            @ApiResponse(responseCode = "400", description = "Bad input data"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized user"),
-            @ApiResponse(responseCode = "500", description = "Something went wrong")
-    })
-    @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<UserProfileResponseDto> uploadProfilePhoto(
-            @Parameter(description = "Profile photo file", required = true) @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> uploadProfilePhoto(
+            @RequestParam("file") MultipartFile file) {
 
-        UserProfileResponseDto response = userService.uploadProfilePhoto(file);
-        return ResponseEntity.ok(response);
+        userService.uploadProfilePhoto(file);
+        return ResponseEntity.ok("Profile photo uploaded successfully");
+    }
+
+    @GetMapping("/profile-photo")
+    public ResponseEntity<byte[]> getProfilePhoto() throws IOException {
+
+        byte[] image = userService.getProfilePhoto();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(image);
     }
 
     @GetMapping("/account-settings")
