@@ -15,6 +15,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
+import static org.aspectj.weaver.tools.cache.SimpleCacheFactory.path;
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -38,6 +40,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     }
                 }
             }
+//            if (path.startsWith("/api/listings")) {
+//                filterChain.doFilter(request, response);
+//                return;
+//            }
 
             if (token != null && "ACCESS".equals(jwtUtil.extractTokenType(token))) {
 

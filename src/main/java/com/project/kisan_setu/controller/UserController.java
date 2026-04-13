@@ -114,37 +114,60 @@ public class UserController {
     }
 
     @PostMapping("/refresh")
-    @Operation(summary = "Refresh token method", description = "This method is used to refresh access token")
+    @Operation(summary = "Refresh token method", description = "Refresh access token using refresh token from cookie")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Token refreshed successfully"),
             @ApiResponse(responseCode = "401", description = "Refresh token missing or invalid")
     })
     public ResponseEntity<LoginResponseDto> refreshToken(
-            @Parameter(description = "HTTP servlet request") HttpServletRequest servletRequest,
-            @Parameter(description = "HTTP servlet response") HttpServletResponse servletResponse,
-            @Parameter(description = "Refresh token request body") @RequestBody(required = false) RefreshTokenRequestDto request) {
-        String token = resolveRefreshToken(servletRequest, request);
-        if (token == null || token.isBlank()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    new LoginResponseDto(HttpStatus.UNAUTHORIZED.value(), "Refresh token missing", null));
+            HttpServletRequest request,
+            HttpServletResponse response) {
+
+        String refreshToken = null;
+
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (refreshToken == null || refreshToken.isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new LoginResponseDto(
+                            HttpStatus.UNAUTHORIZED.value(),
+                            "Refresh token missing",
+                            null));
         }
 
         try {
-            RefreshToken newRefreshToken = refreshTokenService.rotateRefreshToken(token);
+
+            RefreshToken newRefreshToken = refreshTokenService.rotateRefreshToken(refreshToken);
             User user = newRefreshToken.getUser();
+
+            // 4. Generate new access token + set cookies again
             writeTokenCookies(
-                    servletResponse,
+                    response,
                     jwtUtil.generateAccessToken(user.getUserId()),
-                    newRefreshToken.getRefreshToken());
-            logger.info("Token refresh successfully for user with id : {}", user.getUserId());
+                    newRefreshToken.getRefreshToken()
+            );
+
             return ResponseEntity.ok(
                     new LoginResponseDto(
                             HttpStatus.OK.value(),
                             "Token refreshed successfully",
-                            UserMapper.toResponse(user)));
+                            UserMapper.toResponse(user)
+                    )
+            );
+
         } catch (UserException ex) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    new LoginResponseDto(HttpStatus.UNAUTHORIZED.value(), ex.getMessage(), null));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new LoginResponseDto(
+                            HttpStatus.UNAUTHORIZED.value(),
+                            ex.getMessage(),
+                            null));
         }
     }
 
@@ -173,31 +196,39 @@ public class UserController {
     }
 
     @GetMapping
-    @Operation(summary = "Get all users method", description = "This method is used to get all users")
+    @Operation(
+            summary = "Get all users",
+            description = "This API is used to fetch all users"
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Users fetched successfully"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized user"),
-            @ApiResponse(responseCode = "500", description = "Something went wrong")
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "500", description = "Server error")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<ApiResponseDto<List<UserResponseDto>>> getAllUsers() {
-        logger.info("Get all users request");
-        List<UserResponseDto> users = userService.getAllUsers()
-                .stream()
-                .map(UserResponseDto::new)
-                .collect(Collectors.toList());
+    public ResponseEntity<ApiResponseDto<List<UserProfileResponseDto>>> getAllUsers() {
 
-        ApiResponseDto<List<UserResponseDto>> response = new ApiResponseDto<>(
-                HttpStatus.OK.value(),
-                "Users fetched successfully",
-                users);
+        logger.info("Request received: Get all users");
 
-        logger.info("All users fetched successfully");
+        List<UserProfileResponseDto> users = userService.getAllUsers();
+
+        ApiResponseDto<List<UserProfileResponseDto>> response =
+                new ApiResponseDto<>(
+                        HttpStatus.OK.value(),
+                        "Users fetched successfully",
+                        users
+                );
+
+        logger.info("Response sent: All users fetched successfully");
+
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{userId}")
-    @Operation(summary = "Get user by ID method", description = "This method is used to get user by ID")
+    @Operation(
+            summary = "Get user by ID method",
+            description = "This method is used to get user by ID"
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User fetched successfully"),
             @ApiResponse(responseCode = "404", description = "User not found"),
@@ -205,38 +236,53 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<ApiResponseDto<UserResponseDto>> getUserById(
-            @Parameter(description = "User ID path variable", required = true) @PathVariable Long userId) {
-        logger.debug("Get user by id request for user with id: {}", userId);
-        User user = userService.getUserById(userId);
+    public ResponseEntity<ApiResponseDto<UserProfileResponseDto>> getUserById(
+            @Parameter(description = "User ID path variable", required = true)
+            @PathVariable Long userId) {
 
-        ApiResponseDto<UserResponseDto> response = new ApiResponseDto<>(
+        logger.debug("Get user by id request for user with id: {}", userId);
+
+        UserProfileResponseDto user = userService.getUserById(userId);
+
+        ApiResponseDto<UserProfileResponseDto> response = new ApiResponseDto<>(
                 HttpStatus.OK.value(),
                 "User fetched successfully",
-                new UserResponseDto(user));
+                user
+        );
 
         logger.info("User with id: {} fetched successfully", userId);
+
         return ResponseEntity.ok(response);
     }
-
     @GetMapping("/session")
-    @Operation(summary = "Get session method", description = "This method is used to get current user session")
+    @Operation(
+            summary = "Get session method",
+            description = "This method is used to get current user session"
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Session active"),
             @ApiResponse(responseCode = "401", description = "Unauthorized user")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<ApiResponseDto<UserResponseDto>> getSession(
-            @Parameter(description = "Authentication object") Authentication authentication) {
-        logger.debug("Get session for user with id : {}", Long.parseLong(authentication.getName()));
+    public ResponseEntity<ApiResponseDto<UserResponseDto>> getSession(Authentication authentication) {
+
         Long userId = Long.parseLong(authentication.getName());
-        User user = userService.getUserById(userId);
-        logger.info("Session active successfully");
+
+        logger.debug("Get session for user with id: {}", userId);
+
+        User user = userService.getSessionUserById(userId);
+
+        UserResponseDto dto = new UserResponseDto(user);
+
+        logger.info("Session active successfully for userId: {}", userId);
+
         return ResponseEntity.ok(
                 new ApiResponseDto<>(
                         HttpStatus.OK.value(),
                         "Session active",
-                        new UserResponseDto(user)));
+                        dto
+                )
+        );
     }
 
     @PutMapping("/{userId}")
@@ -403,7 +449,7 @@ public class UserController {
                 .sameSite("Lax")
                 .build();
 
-        response.addHeader("Set-Cookie", accessCookie.toString());
+        response.setHeader("Set-Cookie", accessCookie.toString());
         response.addHeader("Set-Cookie", refreshCookie.toString());
     }
 
@@ -427,13 +473,22 @@ public class UserController {
         response.addHeader("Set-Cookie", clearRefreshCookie.toString());
     }
 
-    private String resolveRefreshToken(HttpServletRequest request, RefreshTokenRequestDto requestBody) {
-        if (requestBody != null
-                && requestBody.getRefreshToken() != null
-                && !requestBody.getRefreshToken().isBlank()) {
-            return requestBody.getRefreshToken();
+    private String resolveRefreshToken(HttpServletRequest request,
+                                       RefreshTokenRequestDto body) {
+
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
         }
-        return readCookieValue(request, "refreshToken").orElse(null);
+
+        if (body != null) {
+            return body.getRefreshToken();
+        }
+
+        return null;
     }
 
     private Optional<String> readCookieValue(HttpServletRequest request, String cookieName) {

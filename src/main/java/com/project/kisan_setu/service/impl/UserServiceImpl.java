@@ -123,14 +123,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
-    }
+    public UserProfileResponseDto getUserById(Long userId) {
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
+
+        return UserMapper.toDto(user);
+    }
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserProfileResponseDto> getAllUsers() {
+
+        List<User> users = userRepository.findAll();
+
+        return users.stream()
+                .map(UserMapper::toDto)
+                .toList();
+    }
+    @Override
+    public User getSessionUserById(Long userId) {
+
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(
+                        "User not found",
+                        HttpStatus.NOT_FOUND
+                ));
     }
 
     @Override

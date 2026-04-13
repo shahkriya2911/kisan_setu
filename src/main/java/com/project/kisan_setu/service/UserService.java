@@ -10,8 +10,11 @@ public interface UserService {
 
     SignupResponseDto signup(CreateUserRequestDto dto);
     LoginResponseDto login(LoginRequestDto dto);
-    User getUserById(Long userId);
-    List<User> getAllUsers();
+    UserProfileResponseDto getUserById(Long userId);
+    List<UserProfileResponseDto> getAllUsers();
+
+    User getSessionUserById(Long userId);
+
     UserResponseDto updateUserById(Long userId, UpdateUserRequestDto dto);
     void deleteUserById(Long userId);
     User findByEmail(String email);

@@ -1,21 +1,21 @@
 package com.project.kisan_setu.service.impl;
-
 import com.project.kisan_setu.entity.RefreshToken;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.repository.RefreshTokenRepository;
 import com.project.kisan_setu.service.RefreshTokenService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
@@ -23,17 +23,15 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Value("${jwt.refresh.expiration}")
     private long refreshExpirationMillis;
 
-    public RefreshTokenServiceImpl(RefreshTokenRepository refreshTokenRepository) {
-        this.refreshTokenRepository = refreshTokenRepository;
-    }
-
     @Override
     public RefreshToken createRefreshToken(User user) {
         logger.info("Creating refresh token...");
         RefreshToken token = new RefreshToken();
         token.setUser(user);
         token.setRefreshToken(UUID.randomUUID().toString());
-        token.setExpiryDate(LocalDateTime.now().plusNanos(refreshExpirationMillis * 1_000_000));
+        token.setExpiryDate(
+                LocalDateTime.now().plusSeconds(refreshExpirationMillis / 1000)
+        ); // for testing
         token.setRevoked(false);
         logger.info("Refresh token creation success...");
         return refreshTokenRepository.save(token);

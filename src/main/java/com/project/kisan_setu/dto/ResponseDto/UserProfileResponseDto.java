@@ -1,5 +1,6 @@
 package com.project.kisan_setu.dto.ResponseDto;
 
+import aj.org.objectweb.asm.commons.Remapper;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +14,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserProfileResponseDto {
         private Long userId;
         private String fullName;
@@ -37,6 +37,7 @@ public class UserProfileResponseDto {
         private LocalDateTime aadhaarVerifiedAt;
         private LocalDateTime bankAccountVerifiedAt;
         private LocalDateTime panCardVerifiedAt;
+
 
 
 }
