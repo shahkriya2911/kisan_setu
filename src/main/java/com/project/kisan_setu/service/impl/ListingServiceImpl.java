@@ -93,7 +93,6 @@ public class ListingServiceImpl implements ListingService {
 
 
     @Override
-    @CacheEvict(value = "listings",allEntries = true)
     public ListingResponseDto createListing(CreateListingRequest request,
                                             List<MultipartFile> imageFiles,
                                             MultipartFile certificateFile) {
@@ -304,7 +303,6 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    @Cacheable(value = "listingDetails")
     public List<ListingResponseDto> getAllListings() {
 //        validatorMethods.validateAdminAccess();
         logger.info("Getting all listings...");
@@ -315,7 +313,6 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    @Cacheable(value = "listingDetails",key = "#id")
     public ListingResponseDto getListingById(Long id) {
 //        validatorMethods.validateUserAccess();
         logger.info("Get listing by id...");
@@ -355,7 +352,6 @@ public class ListingServiceImpl implements ListingService {
 
 
     @Override
-    @Cacheable(value = "listingDetails",key = "#listingId")
     public SellerListingDto getSellerAuctionListingDetail(Long listingId) {
 
         logger.info("Getting seller auction listing detail...");

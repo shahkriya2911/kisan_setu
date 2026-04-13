@@ -172,7 +172,6 @@ public class BuyerServiceImpl implements BuyerService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "bidDetails",key = "#listingId")
     public Object placeBid(Long listingId, PlaceBidRequestDto dto) {
 
         Long userId = validatorMethods.getCurrentUserId();

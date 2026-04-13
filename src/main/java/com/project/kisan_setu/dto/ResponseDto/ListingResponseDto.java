@@ -60,8 +60,11 @@ public class ListingResponseDto {
 
     private LocalDateTime createdAt;
     private AuctionStatus auctionStatus;
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     private BigDecimal highestBid;
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     private String topBidderName;
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     private Long topBid;
     private Long bidId;
 }
