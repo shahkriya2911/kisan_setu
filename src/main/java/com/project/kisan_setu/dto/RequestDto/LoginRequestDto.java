@@ -15,15 +15,10 @@ import lombok.Setter;
 @Setter
 public class LoginRequestDto {
 
-    //login info
+    // login info
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     private String email;
     @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 6 characters")
-    @Pattern(
-            regexp = "^(?=.*[0-9])(?=.*[!@#$%^&*(),.?\":{}|<>]).{6,}$",
-            message = "Password must contain at least one digit and one special character"
-    )
     private String password;
 }
