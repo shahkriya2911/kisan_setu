@@ -329,9 +329,6 @@ public class ListingServiceImpl implements ListingService {
 
         Listing listing = validatorMethods.validateExists(listingId);
 
-        if (!listing.getSeller().getUserId().equals(sellerId)) {
-            throw new UserException("You are not authorized to delete this listing", HttpStatus.FORBIDDEN);
-        }
 
         if (listing.getStatus() == AuctionStatus.SOLD) {
             throw new UserException("Cannot delete a SOLD listing", HttpStatus.BAD_REQUEST);

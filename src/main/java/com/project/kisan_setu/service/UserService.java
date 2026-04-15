@@ -21,9 +21,9 @@ public interface UserService {
     void deleteUserById(Long userId);
     User findByEmail(String email);
     UserProfileResponseDto completeUserProfileData(UserProfileRequestDto dto);
-    void uploadProfilePhoto(MultipartFile file);
+    ProfilePhotoResponseDto uploadProfilePhoto(MultipartFile file) ;
 
-    byte[] getProfilePhoto() throws IOException;
+    ProfilePhotoResponseDto getProfilePhoto();
     AccountSettingResponseDto getAccountSettings();
     AccountSettingResponseDto updateAccountSettings(AccountSettingRequestDto dto);
     ChangePasswordResponseDto changePassword(ChangePasswordRequestDto dto);

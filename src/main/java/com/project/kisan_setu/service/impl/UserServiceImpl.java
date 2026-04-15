@@ -9,6 +9,7 @@ import com.project.kisan_setu.dto.ResponseDto.AccountSettingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.ChangePasswordResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.KycStatusResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.LoginResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ProfilePhotoResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.SignupResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.UserProfileResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.UserResponseDto;
@@ -196,7 +197,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void uploadProfilePhoto(MultipartFile file) {
+    public ProfilePhotoResponseDto uploadProfilePhoto(MultipartFile file) {
 
         validateFile(file);
 
@@ -210,13 +211,20 @@ public class UserServiceImpl implements UserService {
 
         String filename = buildFilename(userId, file.getOriginalFilename());
         saveFile(file, filename);
-        
+
         user.setProfilePhoto(filename);
         userRepository.save(user);
+
+        return ProfilePhotoResponseDto.builder()
+                .fileName(file.getOriginalFilename())
+                .filePath("/images/" + filename)
+                .fileType(file.getContentType())
+                .isPrimary(true)
+                .build();
     }
 
     @Override
-    public byte[] getProfilePhoto() throws IOException {
+    public ProfilePhotoResponseDto getProfilePhoto() {
 
         Long userId = validatorMethods.getCurrentUserId();
         User user = validatorMethods.validateUserById(userId);
@@ -225,15 +233,21 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Profile photo not found");
         }
 
-        Path path = Paths.get(uploadDir).resolve(user.getProfilePhoto());
+        Path path = Paths.get(uploadDir,"images").resolve(user.getProfilePhoto());
 
         if (!Files.exists(path)) {
             throw new RuntimeException("File not found on disk");
         }
 
-        return Files.readAllBytes(path);
-    }
+        String fileName = user.getProfilePhoto();
 
+        return ProfilePhotoResponseDto.builder()
+                .fileName(fileName)
+                .filePath("/images/" + fileName)
+                .fileType(getFileType(fileName))
+                .isPrimary(true)
+                .build();
+    }
     private void validateFile(MultipartFile file) {
 
         if (file == null || file.isEmpty()) {
@@ -258,15 +272,23 @@ public class UserServiceImpl implements UserService {
 
         return "user_" + userId + "_" + UUID.randomUUID() + ext;
     }
+    private String getFileType(String fileName) {
+
+        if (fileName.endsWith(".png")) return "image/png";
+        if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) return "image/jpeg";
+
+        return "application/octet-stream";
+    }
 
     private void saveFile(MultipartFile file, String filename) {
         try {
-            Path dir = Paths.get(uploadDir);
+            Path dir = Paths.get(uploadDir,"images").toAbsolutePath().normalize();
+            System.out.println("Upload directory: " + dir.toAbsolutePath());
             Files.createDirectories(dir);
+            Path targetLocation = dir.resolve(filename);
+            System.out.println("Saving file at: " + targetLocation.toAbsolutePath());
 
-            Files.copy(file.getInputStream(),
-                    dir.resolve(filename),
-                    StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
         } catch (IOException e) {
             throw new RuntimeException("Failed to save file");

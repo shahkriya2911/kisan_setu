@@ -14,12 +14,14 @@ import com.project.kisan_setu.dto.ResponseDto.SellerListingFixedDto;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.UserService;
 import com.project.kisan_setu.util.ValidatorMethods;
+import com.sun.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,15 +136,15 @@ public class ListingController {
     @SecurityRequirement(name = "cookieAuth")
     public ResponseEntity<String> deleteListing(
             @Parameter(description = "Listing ID", required = true) @PathVariable Long listingId,
-            @Parameter(description = "Seller ID", required = true) @RequestParam Long sellerId) {
-        logger.debug("Delete listing with id request attempt for listing with id : {} by user with id : {}", listingId,
-                sellerId);
+            HttpServletRequest request) {
+
+        Long sellerId = (Long) request.getSession().getAttribute("userId");
+
+        logger.debug("Delete listing with id request attempt for listing with id : {} by user with id : {}", listingId, sellerId);
         listingService.deleteListing(listingId, sellerId);
         logger.info("Delete listing with id : {} successful", listingId);
         return ResponseEntity.ok("Listing Deleted Successfully");
-
     }
-
     @GetMapping("/{listingId}/top-5")
     @Operation(summary = "Get top 5 bids for auction listing", description = "Used by seller to get top 5 bids for their auction listing")
     @ApiResponses(value = {

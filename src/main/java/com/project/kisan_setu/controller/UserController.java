@@ -11,6 +11,7 @@ import com.project.kisan_setu.dto.ResponseDto.ApiResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.ChangePasswordResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.KycStatusResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.LoginResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ProfilePhotoResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.SignupResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.UserProfileResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.UserResponseDto;
@@ -41,7 +42,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -53,11 +53,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/users")
@@ -333,23 +330,15 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-        @PostMapping(value = "/profile-photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-        public ResponseEntity<String> uploadProfilePhoto(
-                        @RequestParam("file") MultipartFile file) {
+    @PostMapping("/profile-photo")
+    public ResponseEntity<ProfilePhotoResponseDto> upload(@RequestParam MultipartFile file) {
+        return ResponseEntity.ok(userService.uploadProfilePhoto(file));
+    }
 
-                userService.uploadProfilePhoto(file);
-                return ResponseEntity.ok("Profile photo uploaded successfully");
-        }
-
-        @GetMapping("/profile-photo")
-        public ResponseEntity<byte[]> getProfilePhoto() throws IOException {
-
-                byte[] image = userService.getProfilePhoto();
-
-                return ResponseEntity.ok()
-                                .contentType(MediaType.IMAGE_JPEG)
-                                .body(image);
-        }
+    @GetMapping("/profile-photo")
+    public ResponseEntity<ProfilePhotoResponseDto> get() {
+        return ResponseEntity.ok(userService.getProfilePhoto());
+    }
 
         @GetMapping("/account-settings")
         @Operation(summary = "Get account settings method", description = "This method is used to get user account settings")
