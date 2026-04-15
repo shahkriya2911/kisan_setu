@@ -216,7 +216,7 @@ public class UserServiceImpl implements UserService {
 
         return ProfilePhotoResponseDto.builder()
                 .fileName(file.getOriginalFilename())
-                .filePath("/images/" + filename)
+                .filePath("/profile-photos/" + filename)
                 .fileType(file.getContentType())
                 .isPrimary(true)
                 .build();
@@ -232,7 +232,9 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Profile photo not found");
         }
 
-        Path path = Paths.get(uploadDir,"images").resolve(user.getProfilePhoto());
+        Path path = Paths.get(uploadDir, "uploads", "profile-photos")
+                .resolve(user.getProfilePhoto());
+        System.out.println("Checking file at: " + path.toAbsolutePath());
 
         if (!Files.exists(path)) {
             throw new RuntimeException("File not found on disk");
@@ -242,7 +244,7 @@ public class UserServiceImpl implements UserService {
 
         return ProfilePhotoResponseDto.builder()
                 .fileName(fileName)
-                .filePath("/images/" + fileName)
+                .filePath("/profile-photos/" + fileName)
                 .fileType(getFileType(fileName))
                 .isPrimary(true)
                 .build();
@@ -281,10 +283,18 @@ public class UserServiceImpl implements UserService {
 
     private void saveFile(MultipartFile file, String filename) {
         try {
-            Path dir = Paths.get(uploadDir,"images").toAbsolutePath().normalize();
-            System.out.println("Upload directory: " + dir.toAbsolutePath());
+            // 🔥 ADD HERE
+            System.out.println("uploadDir value: " + uploadDir);
+
+            Path dir = Paths.get(uploadDir, "uploads", "profile-photos")
+                    .toAbsolutePath()
+                    .normalize();
+
             Files.createDirectories(dir);
+
             Path targetLocation = dir.resolve(filename);
+
+            // already added before
             System.out.println("Saving file at: " + targetLocation.toAbsolutePath());
 
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
@@ -293,7 +303,6 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Failed to save file");
         }
     }
-
     private void deleteOldPhoto(String filename) {
         try {
             Files.deleteIfExists(Paths.get(uploadDir).resolve(filename));
