@@ -1,4 +1,6 @@
 package com.project.kisan_setu.security;
+
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -21,9 +23,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+            HttpServletResponse response,
+            FilterChain filterChain)
             throws ServletException, IOException {
+
+        // Skip JWT processing for OPTIONS requests (CORS preflight)
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         try {
             String token = null;
@@ -36,30 +44,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     }
                 }
             }
-//            if (path.startsWith("/api/listings")) {
-//                filterChain.doFilter(request, response);
-//                return;
-//            }
 
-            if (token != null && "ACCESS".equals(jwtUtil.extractTokenType(token))) {
+            if (token != null && !token.isBlank()) {
+                try {
+                    String tokenType = jwtUtil.extractTokenType(token);
 
-                Long userId = jwtUtil.extractUserId(token);
+                    if ("ACCESS".equals(tokenType)) {
+                        Long userId = jwtUtil.extractUserId(token);
 
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
+                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                                 userId,
                                 null,
-                                List.of(new SimpleGrantedAuthority("ROLE_USER"))
-                        );
+                                List.of(new SimpleGrantedAuthority("ROLE_USER")));
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
+                } catch (ExpiredJwtException e) {
+                    // Access token expired - clear context but don't block the request
+                    // The /api/users/refresh endpoint is permitAll() and will handle token refresh
+                    SecurityContextHolder.clearContext();
+                }
             }
 
         } catch (Exception e) {
+            // For any other exceptions, clear context but allow request to continue
             SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
     }
-
 }
