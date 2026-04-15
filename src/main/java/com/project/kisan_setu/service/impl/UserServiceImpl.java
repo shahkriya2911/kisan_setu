@@ -1,4 +1,5 @@
 package com.project.kisan_setu.service.impl;
+
 import com.project.kisan_setu.dto.RequestDto.AccountSettingRequestDto;
 import com.project.kisan_setu.dto.RequestDto.ChangePasswordRequestDto;
 import com.project.kisan_setu.dto.RequestDto.CreateUserRequestDto;
@@ -64,8 +65,7 @@ public class UserServiceImpl implements UserService {
     private static final List<String> ALLOWED = List.of(
             "image/jpeg",
             "image/png",
-            "image/jpg"
-    );
+            "image/jpg");
 
     @Value("${app.upload.dir:uploads/profile-photos}")
     private String uploadDir;
@@ -106,25 +106,23 @@ public class UserServiceImpl implements UserService {
         return new SignupResponseDto(
                 201,
                 "Registration successful",
-                UserMapper.toResponse(user)
-        );
+                UserMapper.toResponse(user));
     }
 
     @Override
     public LoginResponseDto login(LoginRequestDto dto) {
 
         User user = userRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new UserException("Email not registered", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new UserException("Invalid email or password", HttpStatus.UNAUTHORIZED));
 
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new UserException("Invalid password", HttpStatus.UNAUTHORIZED);
+            throw new UserException("Invalid email or password", HttpStatus.UNAUTHORIZED);
         }
 
         return new LoginResponseDto(
                 200,
                 "Login successful",
-                UserMapper.toResponse(user)
-        );
+                UserMapper.toResponse(user));
     }
 
     @Override
@@ -135,6 +133,7 @@ public class UserServiceImpl implements UserService {
 
         return UserMapper.toDto(user);
     }
+
     @Override
     public List<UserProfileResponseDto> getAllUsers() {
 
@@ -144,14 +143,14 @@ public class UserServiceImpl implements UserService {
                 .map(UserMapper::toDto)
                 .toList();
     }
+
     @Override
     public User getSessionUserById(Long userId) {
 
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(
                         "User not found",
-                        HttpStatus.NOT_FOUND
-                ));
+                        HttpStatus.NOT_FOUND));
     }
 
     @Override
@@ -319,9 +318,12 @@ public class UserServiceImpl implements UserService {
         Long userId = validatorMethods.getCurrentUserId();
         User user = validatorMethods.validateUserById(userId);
 
-        if (dto.getFullName() != null) user.setFullName(dto.getFullName());
-        if (dto.getMobileNumber() != null) user.setMobileNumber(dto.getMobileNumber());
-        if (dto.getFarmLocation() != null) user.setFarmLocation(dto.getFarmLocation());
+        if (dto.getFullName() != null)
+            user.setFullName(dto.getFullName());
+        if (dto.getMobileNumber() != null)
+            user.setMobileNumber(dto.getMobileNumber());
+        if (dto.getFarmLocation() != null)
+            user.setFarmLocation(dto.getFarmLocation());
 
         userRepository.save(user);
 
