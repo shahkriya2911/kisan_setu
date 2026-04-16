@@ -1,6 +1,5 @@
 package com.project.kisan_setu.service.impl;
 
-import com.project.kisan_setu.dto.RequestDto.AccountSettingRequestDto;
 import com.project.kisan_setu.dto.RequestDto.ChangePasswordRequestDto;
 import com.project.kisan_setu.dto.RequestDto.CreateUserRequestDto;
 import com.project.kisan_setu.dto.RequestDto.LoginRequestDto;
@@ -10,6 +9,7 @@ import com.project.kisan_setu.dto.ResponseDto.AccountSettingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.ChangePasswordResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.KycStatusResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.LoginResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ProfileDataResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.ProfilePhotoResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.SignupResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.UserProfileResponseDto;
@@ -67,8 +67,7 @@ public class UserServiceImpl implements UserService {
             "image/png",
             "image/jpg");
 
-    @Value("${app.upload.dir:uploads/profile-photos}")
-    private String uploadDir;
+    private final String uploadDir = System.getProperty("user.dir") + "/api";
 
     @Value("${app.base.url:http://localhost:8080}")
     private String baseUrl;
@@ -283,7 +282,7 @@ public class UserServiceImpl implements UserService {
 
     private void saveFile(MultipartFile file, String filename) {
         try {
-            // 🔥 ADD HERE
+
             System.out.println("uploadDir value: " + uploadDir);
 
             Path dir = Paths.get(uploadDir, "uploads", "profile-photos")
@@ -305,7 +304,10 @@ public class UserServiceImpl implements UserService {
     }
     private void deleteOldPhoto(String filename) {
         try {
-            Files.deleteIfExists(Paths.get(uploadDir).resolve(filename));
+            Path path = Paths.get(uploadDir, "uploads", "profile-photos")
+                    .resolve(filename);
+
+            Files.deleteIfExists(path);
         } catch (IOException ignored) {
         }
     }
@@ -320,24 +322,44 @@ public class UserServiceImpl implements UserService {
 
         return UserMapper.toAccountSettingDto(user);
     }
-
     @Override
-    public AccountSettingResponseDto updateAccountSettings(AccountSettingRequestDto dto) {
+    public ProfileDataResponseDto getUserProfile(Long userId) {
 
-        Long userId = validatorMethods.getCurrentUserId();
-        User user = validatorMethods.validateUserById(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        boolean isVerified = Boolean.TRUE.equals(user.getSellerVerified());
 
-        if (dto.getFullName() != null)
-            user.setFullName(dto.getFullName());
-        if (dto.getMobileNumber() != null)
-            user.setMobileNumber(dto.getMobileNumber());
-        if (dto.getFarmLocation() != null)
-            user.setFarmLocation(dto.getFarmLocation());
+        ProfilePhotoResponseDto photoDto = null;
 
-        userRepository.save(user);
 
-        return UserMapper.toAccountSettingDto(user);
+        if (user.getProfilePhoto() != null && !user.getProfilePhoto().isEmpty()) {
+
+            String fileName = user.getProfilePhoto();
+
+            photoDto = ProfilePhotoResponseDto.builder()
+                    .fileName(fileName)
+                    .filePath(buildFileUrl(fileName))
+                    .fileType(getFileType(fileName))
+                    .isPrimary(true)
+                    .build();
+        }
+
+        return ProfileDataResponseDto.builder()
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .mobileNumber(user.getMobileNumber())
+                .farmLocation(user.getFarmLocation())
+                .isVerified(isVerified)
+                .profilePhotoResponseDto(photoDto)
+                .build();
     }
+
+    private String buildFileUrl(String fileName) {
+        return "http://localhost:8080/files/" + fileName;
+    }
+
+
 
     @Override
     public ChangePasswordResponseDto changePassword(ChangePasswordRequestDto dto) {

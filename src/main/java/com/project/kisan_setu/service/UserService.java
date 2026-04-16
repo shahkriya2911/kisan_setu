@@ -25,7 +25,10 @@ public interface UserService {
 
     ProfilePhotoResponseDto getProfilePhoto();
     AccountSettingResponseDto getAccountSettings();
-    AccountSettingResponseDto updateAccountSettings(AccountSettingRequestDto dto);
+
+
+    ProfileDataResponseDto getUserProfile(Long userId);
+
     ChangePasswordResponseDto changePassword(ChangePasswordRequestDto dto);
     KycStatusResponseDto getKycStatus();
 

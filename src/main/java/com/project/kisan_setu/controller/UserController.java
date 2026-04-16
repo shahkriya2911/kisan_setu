@@ -1,5 +1,4 @@
 package com.project.kisan_setu.controller;
-import com.project.kisan_setu.dto.RequestDto.AccountSettingRequestDto;
 import com.project.kisan_setu.dto.RequestDto.ChangePasswordRequestDto;
 import com.project.kisan_setu.dto.RequestDto.CreateUserRequestDto;
 import com.project.kisan_setu.dto.RequestDto.LoginRequestDto;
@@ -11,6 +10,7 @@ import com.project.kisan_setu.dto.ResponseDto.ApiResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.ChangePasswordResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.KycStatusResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.LoginResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ProfileDataResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.ProfilePhotoResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.SignupResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.UserProfileResponseDto;
@@ -20,6 +20,7 @@ import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.UserMapper;
 import com.project.kisan_setu.repository.RefreshTokenRepository;
+import com.project.kisan_setu.repository.UserRepository;
 import com.project.kisan_setu.security.JwtUtil;
 import com.project.kisan_setu.service.RefreshTokenService;
 import com.project.kisan_setu.service.UserService;
@@ -42,6 +43,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -68,6 +70,7 @@ public class UserController {
         @Value("${auth.cookie.secure:false}")
         private boolean secureCookie;
         private final RefreshTokenRepository refreshTokenRepository;
+        private final UserRepository userRepository;
         private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
         @PostMapping("/signup")
@@ -352,21 +355,28 @@ public class UserController {
                 AccountSettingResponseDto response = userService.getAccountSettings();
                 return ResponseEntity.ok(response);
         }
+    @GetMapping("/profile-data")
+    @Operation(
+            summary = "Get user profile",
+            description = "Fetch logged-in user's profile using userId"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profile fetched successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized user"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    @SecurityRequirement(name = "cookieAuth")
+    public ResponseEntity<ProfileDataResponseDto> getUserProfile(Authentication authentication) {
+        String authValue = authentication.getName(); // "4"
+        System.out.println("Auth Name: " + authValue);
 
-        @PutMapping(value = "/account-settings", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-        @Operation(summary = "Update account settings method", description = "This method is used to update user account settings")
-        @ApiResponses(value = {
-                        @ApiResponse(responseCode = "200", description = "Account settings updated successfully"),
-                        @ApiResponse(responseCode = "400", description = "Bad input data"),
-                        @ApiResponse(responseCode = "401", description = "Unauthorized user"),
-                        @ApiResponse(responseCode = "500", description = "Something went wrong")
-        })
-        @SecurityRequirement(name = "cookieAuth")
-        public ResponseEntity<AccountSettingResponseDto> updateAccountSettings(
-                        @Parameter(description = "Account settings request data", required = true) @ModelAttribute AccountSettingRequestDto dto) {
-                AccountSettingResponseDto response = userService.updateAccountSettings(dto);
-                return ResponseEntity.ok(response);
-        }
+        Long userId = Long.parseLong(authValue);
+
+        ProfileDataResponseDto response =
+                userService.getUserProfile(userId);
+
+        return ResponseEntity.ok(response);
+    }
 
         @PutMapping("/change-password")
         @Operation(summary = "Change password method", description = "This method is used to change user password")
