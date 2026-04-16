@@ -338,7 +338,7 @@ public class UserServiceImpl implements UserService {
 
             photoDto = ProfilePhotoResponseDto.builder()
                     .fileName(fileName)
-                    .filePath(buildFileUrl(fileName))
+                    .filePath(fileName)
                     .fileType(getFileType(fileName))
                     .isPrimary(true)
                     .build();
@@ -351,13 +351,11 @@ public class UserServiceImpl implements UserService {
                 .mobileNumber(user.getMobileNumber())
                 .farmLocation(user.getFarmLocation())
                 .isVerified(isVerified)
-                .profilePhotoResponseDto(photoDto)
+                .profilePhoto(photoDto)
                 .build();
     }
 
-    private String buildFileUrl(String fileName) {
-        return "http://localhost:8080/files/" + fileName;
-    }
+
 
 
 
