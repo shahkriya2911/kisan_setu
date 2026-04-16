@@ -17,16 +17,27 @@ import java.util.List;
 
 public interface ListingService {
 
-    ListingResponseDto createListing(CreateListingRequest request, List<MultipartFile> imageFiles, MultipartFile certificateFile);
-    ListingResponseDto updateListing(Long listingId, CreateListingRequest request, List<MultipartFile> imageFiles, MultipartFile certificateFile);
+    ListingResponseDto createListing(CreateListingRequest request, List<MultipartFile> imageFiles,
+            MultipartFile certificateFile);
+
+    ListingResponseDto updateListing(Long listingId, CreateListingRequest request, List<MultipartFile> imageFiles,
+            MultipartFile certificateFile);
+
     List<ListingResponseDto> getAllListings();
+
     ListingResponseDto getListingById(Long id);
-    void deleteListing(Long listingId,Long sellerId);
+
+    void deleteListing(Long listingId, Long sellerId);
+
     SellerListingDto getSellerAuctionListingDetail(Long listingId);
+
     SellerListingFixedDto getSellerFixedListingDetail(Long listingId);
+
     DashboardDto getSellerOverview();
+
     Page<ListingResponseDto> activeListings(Long sellerId, Pageable pageable);
-    Page<Object> activeSummaryListings(Long sellerId, Pageable pageable);
+
+    Page<Object> activeSummaryListings(Long sellerId, Pageable pageable, String cropName);
 
     Page<ListingResponseDto> pendingListings(Long sellerId, Pageable pageable);
 
@@ -36,12 +47,14 @@ public interface ListingService {
 
     String extendAuctionTime(ExtendAuctionDto dto);
 
-    List<BuyingRequirementResponseDto> getAllRequirementsForSeller();
+    List<BuyingRequirementResponseDto> getAllRequirementsForSeller(String cropName);
 
     BuyerContactResponseDto getBuyerContact(Long requirementId);
+
     List<RecentBidResponseDto> getRecentBids();
 
-//    Page<ListingSummaryResponseDto> activeSummaryListings(Long sellerId, Pageable pageable);
+    // Page<ListingSummaryResponseDto> activeSummaryListings(Long sellerId, Pageable
+    // pageable);
 
     Page<ListingSummaryResponseDto> pendingSummaryListings(Long sellerId, Pageable pageable);
 

@@ -112,10 +112,10 @@ public class UserServiceImpl implements UserService {
     public LoginResponseDto login(LoginRequestDto dto) {
 
         User user = userRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new UserException("Invalid email or password", HttpStatus.UNAUTHORIZED));
+                .orElseThrow(() -> new UserException("Invalid email or password", HttpStatus.BAD_REQUEST));
 
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new UserException("Invalid email or password", HttpStatus.UNAUTHORIZED);
+            throw new UserException("Invalid email or password", HttpStatus.BAD_REQUEST);
         }
 
         return new LoginResponseDto(

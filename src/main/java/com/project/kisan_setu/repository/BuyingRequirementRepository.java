@@ -11,9 +11,13 @@ import java.util.List;
 public interface BuyingRequirementRepository
         extends JpaRepository<BuyingRequirement, Long> {
 
-    List<BuyingRequirement> findByBuyerUserId(Long buyerId); //find a particular buyer (user)
+    List<BuyingRequirement> findByBuyerUserId(Long buyerId); // find a particular buyer (user)
 
     List<BuyingRequirement> findByCrop_CropNameIgnoreCase(String cropName);
 
-    List<BuyingRequirement> findByRequirementStatusAndBuyer_UserIdNot(RequirementStatus requirementStatus, Long currentUserId);
+    List<BuyingRequirement> findByRequirementStatusAndBuyer_UserIdNot(RequirementStatus requirementStatus,
+            Long currentUserId);
+
+    List<BuyingRequirement> findByRequirementStatusAndBuyer_UserIdNotAndCrop_CropNameContainingIgnoreCase(
+            RequirementStatus requirementStatus, Long currentUserId, String cropName);
 }

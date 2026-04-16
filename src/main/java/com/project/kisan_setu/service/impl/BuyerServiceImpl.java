@@ -1,4 +1,5 @@
 package com.project.kisan_setu.service.impl;
+
 import com.project.kisan_setu.dto.RequestDto.BuyingRequirementRequestDto;
 import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.BidResponseDto;
@@ -34,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -58,27 +60,21 @@ public class BuyerServiceImpl implements BuyerService {
         StateMaster state = validatorMethods.validateState(Long.valueOf(dto.getStateId()));
         DistrictMaster district = validatorMethods.validateDistrict(Long.valueOf(dto.getDistrictId()));
 
-        BuyingRequirement requirement =
-                BuyingRequirementMapper.toEntity(dto, buyer, crop, unit, state, district);
+        BuyingRequirement requirement = BuyingRequirementMapper.toEntity(dto, buyer, crop, unit, state, district);
 
         BuyingRequirement saved = buyingRequirementRepository.save(requirement);
 
         return BuyingRequirementMapper.toDto(saved);
     }
+
     @Override
     @Transactional
-    public Page<BuyerListingResponseDto> getActiveAuctionListings(Long userId, Pageable pageable) {
+    public Page<BuyerListingResponseDto> getActiveAuctionListings(Long userId, Pageable pageable, String cropName) {
 
-        Page<Listing> listingPage = listingRepository
-                .findBySaleTypeAndSellerUserIdNotAndStatus(
-                        SaleType.AUCTION,
-                        userId,
-                        AuctionStatus.ACTIVE,
-                        pageable
-                );
+        String filterCrop = buildCropNamePattern(cropName);
 
-
-        List<Listing> listings = listingPage.getContent();
+        List<Listing> listings = listingRepository
+                .findActiveAuctionListings(SaleType.AUCTION, AuctionStatus.ACTIVE, userId, filterCrop);
 
         LocalDateTime now = LocalDateTime.now();
         boolean updated = false;
@@ -105,28 +101,27 @@ public class BuyerServiceImpl implements BuyerService {
                 .map(this::toBuyerListingResponse)
                 .toList();
 
-        return new PageImpl<>(dtoList, pageable, listingPage.getTotalElements());
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), dtoList.size());
+        List<BuyerListingResponseDto> pageContent = start < dtoList.size() ? dtoList.subList(start, end) : List.of();
+
+        return new PageImpl<>(pageContent, pageable, dtoList.size());
     }
 
     @Override
     @Transactional
-    public Page<BuyerListingResponseDto> getActiveFixedListings(Long userId,Pageable pageable){
+    public Page<BuyerListingResponseDto> getActiveFixedListings(Long userId, Pageable pageable, String cropName) {
 
-        Page<Listing> listingPage = listingRepository
-                .findBySaleTypeAndSellerUserIdNotAndStatus(
-                        SaleType.FIXED,
-                        userId,
-                        AuctionStatus.ACTIVE,
-                        pageable
+        String filterCrop = buildCropNamePattern(cropName);
 
-                );
-        List<Listing> listings = listingPage.getContent();
+        List<Listing> listings = listingRepository
+                .findActiveFixedListings(SaleType.FIXED, AuctionStatus.ACTIVE, userId, filterCrop);
+
         boolean updated = false;
         for (Listing listing : listings) {
 
-            boolean isOutOfStock =
-                    listing.getRemainingQuantity() != null &&
-                            listing.getRemainingQuantity().compareTo(BigDecimal.ZERO) <= 0;
+            boolean isOutOfStock = listing.getRemainingQuantity() != null &&
+                    listing.getRemainingQuantity().compareTo(BigDecimal.ZERO) <= 0;
 
             if (isOutOfStock) {
                 listing.setStatus(AuctionStatus.EXPIRED);
@@ -143,8 +138,20 @@ public class BuyerServiceImpl implements BuyerService {
                 .map(this::toBuyerListingResponse)
                 .toList();
 
-        return new PageImpl<>(dtoList, pageable, listingPage.getTotalElements());
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), dtoList.size());
+        List<BuyerListingResponseDto> pageContent = start < dtoList.size() ? dtoList.subList(start, end) : List.of();
+
+        return new PageImpl<>(pageContent, pageable, dtoList.size());
     }
+
+    private String buildCropNamePattern(String cropName) {
+        if (cropName == null || cropName.isBlank()) {
+            return null;
+        }
+        return cropName.trim().toLowerCase(Locale.ROOT) + "%";
+    }
+
     @Override
     @Transactional
     public void closeExpiredListings() {
@@ -162,9 +169,9 @@ public class BuyerServiceImpl implements BuyerService {
     }
 
     @Override
-    public BuyerListingResponseDto getFixedListingDetail(Long listingId){
+    public BuyerListingResponseDto getFixedListingDetail(Long listingId) {
         Listing listing = validatorMethods.validateExists(listingId);
-        if (listing.getSaleType() != SaleType.FIXED){
+        if (listing.getSaleType() != SaleType.FIXED) {
             throw new RuntimeException("Listing is not fixed");
         }
         return toBuyerListingResponse(listing);
@@ -199,15 +206,13 @@ public class BuyerServiceImpl implements BuyerService {
             throw new RuntimeException("Auction Time Ended");
         }
 
-        Optional<Bid> latestBidOpt =
-                bidRepository.findTopByListingListingIdOrderByBidIdDesc(listingId);
+        Optional<Bid> latestBidOpt = bidRepository.findTopByListingListingIdOrderByBidIdDesc(listingId);
         if (latestBidOpt.isPresent()) {
             Bid latestBid = latestBidOpt.get();
             if (latestBid.getBuyer() != null
                     && latestBid.getBuyer().getUserId().equals(buyer.getUserId())) {
                 throw new RuntimeException(
-                        "You must wait for another buyer to place a bid before bidding again."
-                );
+                        "You must wait for another buyer to place a bid before bidding again.");
             }
         }
 
@@ -249,8 +254,7 @@ public class BuyerServiceImpl implements BuyerService {
 
             if (dto.getBuyerAmount().compareTo(expectedNextBid) != 0) {
                 throw new RuntimeException(
-                        "Bid must be exactly " + expectedNextBid
-                );
+                        "Bid must be exactly " + expectedNextBid);
             }
 
             Bid bid = new Bid();
@@ -263,7 +267,7 @@ public class BuyerServiceImpl implements BuyerService {
             bidRepository.save(bid);
             notificationService.createNotification(listing.getSeller(),
                     "New bid placed on your listing",
-                    NotificationStatus.BID_PLACED,listing,bid,null);
+                    NotificationStatus.BID_PLACED, listing, bid, null);
 
             return new BidResponseDto(
                     bid.getBidId(),
@@ -299,8 +303,8 @@ public class BuyerServiceImpl implements BuyerService {
         List<ProductImageResponseDto> images = listing.getImages() == null
                 ? List.of()
                 : listing.getImages().stream()
-                .map(this::toImageResponse)
-                .collect(Collectors.toList());
+                        .map(this::toImageResponse)
+                        .collect(Collectors.toList());
 
         return new BuyerListingResponseDto(
                 listing.getListingId(),
@@ -323,8 +327,7 @@ public class BuyerServiceImpl implements BuyerService {
                 listing.getAuctionEndTime(),
                 currentHighest,
                 images,
-                listing.getMinimumOrderQuantity()
-        );
+                listing.getMinimumOrderQuantity());
     }
 
     private ProductImageResponseDto toImageResponse(ListingImage image) {
@@ -335,8 +338,6 @@ public class BuyerServiceImpl implements BuyerService {
         dto.setIsPrimary(image.getIsPrimary());
         return dto;
     }
-
-
 
     private BigDecimal resolveCurrentHighestBid(Listing listing) {
         BigDecimal basePrice = listing.getTotalBasePrice();

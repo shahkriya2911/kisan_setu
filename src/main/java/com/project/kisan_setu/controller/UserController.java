@@ -98,7 +98,7 @@ public class UserController {
         @Operation(summary = "Login method", description = "This method is used for user login")
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "User logged in successfully"),
-                        @ApiResponse(responseCode = "401", description = "Bad user credentials"),
+                        @ApiResponse(responseCode = "400", description = "Bad user credentials"),
                         @ApiResponse(responseCode = "500", description = "Something went wrong")
         })
         public ResponseEntity<LoginResponseDto> login(
@@ -343,6 +343,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getProfilePhoto());
     }
 
+    
         @GetMapping("/account-settings")
         @Operation(summary = "Get account settings method", description = "This method is used to get user account settings")
         @ApiResponses(value = {

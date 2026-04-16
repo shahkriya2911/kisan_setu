@@ -84,7 +84,9 @@ class JacksonSerializationTest {
                 0L,
                 List.of(),
                 LocalDate.of(2026, 4, 10),
-                "Bag"
+                "Bag",
+                99L
         );
     }
 }
+      
