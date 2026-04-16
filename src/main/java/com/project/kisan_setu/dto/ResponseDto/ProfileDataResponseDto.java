@@ -15,7 +15,7 @@ public class ProfileDataResponseDto {
     private String mobileNumber;
     private String farmLocation;
     private boolean isVerified;
-    private ProfilePhotoResponseDto profilePhotoResponseDto;
+    private ProfilePhotoResponseDto profilePhoto;
 
 
 }
