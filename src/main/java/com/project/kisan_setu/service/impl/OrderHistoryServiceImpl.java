@@ -92,26 +92,27 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NoSuchElementException("Order not found"));
 
-        // Check buyer ownership
+
         if (!order.getBuyer().getUserId().equals(buyerId)) {
             throw new SecurityException("You are not allowed to review this order");
         }
 
-        // Only completed orders
         if (order.getStatus() != OrderStatus.COMPLETED) {
             throw new IllegalStateException("Review allowed only for completed orders");
         }
 
-        if (ratingReviewRepository.existsByOrder_OrderIdAndBuyer_UserId(orderId, buyerId)) {
-            throw new IllegalStateException("Review already submitted");
+
+        if (ratingReviewRepository.existsByOrder_OrderIdAndIsBuyerReview(orderId, true)) {
+            throw new IllegalStateException("Buyer already reviewed");
         }
 
         RatingAndReview review = new RatingAndReview();
         review.setOrder(order);
-        review.setBuyer(order.getBuyer());
-        review.setSeller(order.getListing().getSeller());
+        review.setBuyer(order.getBuyer()); // reviewer
+        review.setSeller(order.getListing().getSeller()); // target
         review.setRating(requestDto.getRating());
         review.setReview(requestDto.getReview());
+        review.setIsBuyerReview(true);
 
         ratingReviewRepository.save(review);
 
@@ -123,7 +124,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         Long sellerId = validatorMethods.getCurrentUserId();
 
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new NoSuchElementException("Order not found"));
 
         if (!order.getListing().getSeller().getUserId().equals(sellerId)) {
             throw new SecurityException("You are not allowed to review this order");
@@ -133,8 +134,8 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
             throw new IllegalStateException("Review allowed only for completed orders");
         }
 
-        if (ratingReviewRepository.existsByOrder_OrderIdAndSeller_UserId(orderId, sellerId)) {
-            throw new IllegalStateException("Review already submitted");
+        if (ratingReviewRepository.existsByOrder_OrderIdAndIsBuyerReview(orderId, false)) {
+            throw new IllegalStateException("Seller already reviewed");
         }
 
         RatingAndReview review = new RatingAndReview();
@@ -143,6 +144,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         review.setSeller(order.getListing().getSeller());
         review.setRating(requestDto.getRating());
         review.setReview(requestDto.getReview());
+        review.setIsBuyerReview(false);
 
         ratingReviewRepository.save(review);
 

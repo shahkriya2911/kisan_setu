@@ -61,6 +61,10 @@ public class BuyerServiceImpl implements BuyerService {
         BuyingRequirement requirement =
                 BuyingRequirementMapper.toEntity(dto, buyer, crop, unit, state, district);
 
+        User seller = validatorMethods.validateUserById(userId);
+
+        requirement.setSeller(seller);
+
         BuyingRequirement saved = buyingRequirementRepository.save(requirement);
 
         return BuyingRequirementMapper.toDto(saved);

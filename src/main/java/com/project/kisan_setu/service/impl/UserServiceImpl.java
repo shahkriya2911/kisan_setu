@@ -233,7 +233,7 @@ public class UserServiceImpl implements UserService {
 
         Path path = Paths.get(uploadDir, "uploads", "profile-photos")
                 .resolve(user.getProfilePhoto());
-        System.out.println("Checking file at: " + path.toAbsolutePath());
+        logger.info("Checking file at: " + path.toAbsolutePath());
 
         if (!Files.exists(path)) {
             throw new RuntimeException("File not found on disk");

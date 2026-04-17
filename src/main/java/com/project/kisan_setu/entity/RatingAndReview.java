@@ -1,12 +1,18 @@
 package com.project.kisan_setu.entity;
+
 import jakarta.persistence.*;
 import lombok.Data;
-import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "ratingsAndReview")
+@Table(
+        name = "ratingsAndReview",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"order_id", "isBuyerReview"})
+        }
+)
 @Data
-public class RatingAndReview extends Auditable{
+public class RatingAndReview extends Auditable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId;
@@ -17,8 +23,8 @@ public class RatingAndReview extends Auditable{
     @Column(nullable = false, length = 1000)
     private String review;
 
-    @OneToOne
-    @JoinColumn(name = "order_id", nullable = false, unique = true)
+    @ManyToOne
+    @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
     @ManyToOne
@@ -29,5 +35,6 @@ public class RatingAndReview extends Auditable{
     @JoinColumn(name = "seller_id", nullable = false)
     private User seller;
 
-
+    @Column(nullable = false)
+    private Boolean isBuyerReview;
 }
