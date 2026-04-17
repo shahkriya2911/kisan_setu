@@ -53,4 +53,10 @@ public class BuyingRequirement {
     @ManyToOne
     @JoinColumn(name = "unit_id")
     private UnitMaster unit;
+
+    @ManyToOne
+    @JoinColumn(name = "seller_id")
+    private User seller;
+
+
 }

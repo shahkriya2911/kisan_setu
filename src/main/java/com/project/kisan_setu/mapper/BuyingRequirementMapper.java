@@ -19,14 +19,16 @@ public class BuyingRequirementMapper {
         br.setUnit(unit);
         br.setMinPrice(dto.getMinPrice());
         br.setMaxPrice(dto.getMaxPrice());
-//        br.setState(state);
-//        br.setDistrict(district);
+        br.setState(state);
+        br.setDistrict(district);
         br.setDeliveryAddress(dto.getDeliveryAddress());
         br.setDeadline(dto.getDeadline());
         br.setUrgency(dto.getUrgency());
         br.setAdditionalNote(dto.getAdditionalNotes());
         br.setBuyer(buyer);
+        br.setSeller(null);
         br.setRequirementStatus(RequirementStatus.OPEN);
+
 
         return br;
     }
@@ -47,7 +49,10 @@ public class BuyingRequirementMapper {
                 br.getDeadline(),
                 br.getUrgency(),
                 br.getAdditionalNote(),
-                br.getBuyer() != null ? br.getBuyer().getFullName() : null
+                br.getBuyer() != null ? br.getBuyer().getFullName() : null,
+                br.getBuyer() != null ? br.getBuyer().getUserId() : null,
+                br.getSeller() != null ? br.getSeller().getUserId() : null
+
         );
     }
 }

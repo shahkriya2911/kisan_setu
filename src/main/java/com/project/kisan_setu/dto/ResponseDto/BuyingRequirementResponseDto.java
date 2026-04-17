@@ -35,6 +35,9 @@ public class BuyingRequirementResponseDto {
     private String additionalNotes;
 
     private String buyerName;
+    private Long buyerId;
+    private Long sellerId;
+
 
 
 }
