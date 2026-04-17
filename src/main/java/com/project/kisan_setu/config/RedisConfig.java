@@ -3,6 +3,9 @@ package com.project.kisan_setu.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -16,6 +19,7 @@ import java.time.Duration;
 @Configuration
 public class RedisConfig {
     @Bean
+    @ConditionalOnProperty(name = "spring.cache.type", havingValue = "redis")
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory, ObjectMapper objectMapper){
         ObjectMapper cacheObjectMapper = objectMapper.copy();
         cacheObjectMapper.registerModule(new JavaTimeModule());
@@ -31,5 +35,11 @@ public class RedisConfig {
                 disableCachingNullValues();
 
         return RedisCacheManager.builder(connectionFactory).cacheDefaults(config).build();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(CacheManager.class)
+    public CacheManager simpleCacheManager() {
+        return new ConcurrentMapCacheManager();
     }
 }

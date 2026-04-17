@@ -1,9 +1,7 @@
 package com.project.kisan_setu.repository;
 
-import aj.org.objectweb.asm.commons.Remapper;
 import com.project.kisan_setu.entity.Bid;
 import com.project.kisan_setu.entity.Listing;
-import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.BidStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,8 +15,6 @@ import java.util.Optional;
 
 public interface BidRepository extends JpaRepository<Bid, Long> {
     List<Bid> findByBuyerUserIdAndBidStatusInOrderByCreatedAtAsc(Long buyerId, List<BidStatus> statuses);
-
-    List<Bid> findByBuyerUserIdAndBidStatusOrderByCreatedAtAsc(Long buyerId, BidStatus bidStatus);
 
     List<Bid> findByListingListingIdOrderByBuyerAmountDesc(Long listingId);
 
@@ -72,7 +68,7 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
 
     long countByListing_ListingId(Long listingId);
 
-    @Query("SELECT MAX(b.buyerAmount) FROM Bid b WHERE b.listing.id = :listingId")
+    @Query("SELECT MAX(b.buyerAmount) FROM Bid b WHERE b.listing.listingId = :listingId")
     BigDecimal getHighestBid(@Param("listingId") Long listingId);
 
     boolean existsByListingAndBidStatus(Listing listing, BidStatus bidStatus);
@@ -80,4 +76,6 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
     List<Bid> findByBidStatusAndAcceptedTimeBefore(BidStatus bidStatus, LocalDateTime cutoff);
 
     List<Bid> findByListingListingIdAndBidIdNot(Long listingId, Long bidId);
+
+    List<Bid> findByBuyerUserIdAndBidStatusOrderByCreatedAtAsc(Long buyerId, BidStatus bidStatus);
 }
