@@ -218,7 +218,6 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
             ReportResponseDto dto = new ReportResponseDto();
 
             dto.setReportId(report.getReportId());
-            dto.setTransactionId("TXN" + report.getOrder().getOrderId());
             dto.setBuyerName(String.valueOf(report.getBuyer()));
             dto.setSellerName(String.valueOf(report.getSeller()));
             dto.setIssueType(report.getReason());
@@ -238,7 +237,6 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
 
         ReportResponseDto responseDto = new ReportResponseDto();
         responseDto.setReportId(report.getReportId());
-        responseDto.setTransactionId(String.valueOf(report.getOrder().getOrderId()));
         responseDto.setBuyerName(report.getBuyer().getFullName());
         responseDto.setSellerName(report.getSeller().getFullName());
         responseDto.setStatus(report.getReportStatus().name());
