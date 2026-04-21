@@ -1,14 +1,20 @@
 package com.project.kisan_setu.service.impl;
 import com.project.kisan_setu.dto.RequestDto.ReportUserRequestDto;
 import com.project.kisan_setu.dto.RequestDto.ReviewRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.ApiResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.OrderHistoryResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.ProductImageResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ReportResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ReviewResponseDto;
 import com.project.kisan_setu.entity.Order;
 import com.project.kisan_setu.entity.RatingAndReview;
 import com.project.kisan_setu.entity.Report;
 import com.project.kisan_setu.enums.OrderStatus;
 import com.project.kisan_setu.enums.ReportStatus;
+import com.project.kisan_setu.enums.ReportedBy;
 import com.project.kisan_setu.exception.UserException;
+import com.project.kisan_setu.mapper.RatingReviewMapper;
+import com.project.kisan_setu.mapper.ReportResponseMapper;
 import com.project.kisan_setu.repository.OrderRepository;
 import com.project.kisan_setu.repository.RatingReviewRepository;
 import com.project.kisan_setu.repository.ReportUserRepository;
@@ -23,9 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.NoSuchElementException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 @RequiredArgsConstructor
@@ -85,15 +88,14 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
     }
 
     @Override
-    public String submitSellerReview(Long orderId, ReviewRequestDto requestDto) {
+    public ApiResponseDto<ReviewResponseDto> submitSellerReview(Long orderId, ReviewRequestDto requestDto) {
 
         Long buyerId = validatorMethods.getCurrentUserId();
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NoSuchElementException("Order not found"));
 
-
-        if (!order.getBuyer().getUserId().equals(buyerId)) {
+        if (order.getBuyer() == null || !order.getBuyer().getUserId().equals(buyerId)) {
             throw new SecurityException("You are not allowed to review this order");
         }
 
@@ -103,30 +105,39 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
 
 
         if (ratingReviewRepository.existsByOrder_OrderIdAndIsBuyerReview(orderId, true)) {
-            throw new IllegalStateException("Buyer already reviewed");
+            return ApiResponseDto.<ReviewResponseDto>builder()
+                    .message("Buyer already reviewed")
+                    .data(null)
+                    .build();
         }
 
         RatingAndReview review = new RatingAndReview();
         review.setOrder(order);
-        review.setBuyer(order.getBuyer()); // reviewer
-        review.setSeller(order.getListing().getSeller()); // target
+        review.setBuyer(order.getBuyer());
+        review.setSeller(order.getListing() != null ? order.getListing().getSeller() : null);
         review.setRating(requestDto.getRating());
         review.setReview(requestDto.getReview());
         review.setIsBuyerReview(true);
 
-        ratingReviewRepository.save(review);
+        RatingAndReview saved = ratingReviewRepository.save(review);
 
-        return "Seller reviewed successfully";
+        return ApiResponseDto.<ReviewResponseDto>builder()
+                .message("Seller reviewed successfully")
+                .data(RatingReviewMapper.mapReviewToDto(saved))
+                .build();
     }
     @Override
-    public String submitBuyerReview(Long orderId, ReviewRequestDto requestDto) {
+    public ApiResponseDto<ReviewResponseDto> submitBuyerReview(Long orderId, ReviewRequestDto requestDto) {
 
         Long sellerId = validatorMethods.getCurrentUserId();
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NoSuchElementException("Order not found"));
 
-        if (!order.getListing().getSeller().getUserId().equals(sellerId)) {
+        if (order.getListing() == null ||
+                order.getListing().getSeller() == null ||
+                !order.getListing().getSeller().getUserId().equals(sellerId)) {
+
             throw new SecurityException("You are not allowed to review this order");
         }
 
@@ -135,7 +146,10 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         }
 
         if (ratingReviewRepository.existsByOrder_OrderIdAndIsBuyerReview(orderId, false)) {
-            throw new IllegalStateException("Seller already reviewed");
+            return ApiResponseDto.<ReviewResponseDto>builder()
+                    .message("Seller already reviewed")
+                    .data(null)
+                    .build();
         }
 
         RatingAndReview review = new RatingAndReview();
@@ -146,13 +160,16 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         review.setReview(requestDto.getReview());
         review.setIsBuyerReview(false);
 
-        ratingReviewRepository.save(review);
+        RatingAndReview saved = ratingReviewRepository.save(review);
 
-        return "Buyer reviewed successfully";
+        return ApiResponseDto.<ReviewResponseDto>builder()
+                .message("Buyer reviewed successfully")
+                .data(RatingReviewMapper.mapReviewToDto(saved))
+                .build();
     }
 
     @Override
-    public String reportSeller(Long orderId, ReportUserRequestDto requestDto) {
+    public ApiResponseDto<ReportResponseDto> reportSeller(Long orderId, ReportUserRequestDto requestDto) {
 
         Long buyerId = validatorMethods.getCurrentUserId();
 
@@ -163,8 +180,13 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
             throw new RuntimeException("This buyer is not allowed to report this seller");
         }
 
-        if (order.getListing() == null || order.getListing().getSeller() == null) {
-            throw new RuntimeException("Seller not found for this order");
+        if (reportSellerRepository
+                .existsByOrder_OrderIdAndBuyer_UserIdAndIsBuyerReportedTrue(orderId, buyerId)) {
+
+            return ApiResponseDto.<ReportResponseDto>builder()
+                    .message("Seller already reported")
+                    .data(null)
+                    .build();
         }
 
         Report report = new Report();
@@ -173,16 +195,22 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         report.setSeller(order.getListing().getSeller());
         report.setReason(requestDto.getReason());
         report.setDescription(requestDto.getDescription());
-
         report.setReportStatus(ReportStatus.OPEN);
+        report.setIsBuyerReported(true);
+        report.setIsSellerReported(false);
 
-        reportSellerRepository.save(report);
+        Report saved = reportSellerRepository.save(report);
 
-        return "Seller reported successfully";
+        ReportResponseDto responseDto = ReportResponseMapper.mapReportToDto(saved,true,false);
+
+        return ApiResponseDto.<ReportResponseDto>builder()
+                .message("Seller reported successfully")
+                .data(responseDto)
+                .build();
     }
 
     @Override
-    public String reportBuyer(Long orderId, ReportUserRequestDto requestDto) {
+    public ApiResponseDto<ReportResponseDto> reportBuyer(Long orderId, ReportUserRequestDto requestDto) {
 
         Long sellerId = validatorMethods.getCurrentUserId();
 
@@ -200,21 +228,42 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
             throw new NoSuchElementException("Buyer not found for this order");
         }
 
+        if (reportSellerRepository
+                .existsByOrder_OrderIdAndSeller_UserIdAndIsSellerReportedTrue(orderId, sellerId)) {
+
+            return ApiResponseDto.<ReportResponseDto>builder()
+                    .message("Buyer already reported")
+                    .data(ReportResponseMapper.mapReportToDto(
+                            null,
+                            false,
+                            true
+                    ))
+                    .build();
+        }
+
         Report report = new Report();
         report.setOrder(order);
         report.setSeller(order.getListing().getSeller());
         report.setBuyer(order.getBuyer());
-
         report.setReason(requestDto.getReason());
         report.setDescription(requestDto.getDescription());
         report.setReportStatus(ReportStatus.OPEN);
 
-        reportSellerRepository.save(report);
+        report.setIsSellerReported(true);
+        report.setIsBuyerReported(false);
 
-        return "Buyer reported successfully";
+        Report saved = reportSellerRepository.save(report);
+        ReportResponseDto responseDto = ReportResponseMapper.mapReportToDto(
+                saved,
+                false,
+                true
+        );
+
+        return ApiResponseDto.<ReportResponseDto>builder()
+                .message("Buyer reported successfully")
+                .data(responseDto)
+                .build();
     }
-
-
     @Override
     public byte[] downloadInvoice(Long orderId) {
         Long currentUserId = validatorMethods.getCurrentUserId();

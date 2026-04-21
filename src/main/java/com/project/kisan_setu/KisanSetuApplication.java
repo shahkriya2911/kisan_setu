@@ -12,8 +12,7 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
 public class KisanSetuApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(KisanSetuApplication.class, args);
+	public static void main(String[] args) {SpringApplication.run(KisanSetuApplication.class, args);
 	}
 
 }

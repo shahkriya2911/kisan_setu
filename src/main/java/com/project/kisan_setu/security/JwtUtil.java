@@ -7,6 +7,7 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 
 @Component
@@ -24,8 +25,10 @@ public class JwtUtil {
     private long refreshExpiration;
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
+        byte[] keyBytes = Base64.getDecoder().decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
+
 
     public String generateAccessToken(Long userId) {
         return Jwts.builder()

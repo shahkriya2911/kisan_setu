@@ -1,15 +1,16 @@
 package com.project.kisan_setu.entity;
-
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(
-        name = "ratingsAndReview",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"order_id", "isBuyerReview"})
-        }
-)
+@Table(name = "ratingsAndReview")
 @Data
 public class RatingAndReview extends Auditable {
 
@@ -36,5 +37,8 @@ public class RatingAndReview extends Auditable {
     private User seller;
 
     @Column(nullable = false)
-    private Boolean isBuyerReview;
+    private Boolean isBuyerReview = false;
+
+    @Column(nullable = false)
+    private Boolean isSellerReview = false;
 }

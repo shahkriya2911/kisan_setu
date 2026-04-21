@@ -1,7 +1,9 @@
 package com.project.kisan_setu.controller;
 import com.project.kisan_setu.dto.RequestDto.ReportUserRequestDto;
 import com.project.kisan_setu.dto.RequestDto.ReviewRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.ApiResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.OrderHistoryResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ReviewResponseDto;
 import com.project.kisan_setu.service.OrderHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -72,7 +74,7 @@ public class OrderHistoryController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<String> reviewSeller(
+    public ResponseEntity<ApiResponseDto<ReviewResponseDto>> reviewSeller(
             @Parameter(description = "Order ID request", required = true)
             @PathVariable Long orderId,
             @Parameter(description = "Seller review details", required = true)
@@ -93,7 +95,7 @@ public class OrderHistoryController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<String> reviewBuyer(
+    public ResponseEntity<ApiResponseDto<ReviewResponseDto>> reviewBuyer(
             @Parameter(description = "Order ID request", required = true)
             @PathVariable Long orderId,
             @Parameter(description = "Buyer review details", required = true)
