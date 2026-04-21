@@ -8,6 +8,7 @@ import com.project.kisan_setu.entity.RatingAndReview;
 import com.project.kisan_setu.entity.Report;
 import com.project.kisan_setu.enums.OrderStatus;
 import com.project.kisan_setu.enums.ReportStatus;
+import com.project.kisan_setu.enums.ReviewType;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.repository.OrderRepository;
 import com.project.kisan_setu.repository.RatingReviewRepository;
@@ -102,7 +103,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         }
 
 
-        if (ratingReviewRepository.existsByOrder_OrderIdAndIsBuyerReview(orderId, true)) {
+        if (ratingReviewRepository.existsByOrder_OrderIdAndReviewType(orderId, ReviewType.BUYER)) {
             throw new IllegalStateException("Buyer already reviewed");
         }
 
@@ -112,7 +113,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         review.setSeller(order.getListing().getSeller()); // target
         review.setRating(requestDto.getRating());
         review.setReview(requestDto.getReview());
-        review.setIsBuyerReview(true);
+        review.setReviewType(ReviewType.BUYER);
 
         ratingReviewRepository.save(review);
 
@@ -134,7 +135,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
             throw new IllegalStateException("Review allowed only for completed orders");
         }
 
-        if (ratingReviewRepository.existsByOrder_OrderIdAndIsBuyerReview(orderId, false)) {
+        if (ratingReviewRepository.existsByOrder_OrderIdAndReviewType(orderId, ReviewType.SELLER)) {
             throw new IllegalStateException("Seller already reviewed");
         }
 
@@ -144,7 +145,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         review.setSeller(order.getListing().getSeller());
         review.setRating(requestDto.getRating());
         review.setReview(requestDto.getReview());
-        review.setIsBuyerReview(false);
+        review.setReviewType(ReviewType.SELLER);
 
         ratingReviewRepository.save(review);
 
