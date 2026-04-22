@@ -32,6 +32,8 @@ public class QualityPricingListingDto {
     private PurchaseType purchaseType;
     @NotNull(message = "minimum bid increment is required")
     private BigDecimal minimumBidIncrement;
+    @NotNull(message = "maximum bid increment is required")
+    private BigDecimal maximumBidIncrement;
     @NotNull(message = "sale type is required")
     @NotNull(message = "minimum order quantity is required")
     private BigDecimal minimumOrderQuantity;

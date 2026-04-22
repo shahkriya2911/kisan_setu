@@ -266,6 +266,18 @@ public class ListingServiceImpl implements ListingService {
                 throw new UserException("Minimum Bid Increment must be greater than 0", HttpStatus.BAD_REQUEST);
             }
 
+            if (pricingDto.getMaximumBidIncrement() == null ||
+                    pricingDto.getMaximumBidIncrement()
+                            .compareTo(BigDecimal.ZERO) <= 0) {
+
+                throw new UserException("Maximum Bid Increment must be greater than 0", HttpStatus.BAD_REQUEST);
+            }
+
+            if (pricingDto.getMaximumBidIncrement().compareTo(pricingDto.getMinimumBidIncrement()) < 0) {
+                throw new UserException("Maximum Bid Increment must be greater than or equal to Minimum Bid Increment",
+                        HttpStatus.BAD_REQUEST);
+            }
+
             logger.info("Auction Listing validated");
         } else if (pricingDto.getSaleType() == SaleType.FIXED) {
             logger.info("Fixed Price Listing validated");
@@ -356,12 +368,14 @@ public class ListingServiceImpl implements ListingService {
             throw new RuntimeException("Not an auction listing");
         }
 
-        BigDecimal currentHighestBid = bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(listingId)
+        BigDecimal currentHighestBid = bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc
+                        (listingId)
                 .map(Bid::getBuyerAmount)
                 .orElse(listing.getTotalBasePrice());
 
         List<BidResponseDto> top5Bids = bidRepository
-                .findTop5ByListingListingIdOrderByBuyerAmountDesc(listingId) //
+                .findTop5ByListingListingIdAndBidStatusInOrderByBuyerAmountDesc
+                        (listingId,List.of(BidStatus.PENDING,BidStatus.OUTBID,BidStatus.ACCEPTED)) //
                 .stream()
                 .map(bid -> new BidResponseDto(
                         bid.getBidId(),
@@ -372,7 +386,6 @@ public class ListingServiceImpl implements ListingService {
                         bid.getBidStatus() //
                 ))
                 .toList();
-
         long totalBids = bidRepository.countTotalBidsBySellerId(listingId);
         long activeBidders = bidRepository.countActiveBidders(listingId);
 
@@ -386,6 +399,7 @@ public class ListingServiceImpl implements ListingService {
                 listing.getUnit().getUnitName(),
                 listing.getTotalBasePrice(),
                 listing.getMinimumBidIncrement(),
+                listing.getMaximumBidIncrement(),
                 totalBids,
                 activeBidders,
                 listing.getStatus(),

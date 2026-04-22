@@ -20,6 +20,7 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
 
     Optional<Bid> findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
             Long listingId, BidStatus status);
+    List<Bid> findTop5ByListingListingIdAndBidStatusInOrderByBuyerAmountDesc(Long listingId,List<BidStatus> statuses);
 
     default List<Bid> findTop5ByListingListingIdAndBidStatusOrderByAmountDesc(Long listingId, BidStatus status) {
         return findTop5ByListingListingIdAndBidStatusOrderByBuyerAmountDesc(listingId, status);

@@ -12,6 +12,10 @@ public interface BuyerService {
 
     BuyingRequirementResponseDto postRequirement(BuyingRequirementRequestDto dto);
 
+    Page<BuyingRequirementResponseDto> getMyRequirements(Pageable pageable, String cropName);
+
+    void deleteRequirement(Long requirementId);
+
     Page<BuyerListingResponseDto> getActiveAuctionListings(Long userId, Pageable pageable, String cropName);
 
     Page<BuyerListingResponseDto> getActiveFixedListings(Long userId, Pageable pageable, String cropName);

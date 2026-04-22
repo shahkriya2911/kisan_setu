@@ -20,6 +20,7 @@ import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.BidStatus;
 import com.project.kisan_setu.enums.NotificationStatus;
 import com.project.kisan_setu.enums.SaleType;
+import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.BuyingRequirementMapper;
 import com.project.kisan_setu.repository.BidRepository;
 import com.project.kisan_setu.repository.BuyingRequirementRepository;
@@ -30,6 +31,7 @@ import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -62,13 +64,37 @@ public class BuyerServiceImpl implements BuyerService {
 
         BuyingRequirement requirement = BuyingRequirementMapper.toEntity(dto, buyer, crop, unit, state, district);
 
-        User seller = validatorMethods.validateUserById(userId);
-
-        requirement.setSeller(seller);
-
         BuyingRequirement saved = buyingRequirementRepository.save(requirement);
 
         return BuyingRequirementMapper.toDto(saved);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<BuyingRequirementResponseDto> getMyRequirements(Pageable pageable, String cropName) {
+        Long userId = validatorMethods.getCurrentUserId();
+        String filterCrop = normalizeCropFilter(cropName);
+
+        Page<BuyingRequirement> requirements = filterCrop == null
+                ? buyingRequirementRepository.findByBuyerUserId(userId, pageable)
+                : buyingRequirementRepository.findByBuyerUserIdAndCrop_CropNameContainingIgnoreCase(
+                        userId, filterCrop, pageable);
+
+        return requirements.map(BuyingRequirementMapper::toDto);
+    }
+
+    @Override
+    @Transactional
+    public void deleteRequirement(Long requirementId) {
+        Long userId = validatorMethods.getCurrentUserId();
+        BuyingRequirement requirement = buyingRequirementRepository.findById(requirementId)
+                .orElseThrow(() -> new UserException("Requirement not found", HttpStatus.NOT_FOUND));
+
+        if (requirement.getBuyer() == null || !userId.equals(requirement.getBuyer().getUserId())) {
+            throw new UserException("You are not authorized to delete this requirement", HttpStatus.FORBIDDEN);
+        }
+
+        buyingRequirementRepository.delete(requirement);
     }
 
     @Override
@@ -156,6 +182,13 @@ public class BuyerServiceImpl implements BuyerService {
         return cropName.trim().toLowerCase(Locale.ROOT) + "%";
     }
 
+    private String normalizeCropFilter(String cropName) {
+        if (cropName == null || cropName.isBlank()) {
+            return null;
+        }
+        return cropName.trim();
+    }
+
     @Override
     @Transactional
     public void closeExpiredListings() {
@@ -238,27 +271,32 @@ public class BuyerServiceImpl implements BuyerService {
             Optional<Bid> highestBidOpt = bidRepository
                     .findTopByListingListingIdOrderByBuyerAmountDesc(listingId);
 
-            BigDecimal expectedNextBid;
-
-            if (highestBidOpt.isEmpty()) {
-                if (listing.getMinimumBidIncrement() == null) {
-                    throw new RuntimeException("Minimum bid increment not set");
-                }
-                // First bid must be base price + increment
-                expectedNextBid = basePrice.add(listing.getMinimumBidIncrement());
-            } else {
-                // Subsequent bids
-                if (listing.getMinimumBidIncrement() == null) {
-                    throw new RuntimeException("Minimum bid increment not set");
-                }
-
-                BigDecimal currentHighest = highestBidOpt.get().getBuyerAmount();
-                expectedNextBid = currentHighest.add(listing.getMinimumBidIncrement());
+            if (listing.getMinimumBidIncrement() == null) {
+                throw new RuntimeException("Minimum bid increment not set");
+            }
+            if (listing.getMaximumBidIncrement() == null) {
+                throw new RuntimeException("Maximum bid increment not set");
+            }
+            if (listing.getMaximumBidIncrement().compareTo(listing.getMinimumBidIncrement()) < 0) {
+                throw new RuntimeException("Invalid bid increment range");
             }
 
-            if (dto.getBuyerAmount().compareTo(expectedNextBid) != 0) {
+            BigDecimal minimumAllowedBid;
+            BigDecimal maximumAllowedBid;
+
+            if (highestBidOpt.isEmpty()) {
+                minimumAllowedBid = basePrice.add(listing.getMinimumBidIncrement());
+                maximumAllowedBid = basePrice.add(listing.getMaximumBidIncrement());
+            } else {
+                BigDecimal currentHighest = highestBidOpt.get().getBuyerAmount();
+                minimumAllowedBid = currentHighest.add(listing.getMinimumBidIncrement());
+                maximumAllowedBid = currentHighest.add(listing.getMaximumBidIncrement());
+            }
+
+            if (dto.getBuyerAmount().compareTo(minimumAllowedBid) < 0
+                    || dto.getBuyerAmount().compareTo(maximumAllowedBid) > 0) {
                 throw new RuntimeException(
-                        "Bid must be exactly " + expectedNextBid);
+                        "Bid must be between " + minimumAllowedBid + " and " + maximumAllowedBid);
             }
 
             Bid bid = new Bid();
@@ -309,6 +347,25 @@ public class BuyerServiceImpl implements BuyerService {
                 : listing.getImages().stream()
                         .map(this::toImageResponse)
                         .collect(Collectors.toList());
+        List<BidResponseDto> top5Bids = bidRepository
+                .findTop5ByListingListingIdOrderByBuyerAmountDesc(listing.getListingId()) //
+                .stream()
+                .map(bid -> new BidResponseDto(
+                        bid.getBidId(),
+                        bid.getBuyer().getUserId(),
+                        bid.getBuyerAmount(),
+                        bid.getBuyer().getFullName(),
+                        bid.getBidTime(),
+                        bid.getBidStatus() //
+                ))
+                .toList();
+        for (int i=0;i<top5Bids.size();i++){
+            if (i==0){
+                top5Bids.get(i).setBidStatus(BidStatus.PENDING);
+            }else {
+                top5Bids.get(i).setBidStatus(BidStatus.OUTBID);
+            }
+        }
 
         return new BuyerListingResponseDto(
                 listing.getListingId(),
@@ -322,6 +379,7 @@ public class BuyerServiceImpl implements BuyerService {
                 listing.getStorage() != null ? listing.getStorage().getStorageType() : null,
                 listing.getHarvestDate(),
                 listing.getMinimumBidIncrement(),
+                listing.getMaximumBidIncrement(),
                 listing.getGrade(),
                 resolvedBasePrice,
                 listing.getPricePerKg(),
@@ -331,7 +389,8 @@ public class BuyerServiceImpl implements BuyerService {
                 listing.getAuctionEndTime(),
                 currentHighest,
                 images,
-                listing.getMinimumOrderQuantity());
+                listing.getMinimumOrderQuantity(),
+                top5Bids);
     }
 
     private ProductImageResponseDto toImageResponse(ListingImage image) {

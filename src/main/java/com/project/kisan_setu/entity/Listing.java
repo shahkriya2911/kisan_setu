@@ -44,6 +44,7 @@ public class Listing extends Auditable{
     @Enumerated(EnumType.STRING)
     private SaleType saleType;
     private BigDecimal minimumBidIncrement;
+    private BigDecimal maximumBidIncrement;
     private LocalDateTime postedOn;
 
     @PrePersist
