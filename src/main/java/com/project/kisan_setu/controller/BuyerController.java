@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,6 +53,41 @@ public class BuyerController {
                 logger.debug("Create buyer requirement request attempt for buyer");
                 logger.info("Buyer requirement created successfully");
                 return buyerService.postRequirement(dto);
+        }
+
+        @GetMapping("/buyer-requirement")
+        @Operation(summary = "Get my buyer requirements method", description = "Used by buyer to get their own buyer requirements with pagination and crop search")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Buyer requirements fetched successfully"),
+                        @ApiResponse(responseCode = "401", description = "Unauthorized user"),
+                        @ApiResponse(responseCode = "500", description = "Something went wrong")
+        })
+        @SecurityRequirement(name = "cookieAuth")
+        public ResponseEntity<Page<BuyingRequirementResponseDto>> getMyRequirements(
+                        @RequestParam(required = false) String cropName,
+                        @RequestParam(name = "search", required = false) String search,
+                        @PageableDefault(size = 10, sort = "requirementId", direction = Sort.Direction.DESC) Pageable pageable) {
+                logger.debug("Get my buyer requirements request attempt");
+                return ResponseEntity.ok(buyerService.getMyRequirements(pageable,
+                                resolveCropNameFilter(cropName, search)));
+        }
+
+        @DeleteMapping("/buyer-requirement/{requirementId}")
+        @Operation(summary = "Delete buyer requirement method", description = "Used by buyer to delete their own buyer requirement")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Buyer requirement deleted successfully"),
+                        @ApiResponse(responseCode = "401", description = "Unauthorized user"),
+                        @ApiResponse(responseCode = "403", description = "Forbidden"),
+                        @ApiResponse(responseCode = "404", description = "Requirement not found"),
+                        @ApiResponse(responseCode = "500", description = "Something went wrong")
+        })
+        @SecurityRequirement(name = "cookieAuth")
+        public ResponseEntity<String> deleteRequirement(
+                        @Parameter(description = "Requirement ID request", required = true) @PathVariable Long requirementId) {
+                logger.debug("Delete buyer requirement request attempt for requirement id : {}", requirementId);
+                buyerService.deleteRequirement(requirementId);
+                logger.info("Buyer requirement deleted successfully");
+                return ResponseEntity.ok("Buyer requirement deleted successfully");
         }
 
         // get all auction listings

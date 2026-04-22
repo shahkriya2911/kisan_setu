@@ -42,6 +42,7 @@ public class ListingResponseDto {
 
     // Auction fields
     private BigDecimal minimumBidIncrement;
+    private BigDecimal maximumBidIncrement;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private LocalDateTime auctionEndTime;
 

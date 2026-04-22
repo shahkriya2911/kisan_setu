@@ -218,7 +218,7 @@ public class ListingController {
         @SecurityRequirement(name = "cookieAuth")
         public ResponseEntity<Page<ListingResponseDto>> pendingListings(
                         @Parameter(description = "Authentication object", required = true) Authentication authentication,
-                        @Parameter(description = "Pagination and sorting parameters") Pageable pageable) {
+                        @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 3, sort = "postedOn") Pageable pageable) {
                 logger.debug("Get all pending listings for user with id : {}",
                                 Long.parseLong(authentication.getName()));
                 Long userId = Long.parseLong(authentication.getName());
@@ -237,7 +237,7 @@ public class ListingController {
         @SecurityRequirement(name = "cookieAuth")
         public ResponseEntity<Page<ListingResponseDto>> soldListings(
                         @Parameter(description = "Authentication object", required = true) Authentication authentication,
-                        @Parameter(description = "Pagination and sorting parameters") Pageable pageable) {
+                        @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 3, sort = "postedOn") Pageable pageable) {
                 logger.debug("Get all sold listings for user with id : {}", Long.parseLong(authentication.getName()));
                 Long userId = Long.parseLong(authentication.getName());
                 Page<ListingResponseDto> listings = listingService.soldListings(userId, pageable);
@@ -245,8 +245,8 @@ public class ListingController {
                 return ResponseEntity.ok(listings);
         }
 
-        @GetMapping("/my-closed")
-        @Operation(summary = "Get closed listings", description = "Used by seller to get their closed listings")
+        @GetMapping("/my-expired")
+        @Operation(summary = "Get expired listings", description = "Used by seller to get their closed listings")
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "Closed listings fetched successfully"),
                         @ApiResponse(responseCode = "401", description = "Unauthorized user"),
@@ -255,11 +255,11 @@ public class ListingController {
         @SecurityRequirement(name = "cookieAuth")
         public ResponseEntity<Page<ListingResponseDto>> closedListings(
                         @Parameter(description = "Authentication object", required = true) Authentication authentication,
-                        @Parameter(description = "Pagination and sorting parameters") Pageable pageable) {
-                logger.debug("Get all closed listings for user with id : {}", Long.parseLong(authentication.getName()));
+                        @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 3, sort = "postedOn") Pageable pageable) {
+                logger.debug("Get all expired listings for user with id : {}", Long.parseLong(authentication.getName()));
                 Long userId = Long.parseLong(authentication.getName());
                 Page<ListingResponseDto> listings = listingService.closedListings(userId, pageable);
-                logger.info("Fetched all closed listings for user with id : {} successfully", userId);
+                logger.info("Fetched all expired listings for user with id : {} successfully", userId);
                 return ResponseEntity.ok(listings);
         }
 
@@ -273,7 +273,7 @@ public class ListingController {
         @SecurityRequirement(name = "cookieAuth")
         public ResponseEntity<Page<ListingResponseDto>> activeListings(
                         @Parameter(description = "Authentication object", required = true) Authentication authentication,
-                        @Parameter(description = "Pagination and sorting parameters") Pageable pageable) {
+                        @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 3, sort = "postedOn") Pageable pageable) {
                 logger.debug("Get all active listings for user with id : {}", Long.parseLong(authentication.getName()));
                 Long userId = Long.parseLong(authentication.getName());
                 Page<ListingResponseDto> listings = listingService.activeListings(userId, pageable);
@@ -291,7 +291,7 @@ public class ListingController {
         @SecurityRequirement(name = "cookieAuth")
         public ResponseEntity<Page<ListingResponseDto>> myListings(
                         @Parameter(description = "Authentication object", required = true) Authentication authentication,
-                        @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 20, sort = "postedOn") Pageable pageable) {
+                        @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 3, sort = "postedOn") Pageable pageable) {
                 logger.debug("Get all my listings for user with id : {}", Long.parseLong(authentication.getName()));
                 Long userId = Long.parseLong(authentication.getName());
                 Page<ListingResponseDto> listings = listingService.myListings(userId, pageable);

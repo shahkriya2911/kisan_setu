@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BuyingRequirement {
+public class BuyingRequirement extends Auditable{
 
     @Id //primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +39,6 @@ public class BuyingRequirement {
     @Enumerated(EnumType.STRING)
     private Urgency urgency;
     private String additionalNote;
-    private LocalDateTime createdAt;
     @Enumerated(EnumType.STRING)
     private RequirementStatus requirementStatus;
 

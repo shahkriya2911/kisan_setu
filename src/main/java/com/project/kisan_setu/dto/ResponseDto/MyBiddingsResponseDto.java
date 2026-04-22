@@ -27,5 +27,6 @@ public class MyBiddingsResponseDto {
     private String unit;
     private String district;
     private BigDecimal minimumBidIncrement;
+    private BigDecimal maximumBidIncrement;
     private Long orderId;
 }
