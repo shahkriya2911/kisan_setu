@@ -1,6 +1,4 @@
 package com.project.kisan_setu.dto.ResponseDto;
-
-import com.project.kisan_setu.entity.StateMaster;
 import com.project.kisan_setu.enums.NotificationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;

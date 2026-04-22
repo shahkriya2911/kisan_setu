@@ -1,8 +1,6 @@
 package com.project.kisan_setu.dto.ResponseDto;
 
 import lombok.*;
-
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter

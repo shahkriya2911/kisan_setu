@@ -1,6 +1,9 @@
 package com.project.kisan_setu.entity;
+import com.project.kisan_setu.enums.ReviewType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -41,4 +44,8 @@ public class RatingAndReview extends Auditable {
 
     @Column(nullable = false)
     private Boolean isSellerReview = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "review_type", nullable = false)
+    private ReviewType reviewType;
 }

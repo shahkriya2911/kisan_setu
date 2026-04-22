@@ -11,7 +11,7 @@ import com.project.kisan_setu.entity.RatingAndReview;
 import com.project.kisan_setu.entity.Report;
 import com.project.kisan_setu.enums.OrderStatus;
 import com.project.kisan_setu.enums.ReportStatus;
-import com.project.kisan_setu.enums.ReportedBy;
+import com.project.kisan_setu.enums.ReviewType;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.RatingReviewMapper;
 import com.project.kisan_setu.mapper.ReportResponseMapper;
@@ -34,7 +34,6 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 
 public class OrderHistoryServiceImpl implements OrderHistoryService {
-    private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
     private final OrderRepository orderRepository;
     private final ValidatorMethods validatorMethods;
     private final RatingReviewRepository ratingReviewRepository;
@@ -118,6 +117,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         review.setRating(requestDto.getRating());
         review.setReview(requestDto.getReview());
         review.setIsBuyerReview(true);
+        review.setReviewType(ReviewType.BUYER);
 
         RatingAndReview saved = ratingReviewRepository.save(review);
 
@@ -159,6 +159,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         review.setRating(requestDto.getRating());
         review.setReview(requestDto.getReview());
         review.setIsBuyerReview(false);
+        review.setReviewType(ReviewType.SELLER);
 
         RatingAndReview saved = ratingReviewRepository.save(review);
 
