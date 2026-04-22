@@ -1,5 +1,6 @@
 package com.project.kisan_setu.security;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -55,9 +56,13 @@ public class JwtUtil {
     }
 
     public boolean isTokenExpired(String token) {
-        return extractAllClaims(token)
-                .getExpiration()
-                .before(new Date());
+        try {
+            return extractAllClaims(token)
+                    .getExpiration()
+                    .before(new Date());
+        } catch (ExpiredJwtException e) {
+            return true;
+        }
     }
 
     public Claims extractAllClaims(String token) {
@@ -71,4 +76,40 @@ public class JwtUtil {
     public String extractTokenType(String token){
         return extractAllClaims(token).get("type",String.class);
     }
+
+    public boolean validateAccessToken(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+
+            return "ACCESS".equals(claims.get("type", String.class))
+                    && !isTokenExpired(token);
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    public boolean validateRefreshToken(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+
+            return "REFRESH".equals(claims.get("type", String.class))
+                    && !isTokenExpired(token);
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    public Claims extractAllClaimsSafe(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
+    }
+
 }
+

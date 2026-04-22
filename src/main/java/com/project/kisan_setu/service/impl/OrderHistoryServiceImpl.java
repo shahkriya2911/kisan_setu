@@ -116,7 +116,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         review.setSeller(order.getListing() != null ? order.getListing().getSeller() : null);
         review.setRating(requestDto.getRating());
         review.setReview(requestDto.getReview());
-        review.setIsBuyerReview(true);
+        review.setIsSellerReview(false);
         review.setReviewType(ReviewType.BUYER);
 
         RatingAndReview saved = ratingReviewRepository.save(review);
