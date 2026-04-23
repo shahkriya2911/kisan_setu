@@ -1,7 +1,11 @@
 package com.project.kisan_setu.controller;
+import com.project.kisan_setu.dto.ResponseDto.ListingChangeEventResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.OrderResponseDto;
 import com.project.kisan_setu.dto.PartialLotRequestDto;
 import com.project.kisan_setu.entity.Order;
+import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.enums.BidStatus;
+import com.project.kisan_setu.enums.SaleType;
 import com.project.kisan_setu.service.OrderService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,10 +35,12 @@ public class OrderController {
     private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
     private final OrderService orderService;
     private final ValidatorMethods validatorMethods;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public OrderController(OrderService orderService, ValidatorMethods validatorMethods) {
+    public OrderController(OrderService orderService, ValidatorMethods validatorMethods, SimpMessagingTemplate messagingTemplate) {
         this.orderService = orderService;
         this.validatorMethods = validatorMethods;
+        this.messagingTemplate = messagingTemplate;
     }
 
     // accept bid
@@ -51,6 +59,8 @@ public class OrderController {
             @PathVariable Long bidId){
         logger.debug("Create order attempt for bid with id : {}",bidId);
         logger.info("Order created for bid with id : {}",bidId);
+        messagingTemplate.convertAndSend("/topic/order/",
+                new ListingChangeEventResponseDto(null,SaleType.AUCTION,AuctionStatus.PENDING, BidStatus.ACCEPTED,null));
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrderFromAcceptedBid(bidId));
     }
 
@@ -71,8 +81,9 @@ public class OrderController {
             @PathVariable Long orderId) {
 
         Long buyerId = validatorMethods.getCurrentUserId();
-
         OrderResponseDto response = orderService.confirmOrder(orderId, buyerId);
+        messagingTemplate.convertAndSend("/topic/order",
+                new ListingChangeEventResponseDto(null,SaleType.AUCTION,AuctionStatus.PENDING,BidStatus.ACCEPTED,null));
         return ResponseEntity.ok(response);
     }
 
@@ -93,6 +104,8 @@ public class OrderController {
         logger.debug("Reject Order attempt for order with id : {}",orderId);
         logger.info("Order rejected for order with id : {}",orderId);
         orderService.rejectOrder(orderId);
+        messagingTemplate.convertAndSend("/topic/order",
+                new ListingChangeEventResponseDto(null,SaleType.AUCTION,AuctionStatus.ACTIVE,BidStatus.REJECTED,null));
         return ResponseEntity.ok("Buyer rejected accepted bid");
     }
 
@@ -130,6 +143,8 @@ public class OrderController {
             @RequestBody PartialLotRequestDto requestDto) {
 
         OrderResponseDto response = orderService.partialLot(listingId, requestDto);
+        messagingTemplate.convertAndSend("/topic/fixed/"+listingId,
+                new ListingChangeEventResponseDto(listingId, SaleType.FIXED, AuctionStatus.SOLD,null,null));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -148,6 +163,8 @@ public class OrderController {
             @PathVariable Long listingId) {
 
         OrderResponseDto response = orderService.wholeLot(listingId);
+        messagingTemplate.convertAndSend("/topic/fixed/"+listingId,
+                new ListingChangeEventResponseDto(listingId,SaleType.FIXED,AuctionStatus.SOLD,null,null));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

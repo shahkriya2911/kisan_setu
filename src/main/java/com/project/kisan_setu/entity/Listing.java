@@ -87,7 +87,6 @@ public class Listing extends Auditable{
     @Column(nullable = false)
     private boolean sellerFlagProcessed = false;
     private Boolean isSold;
-    private BigDecimal remainingQuantity;
 
 
     // Relationship with user

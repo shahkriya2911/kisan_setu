@@ -1,6 +1,7 @@
 package com.project.kisan_setu.controller;
 
 import com.project.kisan_setu.dto.ResponseDto.BuyerListingResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ListingChangeEventResponseDto;
 import com.project.kisan_setu.service.BidService;
 import com.project.kisan_setu.service.BuyerService;
 import com.project.kisan_setu.util.ValidatorMethods;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 
@@ -32,11 +34,14 @@ class BuyerControllerTest {
     @Mock
     private ValidatorMethods validatorMethods;
 
+    @Mock
+    private SimpMessagingTemplate messagingTemplate;
+
     private BuyerController buyerController;
 
     @BeforeEach
     void setUp() {
-        buyerController = new BuyerController(buyerService, bidService, validatorMethods);
+        buyerController = new BuyerController(buyerService, bidService, validatorMethods, messagingTemplate);
     }
 
     @Test

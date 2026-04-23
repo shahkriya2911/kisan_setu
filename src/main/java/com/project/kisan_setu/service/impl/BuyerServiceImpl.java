@@ -150,8 +150,8 @@ public class BuyerServiceImpl implements BuyerService {
         boolean updated = false;
         for (Listing listing : listings) {
 
-            boolean isOutOfStock = listing.getRemainingQuantity() != null &&
-                    listing.getRemainingQuantity().compareTo(BigDecimal.ZERO) <= 0;
+            boolean isOutOfStock = listing.getQuantity() != null &&
+                    listing.getQuantity().compareTo(BigDecimal.ZERO) <= 0;
 
             if (isOutOfStock) {
                 listing.setStatus(AuctionStatus.EXPIRED);
