@@ -103,7 +103,6 @@ public class Listing extends Auditable{
             @AttributeOverride(name = "fileName", column = @Column(name = "file_name")),
             @AttributeOverride(name = "filePath", column = @Column(name = "file_path")),
             @AttributeOverride(name = "fileType", column = @Column(name = "file_type")),
-            @AttributeOverride(name = "issuedDate", column = @Column(name = "issued_date")),
             @AttributeOverride(name = "isPrimary", column = @Column(name = "is_primary"))
     })
     private List<ListingImage> images = new ArrayList<>();

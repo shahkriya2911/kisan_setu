@@ -11,6 +11,7 @@ import com.project.kisan_setu.entity.RatingAndReview;
 import com.project.kisan_setu.entity.Report;
 import com.project.kisan_setu.enums.OrderStatus;
 import com.project.kisan_setu.enums.ReportStatus;
+import com.project.kisan_setu.enums.ReportedBy;
 import com.project.kisan_setu.enums.ReviewType;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.RatingReviewMapper;
@@ -197,8 +198,9 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         report.setReason(requestDto.getReason());
         report.setDescription(requestDto.getDescription());
         report.setReportStatus(ReportStatus.OPEN);
-        report.setIsBuyerReported(true);
-        report.setIsSellerReported(false);
+        report.setIsBuyerReported(false);
+        report.setIsSellerReported(true);
+        report.setReportedBy(ReportedBy.BUYER);
 
         Report saved = reportSellerRepository.save(report);
 
@@ -250,8 +252,9 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         report.setDescription(requestDto.getDescription());
         report.setReportStatus(ReportStatus.OPEN);
 
-        report.setIsSellerReported(true);
-        report.setIsBuyerReported(false);
+        report.setIsSellerReported(false);
+        report.setIsBuyerReported(true);
+        report.setReportedBy(ReportedBy.SELLER);
 
         Report saved = reportSellerRepository.save(report);
         ReportResponseDto responseDto = ReportResponseMapper.mapReportToDto(
