@@ -1,5 +1,4 @@
 package com.project.kisan_setu.service.impl;
-
 import com.project.kisan_setu.dto.AuctionListingResponseDto;
 import com.project.kisan_setu.dto.RequestDto.CreateListingRequest;
 import com.project.kisan_setu.dto.RequestDto.ProductListingDto;
@@ -36,20 +35,10 @@ import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.BuyingRequirementMapper;
 import com.project.kisan_setu.mapper.ListingMapper;
 import com.project.kisan_setu.repository.BidRepository;
-import com.project.kisan_setu.repository.CropRepository;
 import com.project.kisan_setu.repository.ListingRepository;
-import com.project.kisan_setu.repository.UserRepository;
-import com.project.kisan_setu.repository.UnitRepository;
-import com.project.kisan_setu.repository.OrderRepository;
-import com.project.kisan_setu.repository.PackagingRepository;
 import com.project.kisan_setu.repository.BuyingRequirementRepository;
-import com.project.kisan_setu.repository.StateRepository;
-import com.project.kisan_setu.repository.DistrictRepository;
-import com.project.kisan_setu.repository.StorageRepository;
 import com.project.kisan_setu.service.FileStorageService;
 import com.project.kisan_setu.service.ListingService;
-import com.project.kisan_setu.service.NotificationService;
-import com.project.kisan_setu.service.OrderService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
