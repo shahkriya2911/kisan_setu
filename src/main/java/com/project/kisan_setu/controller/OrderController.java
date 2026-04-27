@@ -109,7 +109,6 @@ public class OrderController {
         return ResponseEntity.ok("Buyer rejected accepted bid");
     }
 
-
     @GetMapping("/{orderId}")
     @Operation(description = "User can fetch a particular order",summary = "Get order method")
     @ApiResponses(value = {

@@ -1,6 +1,4 @@
 package com.project.kisan_setu.dto.ResponseDto;
-
-import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
 import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.BidStatus;
 import com.project.kisan_setu.enums.SaleType;
