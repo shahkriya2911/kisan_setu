@@ -43,6 +43,7 @@ import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -62,6 +63,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ListingServiceImpl implements ListingService {
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
     private final ListingRepository listingRepository;
     private final BidRepository bidRepository;
@@ -315,11 +318,18 @@ public class ListingServiceImpl implements ListingService {
         }
     }
 
+
+
     private void deletePhysicalFile(String filePath) {
         logger.info("Deleting file: {}", filePath);
         try {
-            Path path = Paths.get(filePath);
-            Files.deleteIfExists(path);
+            Path fullPath = Paths.get(uploadDir)
+                    .toAbsolutePath()
+                    .normalize()
+                    .resolve(filePath);
+
+            Files.deleteIfExists(fullPath);
+
         } catch (IOException e) {
             logger.error("Failed to delete file: {}", filePath, e);
         }
