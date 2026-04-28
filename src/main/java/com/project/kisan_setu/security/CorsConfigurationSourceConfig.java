@@ -18,7 +18,7 @@ public class CorsConfigurationSourceConfig {
 
         configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:3000",
-                "https://kissansetu.vercel.app/"
+                "https://kissansetu.vercel.app"
         ));
 
         configuration.setAllowedMethods(List.of(
