@@ -2,6 +2,7 @@ package com.project.kisan_setu.service;
 
 import com.project.kisan_setu.dto.RequestDto.BuyingRequirementRequestDto;
 import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.BidResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyerListingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +26,7 @@ public interface BuyerService {
 
     BuyerListingResponseDto getAuctionListingDetail(Long listingId);
 
-    Object placeBid(
+    BidResponseDto placeBid(
             Long listingId,
             PlaceBidRequestDto dto);
 

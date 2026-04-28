@@ -21,7 +21,6 @@ public class NotificationResponseDto {
 
     private NotificationStatus type;
 
-    private LocalDateTime createdTime;
 
     // extra info
     private Long listingId;
@@ -35,9 +34,6 @@ public class NotificationResponseDto {
     private String unit;
 
     private String sellerName;
-    private List<ProductImageResponseDto> images;
     private BigDecimal pricePerKg;
-    private String state;
-    private String district;
     private Boolean actionCompleted;
 }

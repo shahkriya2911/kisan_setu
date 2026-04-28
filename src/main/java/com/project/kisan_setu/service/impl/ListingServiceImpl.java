@@ -36,7 +36,9 @@ import com.project.kisan_setu.mapper.BuyingRequirementMapper;
 import com.project.kisan_setu.mapper.ListingMapper;
 import com.project.kisan_setu.repository.BidRepository;
 import com.project.kisan_setu.repository.ListingRepository;
+
 import com.project.kisan_setu.repository.BuyingRequirementRepository;
+
 import com.project.kisan_setu.service.FileStorageService;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.util.ValidatorMethods;
@@ -364,12 +366,6 @@ public class ListingServiceImpl implements ListingService {
 
         if (listing.getStatus() == AuctionStatus.SOLD) {
             throw new UserException("Cannot delete a SOLD listing", HttpStatus.BAD_REQUEST);
-        }
-
-        long bidCount = bidRepository.countByListing_ListingId(listingId);
-        if (bidCount > 0) {
-            logger.error("Cannot delete listing... Bids already placed...");
-            throw new UserException("Cannot delete listing. Bids already placed.", HttpStatus.BAD_REQUEST);
         }
 
         if (listing.getImages() != null && !listing.getImages().isEmpty()) {

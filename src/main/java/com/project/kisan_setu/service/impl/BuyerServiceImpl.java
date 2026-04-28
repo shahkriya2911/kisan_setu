@@ -214,7 +214,7 @@ public class BuyerServiceImpl implements BuyerService {
 
     @Override
     @Transactional
-    public Object placeBid(Long listingId, PlaceBidRequestDto dto) {
+    public BidResponseDto placeBid(Long listingId, PlaceBidRequestDto dto) {
 
         Long userId = validatorMethods.getCurrentUserId();
         Listing listing = listingRepository.findByIdForUpdate(listingId)
@@ -316,7 +316,6 @@ public class BuyerServiceImpl implements BuyerService {
                     buyer.getFullName(),
                     bid.getBidTime(),
                     BidStatus.PENDING
-
             );
         }
 

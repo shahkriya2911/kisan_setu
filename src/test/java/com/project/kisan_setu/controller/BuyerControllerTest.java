@@ -1,7 +1,6 @@
 package com.project.kisan_setu.controller;
 
 import com.project.kisan_setu.dto.ResponseDto.BuyerListingResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.ListingChangeEventResponseDto;
 import com.project.kisan_setu.service.BidService;
 import com.project.kisan_setu.service.BuyerService;
 import com.project.kisan_setu.util.ValidatorMethods;

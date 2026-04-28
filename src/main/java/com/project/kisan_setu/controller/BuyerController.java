@@ -1,11 +1,8 @@
 package com.project.kisan_setu.controller;
 
 import com.project.kisan_setu.dto.RequestDto.BuyingRequirementRequestDto;
-import com.project.kisan_setu.dto.ResponseDto.BuyerListingResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
-import com.project.kisan_setu.dto.ResponseDto.ListingChangeEventResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.MyBiddingsResponseDto;
 import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.BidStatus;
 import com.project.kisan_setu.enums.SaleType;
@@ -189,14 +186,22 @@ public class BuyerController {
                         @ApiResponse(responseCode = "500", description = "Something went wrong")
         })
         @SecurityRequirement(name = "cookieAuth")
-        public ResponseEntity<Object> placeAction(
+        public ResponseEntity<BidResponseDto> placeAction(
                         @Parameter(description = "Listing ID request", required = true) @PathVariable Long listingId,
                         @Parameter(description = "Bid details", required = true) @RequestBody PlaceBidRequestDto dto) {
                 logger.debug("Post bid for listing with id : {}", listingId);
 
-                Object response = buyerService.placeBid(listingId, dto);
-                messagingTemplate.convertAndSend("/topic/auction/"+listingId,
-                        new ListingChangeEventResponseDto(listingId, SaleType.AUCTION, AuctionStatus.ACTIVE, BidStatus.PENDING,dto.getBuyerAmount()));
+                BidResponseDto response = buyerService.placeBid(listingId, dto);
+                messagingTemplate.convertAndSend("/topic/auctions",
+                        new BuyerChangeEventResponseDto(
+                                listingId, SaleType.AUCTION,
+                                AuctionStatus.ACTIVE,
+                                BidStatus.PENDING,response.getBuyerAmount(),
+                                response));
+            messagingTemplate.convertAndSend("/topic/auctions/"+listingId,
+                    new BuyerChangeEventResponseDto(null,
+                            SaleType.AUCTION,AuctionStatus.ACTIVE,BidStatus.PENDING,response.getBuyerAmount(),
+                            response));
                 logger.info("Bid placed successfully");
                 return ResponseEntity.ok(response);
 

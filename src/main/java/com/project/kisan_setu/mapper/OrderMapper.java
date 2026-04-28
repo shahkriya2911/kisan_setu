@@ -15,6 +15,8 @@ public class OrderMapper {
         dto.setOtp(order.getDeliveryOtp());
         dto.setOtpVerified(order.isOtpVerified());
         dto.setCreatedAt(order.getCreatedAt());
+        dto.setQuantity(order.getQuantity());
+        dto.setTotalBasePrice(order.getTotalBasePrice());
         return dto;
     }
 }

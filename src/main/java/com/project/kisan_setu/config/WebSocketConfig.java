@@ -9,13 +9,23 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+    private final CookiePrincipalHandshakeHandler cookiePrincipalHandshakeHandler;
+
+    public WebSocketConfig(CookiePrincipalHandshakeHandler cookiePrincipalHandshakeHandler) {
+        this.cookiePrincipalHandshakeHandler = cookiePrincipalHandshakeHandler;
+    }
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry){
-        registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();
+        registry.addEndpoint("/ws")
+                .setAllowedOriginPatterns("*")
+                .setHandshakeHandler(cookiePrincipalHandshakeHandler)
+                .withSockJS();
     }
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry){
-        registry.enableSimpleBroker("/topic");
-        registry.setUserDestinationPrefix("/app");
+        registry.enableSimpleBroker("/topic","/queue");
+        registry.setApplicationDestinationPrefixes("/app");
+        registry.setUserDestinationPrefix("/user");
     }
 }

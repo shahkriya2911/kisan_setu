@@ -49,6 +49,7 @@ public class Order extends Auditable{
     private BigDecimal quantity;
 
     private BigDecimal pricePerKg;
+    private BigDecimal totalBasePrice;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;

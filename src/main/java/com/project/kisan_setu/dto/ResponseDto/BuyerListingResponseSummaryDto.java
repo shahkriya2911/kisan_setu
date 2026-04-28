@@ -21,7 +21,7 @@ public class BuyerListingResponseSummaryDto {
     private LocalDate harvestDate;
     private BigDecimal minimumBidIncrement;
     private String grade;
-    private BigDecimal basePrice;
+    private BigDecimal totalBasePrice;
     private BigDecimal pricePerKg;
     private PurchaseType purchaseType;
     private String district;

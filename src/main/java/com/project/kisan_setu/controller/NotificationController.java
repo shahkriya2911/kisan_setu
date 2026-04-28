@@ -11,6 +11,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -20,10 +23,12 @@ import java.util.List;
 public class NotificationController {
     private final NotificationService notificationService;
     private final ValidatorMethods validatorMethods;
+    private final SimpMessagingTemplate messagingTemplate;
     private static final Logger logger = LoggerFactory.getLogger(NotificationController.class);
-    public NotificationController(NotificationService notificationService, ValidatorMethods validatorMethods, NotificationRepository notificationRepository) {
+    public NotificationController(NotificationService notificationService, ValidatorMethods validatorMethods, NotificationRepository notificationRepository, SimpMessagingTemplate messagingTemplate) {
         this.notificationService = notificationService;
         this.validatorMethods = validatorMethods;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @GetMapping
@@ -34,11 +39,12 @@ public class NotificationController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public List<NotificationResponseDto> getUserNotifications() {
+    public ResponseEntity<List<NotificationResponseDto>> getUserNotifications() {
         Long userId = validatorMethods.getCurrentUserId();
         logger.debug("Get notifications for user with id : {} request attempt",userId);
         logger.info("Notifications fetched successfully");
-        return notificationService.getUserNotifications(userId);
+        List<NotificationResponseDto> response = notificationService.getUserNotifications(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PatchMapping("/{id}/read")

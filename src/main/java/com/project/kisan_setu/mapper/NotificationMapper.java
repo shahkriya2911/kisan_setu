@@ -18,7 +18,6 @@ public class NotificationMapper {
         dto.setMessage(n.getMessage());
         dto.setIsRead(n.getIsRead());
         dto.setType(n.getType());
-        dto.setCreatedTime(n.getCreatedAt());
         dto.setActionCompleted(n.getActionCompleted());
 
         // Listing details
@@ -31,18 +30,12 @@ public class NotificationMapper {
                 dto.setCropName(listing.getCrop().getCropName());
             }
             if (n.getType() == NotificationStatus.BID_ACCEPTED){
-                dto.setState(listing.getState().getName());
-                dto.setDistrict(listing.getDistrict().getName());
                 dto.setPricePerKg(listing.getPricePerKg());
             }
 
             dto.setVariety(listing.getVariety());
             dto.setQuantity(listing.getQuantity());
             dto.setUnit(listing.getUnit().getUnitName());
-            // Only include images if NOT BID_PLACED
-            if (n.getType() != NotificationStatus.BID_PLACED) {
-                dto.setImages(mapImages(listing));
-            }
 
             if (listing.getSeller() != null) {
                 dto.setSellerName(listing.getSeller().getFullName());

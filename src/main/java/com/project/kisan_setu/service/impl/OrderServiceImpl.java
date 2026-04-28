@@ -162,7 +162,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public void rejectOrder(Long orderId){
+    public OrderResponseDto rejectOrder(Long orderId){
         Order order = orderRepository.findById(orderId).
                 orElseThrow(()->new NoSuchElementException("Order not found"));
         Long buyerId = validatorMethods.getCurrentUserId();
@@ -199,6 +199,7 @@ public class OrderServiceImpl implements OrderService {
         notificationService.markOrderNotificationHandled(orderId);
         notificationService.createNotification(listing.getSeller(),"Buyer rejected the accepted bid",
                 NotificationStatus.ORDER_CANCELLED,listing,bid,order);
+        return OrderMapper.toDto(order);
     }
 
 //    @Override
@@ -281,13 +282,13 @@ public class OrderServiceImpl implements OrderService {
 
         BigDecimal totalPrice = listing.getPricePerKg().multiply(quantity);
 
-
         BigDecimal remaining = available.subtract(quantity);
         listing.setQuantity(remaining);
 
         if (remaining.compareTo(BigDecimal.ZERO) == 0) {
             listing.setStatus(AuctionStatus.SOLD);
         }
+        listing.setTotalBasePrice(remaining.multiply(listing.getPricePerKg()));
 
         Order order = new Order();
         order.setListing(listing);
@@ -305,6 +306,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOtpGeneratedAt(LocalDateTime.now());
         order.setOtpVerified(false);
         order.setOtpAttempts(0);
+        order.setTotalBasePrice(listing.getTotalBasePrice());
 
         listingRepository.save(listing);
         orderRepository.save(order);
