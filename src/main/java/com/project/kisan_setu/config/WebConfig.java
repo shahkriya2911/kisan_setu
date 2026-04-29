@@ -1,5 +1,4 @@
 package com.project.kisan_setu.config;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -13,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/files/**")
+        registry.addResourceHandler("/api/images/**")
                 .addResourceLocations("file:" + uploadDir + "/");
     }
 }
