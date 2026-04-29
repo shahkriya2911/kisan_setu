@@ -1,12 +1,13 @@
 package com.project.kisan_setu.security;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import com.project.kisan_setu.entity.RefreshToken;
 import com.project.kisan_setu.service.RefreshTokenService;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -35,15 +37,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.debug("Request URI: {}", request.getRequestURI());
 
         try {
-            String accessToken = getCookieValue(request, "accessToken");
 
-            log.debug("Access Token: {}", accessToken);
+            String accessToken = getCookieValue(request, "accessToken");
 
             if (accessToken != null && !accessToken.isBlank()) {
 
                 try {
-                    log.debug("Validating access token...");
-
                     String tokenType = jwtUtil.extractTokenType(accessToken);
 
                     if ("ACCESS".equals(tokenType)) {
@@ -51,112 +50,110 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                         setAuthentication(userId);
 
-                        log.debug(" Access token VALID. User: {}", userId);
+                        log.debug("Access token valid for user: {}", userId);
                     }
 
                 } catch (ExpiredJwtException e) {
-                    log.warn(" Access token expired → trying refresh");
+                    log.warn("Access token expired → trying refresh");
                     handleRefreshToken(request, response);
                 }
 
             } else {
-
-                log.warn(" Access token missing → trying refresh");
+                log.warn("Access token missing → trying refresh");
                 handleRefreshToken(request, response);
             }
 
         } catch (Exception e) {
-            log.error(" Unexpected error in JWT filter", e);
+            log.error("Unexpected error in JWT filter", e);
             SecurityContextHolder.clearContext();
         }
 
-
-        if (SecurityContextHolder.getContext().getAuthentication() != null) {
-            log.debug("Final Authentication: {}",
-                    SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        } else {
-            log.warn(" No authentication - 403 likely");
-        }
-
-        log.debug("-- JWT FILTER END ---");
         filterChain.doFilter(request, response);
     }
 
-    private void handleRefreshToken(HttpServletRequest request, HttpServletResponse response) {
+
+    private void handleRefreshToken(HttpServletRequest request,
+                                    HttpServletResponse response) {
 
         String refreshToken = getCookieValue(request, "refreshToken");
 
-        log.debug("Refresh Token: {}", refreshToken);
-
         if (refreshToken != null && !refreshToken.isBlank()) {
+
             try {
 
-                log.debug("Rotating refresh token...");
-
-
-                RefreshToken newToken = refreshTokenService.rotateRefreshToken(refreshToken);
+                RefreshToken newToken =
+                        refreshTokenService.rotateRefreshToken(refreshToken);
 
                 Long userId = newToken.getUser().getUserId();
 
-                log.debug("Refresh token valid for user: {}", userId);
+                String newAccessToken =
+                        jwtUtil.generateAccessToken(userId);
 
 
-                String newAccessToken = jwtUtil.generateAccessToken(userId);
+                ResponseCookie accessCookie = ResponseCookie.from("accessToken", newAccessToken)
+                        .httpOnly(true)
+                        .secure(true)          // required for Vercel/HTTPS
+                        .path("/")
+                        .sameSite("None")      // required for cross-site cookies
+                        .maxAge(jwtUtil.getAccessExpiration() / 1000)
+                        .build();
 
 
-                Cookie accessCookie = new Cookie("accessToken", newAccessToken);
-                accessCookie.setHttpOnly(true);
-                accessCookie.setPath("/");
-                accessCookie.setMaxAge((int) (jwtUtil.getAccessExpiration() / 1000));
+                ResponseCookie refreshCookie = ResponseCookie.from("refreshToken",
+                                newToken.getRefreshToken())
+                        .httpOnly(true)
+                        .secure(true)
+                        .path("/")
+                        .sameSite("None")
+                        .maxAge(jwtUtil.getRefreshExpiration() / 1000)
+                        .build();
 
-                response.addCookie(accessCookie);
-
-                log.debug(" New access token cookie set");
-
-
-                Cookie refreshCookie = new Cookie("refreshToken", newToken.getRefreshToken());
-                refreshCookie.setHttpOnly(true);
-                refreshCookie.setPath("/");
-                refreshCookie.setMaxAge((int) (jwtUtil.getRefreshExpiration() / 1000));
-
-                response.addCookie(refreshCookie);
-
-                log.debug(" New refresh token cookie set");
+                response.addHeader("Set-Cookie", accessCookie.toString());
+                response.addHeader("Set-Cookie", refreshCookie.toString());
 
                 setAuthentication(userId);
 
-                log.debug(" User authenticated after refresh: {}", userId);
+                log.debug("Tokens refreshed successfully for user: {}", userId);
 
             } catch (Exception ex) {
-                log.error(" Refresh failed - invalid/expired token", ex);
+                log.error("Refresh token failed", ex);
                 SecurityContextHolder.clearContext();
             }
 
         } else {
-            log.warn(" Refresh token NOT found");
+            log.warn("Refresh token missing");
             SecurityContextHolder.clearContext();
         }
     }
 
+    /**
+     * Read cookie safely
+     */
     private String getCookieValue(HttpServletRequest request, String name) {
+
         if (request.getCookies() == null) return null;
 
-        for (Cookie cookie : request.getCookies()) {
+        for (var cookie : request.getCookies()) {
             if (name.equals(cookie.getName())) {
                 return cookie.getValue();
             }
         }
+
         return null;
     }
 
+    /**
+     * Set authentication in SecurityContext
+     */
     private void setAuthentication(Long userId) {
-        UsernamePasswordAuthenticationToken authentication =
+
+        UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(
                         userId,
                         null,
                         List.of(new SimpleGrantedAuthority("ROLE_USER"))
                 );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 }
