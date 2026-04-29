@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class RatingReviewMapper {
+
     public static ReviewResponseDto mapReviewToDto(RatingAndReview review) {
 
         if (review == null) {
@@ -21,7 +22,6 @@ public class RatingReviewMapper {
                         ? review.getOrder().getOrderId()
                         : null)
 
-
                 .buyerId(review.getBuyer() != null
                         ? review.getBuyer().getUserId()
                         : null)
@@ -29,7 +29,6 @@ public class RatingReviewMapper {
                 .buyerName(review.getBuyer() != null
                         ? review.getBuyer().getFullName()
                         : null)
-
 
                 .sellerId(review.getSeller() != null
                         ? review.getSeller().getUserId()
@@ -40,10 +39,13 @@ public class RatingReviewMapper {
                         : null)
 
 
-                .isBuyerReview(review.getIsBuyerReview() != null
-                        ? review.getIsBuyerReview()
+                .buyerReview(review.getBuyerReview() != null
+                        ? review.getBuyerReview()
                         : false)
 
+                .sellerReview(review.getSellerReview() != null
+                        ? review.getSellerReview()
+                        : false)
 
                 .createdAt(review.getCreatedAt() != null
                         ? review.getCreatedAt().toString()
