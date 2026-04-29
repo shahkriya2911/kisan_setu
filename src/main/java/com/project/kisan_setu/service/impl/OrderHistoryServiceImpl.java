@@ -114,8 +114,8 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         review.setSeller(order.getListing() != null ? order.getListing().getSeller() : null);
         review.setRating(requestDto.getRating());
         review.setReview(requestDto.getReview());
-        review.setIsBuyerReview(true);
-        review.setIsSellerReview(false);
+        review.setBuyerReview(true);
+        review.setSellerReview(false);
         review.setReviewType(ReviewType.BUYER);
         RatingAndReview saved = ratingReviewRepository.save(review);
 
@@ -156,8 +156,8 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         review.setSeller(order.getListing().getSeller());
         review.setRating(requestDto.getRating());
         review.setReview(requestDto.getReview());
-        review.setIsBuyerReview(false);
-        review.setIsSellerReview(true);
+        review.setBuyerReview(false);
+        review.setSellerReview(true);
         review.setReviewType(ReviewType.SELLER);
         RatingAndReview saved = ratingReviewRepository.save(review);
 

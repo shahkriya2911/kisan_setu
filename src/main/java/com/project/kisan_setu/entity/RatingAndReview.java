@@ -40,10 +40,10 @@ public class RatingAndReview extends Auditable {
     private User seller;
 
     @Column(nullable = false)
-    private Boolean isBuyerReview = false;
+    private Boolean buyerReview = false;
 
     @Column(nullable = false)
-    private Boolean isSellerReview = false;
+    private Boolean sellerReview = false;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "review_type", nullable = false)
