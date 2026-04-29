@@ -427,47 +427,27 @@ public class UserController {
                                 refreshToken.getRefreshToken());
         }
 
-        private void writeTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
-                ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
-                                .httpOnly(true)
-                                .secure(secureCookie)
-                                .path("/")
-                                .maxAge(jwtUtil.getAccessExpiration() / 1000)
-                                .sameSite("Lax")
-                                .build();
+    private void writeTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
 
-                ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
-                                .httpOnly(true)
-                                .secure(secureCookie)
-                                .path("/")
-                                .maxAge(jwtUtil.getRefreshExpiration() / 1000)
-                                .sameSite("Lax")
-                                .build();
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("None")
+                .maxAge(jwtUtil.getAccessExpiration() / 1000)
+                .build();
 
-                response.addHeader("Set-Cookie", accessCookie.toString());
-                response.addHeader("Set-Cookie", refreshCookie.toString());
-        }
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("None")
+                .maxAge(jwtUtil.getRefreshExpiration() / 1000)
+                .build();
 
-        private void clearAuthCookies(HttpServletResponse response) {
-                ResponseCookie clearAccessCookie = ResponseCookie.from("accessToken", "")
-                                .httpOnly(true)
-                                .secure(secureCookie)
-                                .path("/")
-                                .maxAge(0)
-                                .sameSite("Lax")
-                                .build();
-
-                ResponseCookie clearRefreshCookie = ResponseCookie.from("refreshToken", "")
-                                .httpOnly(true)
-                                .secure(secureCookie)
-                                .path("/")
-                                .maxAge(0)
-                                .sameSite("Lax")
-                                .build();
-                response.addHeader("Set-Cookie", clearAccessCookie.toString());
-                response.addHeader("Set-Cookie", clearRefreshCookie.toString());
-        }
-
+        response.addHeader("Set-Cookie", accessCookie.toString());
+        response.addHeader("Set-Cookie", refreshCookie.toString());
+    }
         private String resolveRefreshToken(HttpServletRequest request,
                         RefreshTokenRequestDto body) {
 
@@ -497,4 +477,25 @@ public class UserController {
                 }
                 return Optional.empty();
         }
+    private void clearAuthCookies(HttpServletResponse response) {
+
+        ResponseCookie clearAccessCookie = ResponseCookie.from("accessToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+
+        ResponseCookie clearRefreshCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+
+        response.addHeader("Set-Cookie", clearAccessCookie.toString());
+        response.addHeader("Set-Cookie", clearRefreshCookie.toString());
+    }
 }
