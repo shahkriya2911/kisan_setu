@@ -32,7 +32,7 @@ public class BuyerListingResponseDto {
     private BigDecimal minimumBidIncrement;
     private BigDecimal maximumBidIncrement;
     private String grade;
-    private BigDecimal basePrice;
+    private BigDecimal totalBasePrice;
     private BigDecimal pricePerKg;
     private PurchaseType purchaseType;
     private String district;

@@ -8,7 +8,7 @@ public interface OrderService {
 
     OrderResponseDto confirmOrder(Long orderId, Long buyerId);
 
-    void rejectOrder(Long orderId);
+    OrderResponseDto rejectOrder(Long orderId);
 
     Order getOrder(Long orderId);
 

@@ -5,16 +5,7 @@ import com.project.kisan_setu.dto.RequestDto.LoginRequestDto;
 import com.project.kisan_setu.dto.RequestDto.RefreshTokenRequestDto;
 import com.project.kisan_setu.dto.RequestDto.UpdateUserRequestDto;
 import com.project.kisan_setu.dto.RequestDto.UserProfileRequestDto;
-import com.project.kisan_setu.dto.ResponseDto.AccountSettingResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.ApiResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.ChangePasswordResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.KycStatusResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.LoginResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.ProfileDataResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.ProfilePhotoResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.SignupResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.UserProfileResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.UserResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.entity.RefreshToken;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.exception.UserException;
@@ -43,6 +34,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -112,6 +104,23 @@ public class UserController {
 
                 logger.info("Login successful for email: {}", user.getEmail());
                 return ResponseEntity.ok(responseDto);
+        }
+
+        @GetMapping("/me")
+        @Operation(summary = "user details method", description = "This method is used for user details")
+        @ApiResponses(value = {
+                @ApiResponse(responseCode = "200", description = "User details fetched successfully"),
+                @ApiResponse(responseCode = "400", description = "Bad user credentials"),
+                @ApiResponse(responseCode = "500", description = "Something went wrong")
+        })
+        @SecurityRequirement(name = "cookieAuth")
+        public ResponseEntity<CurrentUserDto> userDetails(){
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Long userId = Long.parseLong(authentication.getName());
+            User user = userRepository.findById(userId).
+                    orElseThrow(()->new RuntimeException("User not found"));
+            CurrentUserDto response = new CurrentUserDto(user.getUserId(),user.getFullName(),user.getEmail());
+            return ResponseEntity.ok(response);
         }
 
         @PostMapping("/refresh")

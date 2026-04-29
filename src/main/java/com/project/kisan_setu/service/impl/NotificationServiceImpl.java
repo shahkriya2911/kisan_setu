@@ -12,6 +12,7 @@ import com.project.kisan_setu.service.NotificationService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -19,13 +20,15 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private static final Logger logger = LoggerFactory.getLogger(NotificationServiceImpl.class);
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, SimpMessagingTemplate messagingTemplate) {
         this.notificationRepository = notificationRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @Override
-    public void createNotification(User user, String message, NotificationStatus type
+    public NotificationResponseDto createNotification(User user, String message, NotificationStatus type
     , Listing listing, Bid bid, Order order) {
         logger.info("Notifying buyer....");
         Notification notification = new Notification();
@@ -36,6 +39,9 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setBid(bid);
         notification.setOrder(order);
         notificationRepository.save(notification);
+        NotificationResponseDto response = NotificationMapper.toDto(notification);
+        messagingTemplate.convertAndSendToUser(user.getUserId().toString(),"/queue/notifications",response);
+        return response;
     }
     public List<NotificationResponseDto> getUserNotifications(Long userId) {
         List<Notification> notifications = notificationRepository.findByUser_UserIdOrderByCreatedAtDesc(userId);

@@ -47,7 +47,7 @@ public class ListingMapper {
         dto.setMaximumBidIncrement(listing.getMaximumBidIncrement());
         dto.setPurchaseType(listing.getPurchaseType());
         dto.setSaleType(listing.getSaleType() != null
-                ? listing.getSaleType().name()
+                ? listing.getSaleType()
                 : null);
         dto.setAuctionEndTime(listing.getAuctionEndTime());
 
