@@ -1,5 +1,4 @@
 package com.project.kisan_setu.service.impl;
-
 import com.project.kisan_setu.dto.RequestDto.ChangePasswordRequestDto;
 import com.project.kisan_setu.dto.RequestDto.CreateUserRequestDto;
 import com.project.kisan_setu.dto.RequestDto.LoginRequestDto;
@@ -26,6 +25,7 @@ import com.project.kisan_setu.repository.AadhaarVerificationRepository;
 import com.project.kisan_setu.repository.BankAccountVerificationRepository;
 import com.project.kisan_setu.repository.PanCardVerificationRepository;
 import com.project.kisan_setu.repository.UserRepository;
+import com.project.kisan_setu.service.FileStorageService;
 import com.project.kisan_setu.service.NotificationService;
 import com.project.kisan_setu.service.RefreshTokenService;
 import com.project.kisan_setu.service.UserService;
@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
     private final RefreshTokenService refreshTokenService;
     private final PanCardVerificationRepository panCardVerificationRepository;
     private final AadhaarVerificationRepository aadhaarVerificationRepository;
-    private final NotificationService notificationService;
+    private final FileStorageService fileStorageService;
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private static final long MAX_SIZE = 5 * 1024 * 1024L;
@@ -204,18 +204,17 @@ public class UserServiceImpl implements UserService {
 
         // delete old photo
         if (user.getProfilePhoto() != null && !user.getProfilePhoto().isBlank()) {
-            deleteOldPhoto(user.getProfilePhoto());
+            deletePhysicalFile(user.getProfilePhoto());
         }
 
-        String filename = buildFilename(userId, file.getOriginalFilename());
-        saveFile(file, filename);
+        String path = fileStorageService.storeFile(file, "profile-photos");
 
-        user.setProfilePhoto(filename);
+        user.setProfilePhoto(path);
         userRepository.save(user);
 
         return ProfilePhotoResponseDto.builder()
                 .fileName(file.getOriginalFilename())
-                .filePath("/profile-photos/" + filename)
+                .filePath("/files/" + path)
                 .fileType(file.getContentType())
                 .isPrimary(true)
                 .build();
@@ -243,7 +242,7 @@ public class UserServiceImpl implements UserService {
 
         return ProfilePhotoResponseDto.builder()
                 .fileName(fileName)
-                .filePath("/profile-photos/" + fileName)
+                .filePath("/files/" + fileName)
                 .fileType(getFileType(fileName))
                 .isPrimary(true)
                 .build();
@@ -302,13 +301,12 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Failed to save file");
         }
     }
-    private void deleteOldPhoto(String filename) {
+    private void deletePhysicalFile(String filePath) {
         try {
-            Path path = Paths.get(uploadDir, "uploads", "profile-photos")
-                    .resolve(filename);
-
+            Path path = Paths.get(uploadDir).resolve(filePath);
             Files.deleteIfExists(path);
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            logger.error("Failed to delete file: {}", filePath, e);
         }
     }
 

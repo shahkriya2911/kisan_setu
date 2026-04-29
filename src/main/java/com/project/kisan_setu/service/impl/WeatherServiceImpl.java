@@ -1,5 +1,4 @@
 package com.project.kisan_setu.service.impl;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.kisan_setu.client.WeatherApiClient;

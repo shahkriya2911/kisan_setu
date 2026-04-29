@@ -61,6 +61,7 @@ class JacksonSerializationTest {
                 "kg",
                 BigDecimal.valueOf(2500),
                 BigDecimal.valueOf(50),
+                BigDecimal.valueOf(100),
                 5L,
                 3L,
                 AuctionStatus.ACTIVE,

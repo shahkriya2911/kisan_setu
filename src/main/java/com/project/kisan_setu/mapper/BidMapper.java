@@ -24,6 +24,7 @@ public class BidMapper {
         dto.setDistrict(bid.getListing().getDistrict().getName());
         dto.setUnit(bid.getListing().getUnit().getUnitName());
         dto.setMinimumBidIncrement(bid.getListing().getMinimumBidIncrement());
+        dto.setMaximumBidIncrement(bid.getListing().getMaximumBidIncrement());
         dto.setOrderId(orderId);
         return dto;
     }

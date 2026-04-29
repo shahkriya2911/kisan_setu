@@ -1,10 +1,11 @@
 package com.project.kisan_setu.controller;
 
 import com.project.kisan_setu.dto.RequestDto.BuyingRequirementRequestDto;
-import com.project.kisan_setu.dto.ResponseDto.BuyerListingResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
-import com.project.kisan_setu.dto.ResponseDto.MyBiddingsResponseDto;
+import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.enums.BidStatus;
+import com.project.kisan_setu.enums.SaleType;
 import com.project.kisan_setu.service.BidService;
 import com.project.kisan_setu.service.BuyerService;
 import com.project.kisan_setu.util.ValidatorMethods;
@@ -20,8 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,6 +40,7 @@ public class BuyerController {
         private final BidService bidService;
         private final ValidatorMethods validatorMethods;
         private static final Logger logger = LoggerFactory.getLogger(BuyerController.class);
+        private final SimpMessagingTemplate messagingTemplate;
 
         @PostMapping("/buyer-requirement")
         @Operation(summary = "Create buyer requirement method", description = "Used by buyer to create a buying requirement")
@@ -52,6 +56,41 @@ public class BuyerController {
                 logger.debug("Create buyer requirement request attempt for buyer");
                 logger.info("Buyer requirement created successfully");
                 return buyerService.postRequirement(dto);
+        }
+
+        @GetMapping("/buyer-requirement")
+        @Operation(summary = "Get my buyer requirements method", description = "Used by buyer to get their own buyer requirements with pagination and crop search")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Buyer requirements fetched successfully"),
+                        @ApiResponse(responseCode = "401", description = "Unauthorized user"),
+                        @ApiResponse(responseCode = "500", description = "Something went wrong")
+        })
+        @SecurityRequirement(name = "cookieAuth")
+        public ResponseEntity<Page<BuyingRequirementResponseDto>> getMyRequirements(
+                        @RequestParam(required = false) String cropName,
+                        @RequestParam(name = "search", required = false) String search,
+                        @PageableDefault(size = 10, sort = "requirementId", direction = Sort.Direction.DESC) Pageable pageable) {
+                logger.debug("Get my buyer requirements request attempt");
+                return ResponseEntity.ok(buyerService.getMyRequirements(pageable,
+                                resolveCropNameFilter(cropName, search)));
+        }
+
+        @DeleteMapping("/buyer-requirement/{requirementId}")
+        @Operation(summary = "Delete buyer requirement method", description = "Used by buyer to delete their own buyer requirement")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Buyer requirement deleted successfully"),
+                        @ApiResponse(responseCode = "401", description = "Unauthorized user"),
+                        @ApiResponse(responseCode = "403", description = "Forbidden"),
+                        @ApiResponse(responseCode = "404", description = "Requirement not found"),
+                        @ApiResponse(responseCode = "500", description = "Something went wrong")
+        })
+        @SecurityRequirement(name = "cookieAuth")
+        public ResponseEntity<String> deleteRequirement(
+                        @Parameter(description = "Requirement ID request", required = true) @PathVariable Long requirementId) {
+                logger.debug("Delete buyer requirement request attempt for requirement id : {}", requirementId);
+                buyerService.deleteRequirement(requirementId);
+                logger.info("Buyer requirement deleted successfully");
+                return ResponseEntity.ok("Buyer requirement deleted successfully");
         }
 
         // get all auction listings
@@ -136,7 +175,7 @@ public class BuyerController {
                 return ResponseEntity.ok(buyerService.getFixedListingDetail(listingId));
         }
 
-        // post a bid in a particular auction or fixed listing
+        // post a bid in a particular auction
         @PostMapping("/{listingId}/auctions")
         @Operation(summary = "Place bid method", description = "Used by buyer to place a bid on a listing")
         @ApiResponses(value = {
@@ -147,12 +186,22 @@ public class BuyerController {
                         @ApiResponse(responseCode = "500", description = "Something went wrong")
         })
         @SecurityRequirement(name = "cookieAuth")
-        public ResponseEntity<Object> placeAction(
+        public ResponseEntity<BidResponseDto> placeAction(
                         @Parameter(description = "Listing ID request", required = true) @PathVariable Long listingId,
                         @Parameter(description = "Bid details", required = true) @RequestBody PlaceBidRequestDto dto) {
                 logger.debug("Post bid for listing with id : {}", listingId);
 
-                Object response = buyerService.placeBid(listingId, dto);
+                BidResponseDto response = buyerService.placeBid(listingId, dto);
+                messagingTemplate.convertAndSend("/topic/auctions",
+                        new BuyerChangeEventResponseDto(
+                                listingId, SaleType.AUCTION,
+                                AuctionStatus.ACTIVE,
+                                BidStatus.PENDING,response.getBuyerAmount(),
+                                response));
+            messagingTemplate.convertAndSend("/topic/auctions/"+listingId,
+                    new BuyerChangeEventResponseDto(null,
+                            SaleType.AUCTION,AuctionStatus.ACTIVE,BidStatus.PENDING,response.getBuyerAmount(),
+                            response));
                 logger.info("Bid placed successfully");
                 return ResponseEntity.ok(response);
 

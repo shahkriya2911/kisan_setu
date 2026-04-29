@@ -8,6 +8,7 @@ public class AuctionMapper {
         AuctionInfoDto dto = new AuctionInfoDto();
         dto.setBasePricePerKg(listing.getPricePerKg());
         dto.setMinBidIncrement(listing.getMinimumBidIncrement());
+        dto.setMaxBidIncrement(listing.getMaximumBidIncrement());
         dto.setTotalLotValue(
                 listing.getPricePerKg()
                         .multiply(listing.getQuantity())

@@ -7,10 +7,7 @@ import java.util.List;
 public interface SchemeService {
      SchemeResponseDto createScheme(SchemeRequestDto dto);
      SchemeResponseDto getSchemeById(Long schemeId);
-
      List<SchemeResponseDto> getAllSchemes();
-
-    public SchemeResponseDto updateSchemeById(Long schemeId, SchemeRequestDto dto);
-
-    public void deleteScheme(Long id);
+     SchemeResponseDto updateSchemeById(Long schemeId, SchemeRequestDto dto);
+     void deleteScheme(Long id);
 }

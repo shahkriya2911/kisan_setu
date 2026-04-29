@@ -1,21 +1,14 @@
 package com.project.kisan_setu.controller;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.kisan_setu.dto.RequestDto.CreateListingRequest;
 import com.project.kisan_setu.dto.RequestDto.ExtendAuctionDto;
-import com.project.kisan_setu.dto.ResponseDto.BuyerContactResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.DashboardDto;
-import com.project.kisan_setu.dto.ResponseDto.ListingResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.ListingSummaryResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.RecentBidResponseDto;
-import com.project.kisan_setu.dto.ResponseDto.SellerListingDto;
-import com.project.kisan_setu.dto.ResponseDto.SellerListingFixedDto;
+import com.project.kisan_setu.dto.ResponseDto.*;
+import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.enums.SaleType;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.UserService;
 import com.project.kisan_setu.util.ValidatorMethods;
-import com.sun.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -33,6 +26,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,6 +51,7 @@ public class ListingController {
         private final UserService userService;
         private final ValidatorMethods validatorMethods;
         private static final Logger logger = LoggerFactory.getLogger(ListingController.class);
+        private final SimpMessagingTemplate messagingTemplate;
 
         @Autowired
         private ObjectMapper objectMapper;
@@ -78,8 +73,14 @@ public class ListingController {
                 CreateListingRequest request = objectMapper.readValue(requestJson, CreateListingRequest.class);
                 Long sellerId = validatorMethods.getCurrentUserId();
                 logger.info("listing created successfully for user with id : {}", sellerId);
+                ListingResponseDto response = listingService.createListing(request, imageFiles, certificateFile);
+                if (response.getSaleType()==SaleType.AUCTION){
+                    messagingTemplate.convertAndSend("/topic/auctions",response);
+                }else {
+                messagingTemplate.convertAndSend("/topic/fixed",response);
+                }
                 return ResponseEntity.status(HttpStatus.CREATED)
-                                .body(listingService.createListing(request, imageFiles, certificateFile));
+                                .body(response);
         }
 
         @PutMapping(value = "/{listingId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -145,6 +146,19 @@ public class ListingController {
                                 listingId, sellerId);
                 listingService.deleteListing(listingId, sellerId);
                 logger.info("Delete listing with id : {} successful", listingId);
+                messagingTemplate.convertAndSend("/topic/auctions",
+                        new ListingChangeEventResponseDto(
+                                listingId, SaleType.AUCTION,
+                                AuctionStatus.EXPIRED));
+            messagingTemplate.convertAndSend("/topic/auctions/"+listingId,
+                    new ListingChangeEventResponseDto(
+                            null, SaleType.AUCTION, AuctionStatus.EXPIRED));
+            messagingTemplate.convertAndSend("/topic/fixed",
+                    new ListingChangeEventResponseDto(
+                            listingId, SaleType.FIXED, AuctionStatus.EXPIRED));
+            messagingTemplate.convertAndSend("/topic/fixed/"+listingId,
+                    new ListingChangeEventResponseDto(
+                            null, SaleType.FIXED, AuctionStatus.EXPIRED));
                 return ResponseEntity.ok("Listing Deleted Successfully");
         }
 
@@ -220,7 +234,7 @@ public class ListingController {
         @SecurityRequirement(name = "cookieAuth")
         public ResponseEntity<Page<ListingResponseDto>> pendingListings(
                         @Parameter(description = "Authentication object", required = true) Authentication authentication,
-                        @Parameter(description = "Pagination and sorting parameters") Pageable pageable) {
+                        @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 3, sort = "postedOn") Pageable pageable) {
                 logger.debug("Get all pending listings for user with id : {}",
                                 Long.parseLong(authentication.getName()));
                 Long userId = Long.parseLong(authentication.getName());
@@ -239,7 +253,7 @@ public class ListingController {
         @SecurityRequirement(name = "cookieAuth")
         public ResponseEntity<Page<ListingResponseDto>> soldListings(
                         @Parameter(description = "Authentication object", required = true) Authentication authentication,
-                        @Parameter(description = "Pagination and sorting parameters") Pageable pageable) {
+                        @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 3, sort = "postedOn") Pageable pageable) {
                 logger.debug("Get all sold listings for user with id : {}", Long.parseLong(authentication.getName()));
                 Long userId = Long.parseLong(authentication.getName());
                 Page<ListingResponseDto> listings = listingService.soldListings(userId, pageable);
@@ -247,8 +261,8 @@ public class ListingController {
                 return ResponseEntity.ok(listings);
         }
 
-        @GetMapping("/my-closed")
-        @Operation(summary = "Get closed listings", description = "Used by seller to get their closed listings")
+        @GetMapping("/my-expired")
+        @Operation(summary = "Get expired listings", description = "Used by seller to get their closed listings")
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "Closed listings fetched successfully"),
                         @ApiResponse(responseCode = "401", description = "Unauthorized user"),
@@ -257,11 +271,11 @@ public class ListingController {
         @SecurityRequirement(name = "cookieAuth")
         public ResponseEntity<Page<ListingResponseDto>> closedListings(
                         @Parameter(description = "Authentication object", required = true) Authentication authentication,
-                        @Parameter(description = "Pagination and sorting parameters") Pageable pageable) {
-                logger.debug("Get all closed listings for user with id : {}", Long.parseLong(authentication.getName()));
+                        @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 3, sort = "postedOn") Pageable pageable) {
+                logger.debug("Get all expired listings for user with id : {}", Long.parseLong(authentication.getName()));
                 Long userId = Long.parseLong(authentication.getName());
                 Page<ListingResponseDto> listings = listingService.closedListings(userId, pageable);
-                logger.info("Fetched all closed listings for user with id : {} successfully", userId);
+                logger.info("Fetched all expired listings for user with id : {} successfully", userId);
                 return ResponseEntity.ok(listings);
         }
 
@@ -275,7 +289,7 @@ public class ListingController {
         @SecurityRequirement(name = "cookieAuth")
         public ResponseEntity<Page<ListingResponseDto>> activeListings(
                         @Parameter(description = "Authentication object", required = true) Authentication authentication,
-                        @Parameter(description = "Pagination and sorting parameters") Pageable pageable) {
+                        @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 3, sort = "postedOn") Pageable pageable) {
                 logger.debug("Get all active listings for user with id : {}", Long.parseLong(authentication.getName()));
                 Long userId = Long.parseLong(authentication.getName());
                 Page<ListingResponseDto> listings = listingService.activeListings(userId, pageable);
@@ -293,7 +307,7 @@ public class ListingController {
         @SecurityRequirement(name = "cookieAuth")
         public ResponseEntity<Page<ListingResponseDto>> myListings(
                         @Parameter(description = "Authentication object", required = true) Authentication authentication,
-                        @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 20, sort = "postedOn") Pageable pageable) {
+                        @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 3, sort = "postedOn") Pageable pageable) {
                 logger.debug("Get all my listings for user with id : {}", Long.parseLong(authentication.getName()));
                 Long userId = Long.parseLong(authentication.getName());
                 Page<ListingResponseDto> listings = listingService.myListings(userId, pageable);

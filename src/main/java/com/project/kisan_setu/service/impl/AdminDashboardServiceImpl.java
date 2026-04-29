@@ -1,5 +1,8 @@
 package com.project.kisan_setu.service.impl;
-import com.project.kisan_setu.dto.ResponseDto.*;
+import com.project.kisan_setu.dto.ResponseDto.AdminDashboardResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ReportResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.UserDistributionDto;
+import com.project.kisan_setu.dto.ResponseDto.UserManagementDto;
 import com.project.kisan_setu.entity.Dispute;
 import com.project.kisan_setu.entity.Report;
 import com.project.kisan_setu.entity.User;
@@ -7,7 +10,11 @@ import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.DisputeStatus;
 import com.project.kisan_setu.enums.OrderStatus;
 import com.project.kisan_setu.enums.ReportStatus;
-import com.project.kisan_setu.repository.*;
+import com.project.kisan_setu.repository.DisputeRepository;
+import com.project.kisan_setu.repository.ListingRepository;
+import com.project.kisan_setu.repository.OrderRepository;
+import com.project.kisan_setu.repository.ReportUserRepository;
+import com.project.kisan_setu.repository.UserRepository;
 import com.project.kisan_setu.service.AdminDashboardService;
 import com.project.kisan_setu.service.EmailService;
 import com.project.kisan_setu.util.ValidatorMethods;
@@ -218,7 +225,6 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
             ReportResponseDto dto = new ReportResponseDto();
 
             dto.setReportId(report.getReportId());
-            dto.setTransactionId("TXN" + report.getOrder().getOrderId());
             dto.setBuyerName(String.valueOf(report.getBuyer()));
             dto.setSellerName(String.valueOf(report.getSeller()));
             dto.setIssueType(report.getReason());
@@ -238,7 +244,6 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
 
         ReportResponseDto responseDto = new ReportResponseDto();
         responseDto.setReportId(report.getReportId());
-        responseDto.setTransactionId(String.valueOf(report.getOrder().getOrderId()));
         responseDto.setBuyerName(report.getBuyer().getFullName());
         responseDto.setSellerName(report.getSeller().getFullName());
         responseDto.setStatus(report.getReportStatus().name());

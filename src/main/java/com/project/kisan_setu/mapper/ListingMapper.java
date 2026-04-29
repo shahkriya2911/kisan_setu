@@ -10,8 +10,13 @@ import com.project.kisan_setu.dto.ResponseDto.ProductImageResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.QualityCertificateResponseDto;
 import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
-import com.project.kisan_setu.entity.*;
-
+import com.project.kisan_setu.entity.CropMaster;
+import com.project.kisan_setu.entity.DistrictMaster;
+import com.project.kisan_setu.entity.Listing;
+import com.project.kisan_setu.entity.PackagingMaster;
+import com.project.kisan_setu.entity.StateMaster;
+import com.project.kisan_setu.entity.StorageMaster;
+import com.project.kisan_setu.entity.UnitMaster;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,9 +44,10 @@ public class ListingMapper {
         dto.setPricePerKg(listing.getPricePerKg());
         dto.setTotalBasePrice(listing.getTotalBasePrice());
         dto.setMinimumBidIncrement(listing.getMinimumBidIncrement());
+        dto.setMaximumBidIncrement(listing.getMaximumBidIncrement());
         dto.setPurchaseType(listing.getPurchaseType());
         dto.setSaleType(listing.getSaleType() != null
-                ? listing.getSaleType().name()
+                ? listing.getSaleType()
                 : null);
         dto.setAuctionEndTime(listing.getAuctionEndTime());
 
@@ -168,6 +174,7 @@ public class ListingMapper {
         listing.setTotalBasePrice(pricingDto.getTotalBasePrice());
         listing.setPurchaseType(pricingDto.getPurchaseType());
         listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
+        listing.setMaximumBidIncrement(pricingDto.getMaximumBidIncrement());
         listing.setSaleType(pricingDto.getSaleType());
         listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
         // Partial Order
@@ -220,6 +227,7 @@ public class ListingMapper {
         listing.setPricePerKg(pricingDto.getPricePerKg());
         listing.setTotalBasePrice(pricingDto.getTotalBasePrice());
         listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
+        listing.setMaximumBidIncrement(pricingDto.getMaximumBidIncrement());
         listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
         listing.setSaleType(pricingDto.getSaleType());
         listing.setState(state);
@@ -312,6 +320,8 @@ public class ListingMapper {
         dto.setMinimumOrderQuantity(listing.getMinimumOrderQuantity());
 
         // Auction fields
+        dto.setMinimumBidIncrement(listing.getMinimumBidIncrement());
+        dto.setMaximumBidIncrement(listing.getMaximumBidIncrement());
         dto.setAuctionEndTime(listing.getAuctionEndTime());
 
         // Location

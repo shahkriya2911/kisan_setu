@@ -1,6 +1,7 @@
 package com.project.kisan_setu.dto.ResponseDto;
 
 import com.project.kisan_setu.enums.BidStatus;
+import com.project.kisan_setu.enums.NotificationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,4 @@ public class BidResponseDto {
     private String buyerName;
     private LocalDateTime bidTime;
     private BidStatus bidStatus;
-
-
-
 }

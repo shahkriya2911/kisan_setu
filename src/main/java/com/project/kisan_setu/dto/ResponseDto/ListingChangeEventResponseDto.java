@@ -1,0 +1,18 @@
+package com.project.kisan_setu.dto.ResponseDto;
+
+import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.enums.SaleType;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ListingChangeEventResponseDto {
+    private Long listingId;
+    private SaleType saleType;
+    private AuctionStatus auctionStatus;
+}

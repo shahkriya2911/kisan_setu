@@ -1,5 +1,4 @@
 package com.project.kisan_setu.service.impl;
-
 import com.project.kisan_setu.dto.AuctionListingResponseDto;
 import com.project.kisan_setu.dto.RequestDto.CreateListingRequest;
 import com.project.kisan_setu.dto.RequestDto.ProductListingDto;
@@ -36,26 +35,18 @@ import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.BuyingRequirementMapper;
 import com.project.kisan_setu.mapper.ListingMapper;
 import com.project.kisan_setu.repository.BidRepository;
-import com.project.kisan_setu.repository.CropRepository;
 import com.project.kisan_setu.repository.ListingRepository;
-import com.project.kisan_setu.repository.UserRepository;
-import com.project.kisan_setu.repository.UnitRepository;
-import com.project.kisan_setu.repository.OrderRepository;
-import com.project.kisan_setu.repository.PackagingRepository;
+
 import com.project.kisan_setu.repository.BuyingRequirementRepository;
-import com.project.kisan_setu.repository.StateRepository;
-import com.project.kisan_setu.repository.DistrictRepository;
-import com.project.kisan_setu.repository.StorageRepository;
+
 import com.project.kisan_setu.service.FileStorageService;
 import com.project.kisan_setu.service.ListingService;
-import com.project.kisan_setu.service.NotificationService;
-import com.project.kisan_setu.service.OrderService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -74,22 +65,14 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ListingServiceImpl implements ListingService {
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
     private final ListingRepository listingRepository;
-    private final UserRepository userRepository;
     private final BidRepository bidRepository;
-    private final NotificationService notificationService;
-    private final OrderService orderService;
     private final FileStorageService fileStorageService;
     private final ValidatorMethods validatorMethods;
-    private final OrderRepository orderRepository;
     private final BuyingRequirementRepository buyingRequirementRepository;
-    private final StateRepository stateRepository;
-    private final DistrictRepository districtRepository;
-    private final CropRepository cropRepository;
-    private final UnitRepository unitRepository;
-    private final StorageRepository storageRepository;
-    private final PackagingRepository packagingRepository;
     private static final Logger logger = LoggerFactory.getLogger(ListingServiceImpl.class);
 
     @Override
@@ -126,7 +109,9 @@ public class ListingServiceImpl implements ListingService {
                 image.setIsPrimary(false);
                 return image;
             }).collect(Collectors.toList());
-            images.get(0).setIsPrimary(true);
+            if (!images.isEmpty()) {
+                images.get(0).setIsPrimary(true);
+            }
         }
 
         // Map certificate
@@ -174,17 +159,17 @@ public class ListingServiceImpl implements ListingService {
     @Override
     @CacheEvict(value = "listingDetails", key = "#listingId")
     public ListingResponseDto updateListing(Long listingId,
-            CreateListingRequest request,
-            List<MultipartFile> imageFiles,
-            MultipartFile certificateFile) {
-        // validatorMethods.validateUserAccess();
+                                            CreateListingRequest request,
+                                            List<MultipartFile> imageFiles,
+                                            MultipartFile certificateFile) {
+
         logger.info("Updating listing...");
-        logger.info("Validating listing...");
         Listing listing = validatorMethods.validateExists(listingId);
 
         ProductListingDto productDto = request.getProduct();
         QualityPricingListingDto pricingDto = request.getPricing();
         QualityLocationListingDto locationDto = request.getLocation();
+
         CropMaster crop = validatorMethods.validateCrop(Long.valueOf(productDto.getCropId()));
         UnitMaster unit = validatorMethods.validateUnit(Long.valueOf(pricingDto.getUnitId()));
         StateMaster state = validatorMethods.validateState(locationDto.getStateId());
@@ -192,14 +177,34 @@ public class ListingServiceImpl implements ListingService {
         PackagingMaster packaging = validatorMethods.validatePackaging(Long.valueOf(locationDto.getPackagingId()));
         StorageMaster storage = validatorMethods.validateStorage(Long.valueOf(locationDto.getStorageId()));
 
-        // Validate pricing (includes sale type validation)
         validatePricing(pricingDto);
-        String description = request.getDescription();
-        ListingMapper.updateEntity(listing, productDto, pricingDto, locationDto, crop, unit, storage, packaging, state,
-                district, description);
 
-        // Update images if new files provided
+        String description = request.getDescription();
+
+        ListingMapper.updateEntity(
+                listing,
+                productDto,
+                pricingDto,
+                locationDto,
+                crop,
+                unit,
+                storage,
+                packaging,
+                state,
+                district,
+                description
+        );
+
         if (imageFiles != null && !imageFiles.isEmpty()) {
+
+            if (listing.getImages() != null && !listing.getImages().isEmpty()) {
+                listing.getImages().forEach(img -> {
+                    if (img.getFilePath() != null && !img.getFilePath().isBlank()) {
+                        deletePhysicalFile(img.getFilePath());
+                    }
+                });
+            }
+
             List<ListingImage> updatedImages = imageFiles.stream().map(file -> {
                 String path = fileStorageService.storeFile(file, "images");
                 ListingImage image = new ListingImage();
@@ -209,27 +214,38 @@ public class ListingServiceImpl implements ListingService {
                 image.setIsPrimary(false);
                 return image;
             }).collect(Collectors.toList());
-            updatedImages.get(0).setIsPrimary(true);
+
+            if (!updatedImages.isEmpty()) {
+                updatedImages.get(0).setIsPrimary(true);
+            }
 
             listing.getImages().clear();
             listing.setImages(updatedImages);
         }
 
-        // Update certificate if new file provided
         if (certificateFile != null && !certificateFile.isEmpty()) {
-            if (listing.getCertificate() != null) {
+
+            if (listing.getCertificate() != null &&
+                    listing.getCertificate().getFilePath() != null &&
+                    !listing.getCertificate().getFilePath().isBlank()) {
+
                 deletePhysicalFile(listing.getCertificate().getFilePath());
             }
+
             String path = fileStorageService.storeFile(certificateFile, "certificates");
+
             ListingCertificate certificate = new ListingCertificate();
             certificate.setFileName(certificateFile.getOriginalFilename());
             certificate.setFilePath(path);
             certificate.setFileType(certificateFile.getContentType());
+
             listing.setCertificate(certificate);
         }
 
         Listing updated = listingRepository.save(listing);
+
         logger.info("Listing Updated Successfully ID: {}", updated.getListingId());
+
         return ListingMapper.toResponse(updated);
     }
 
@@ -266,6 +282,18 @@ public class ListingServiceImpl implements ListingService {
                 throw new UserException("Minimum Bid Increment must be greater than 0", HttpStatus.BAD_REQUEST);
             }
 
+            if (pricingDto.getMaximumBidIncrement() == null ||
+                    pricingDto.getMaximumBidIncrement()
+                            .compareTo(BigDecimal.ZERO) <= 0) {
+
+                throw new UserException("Maximum Bid Increment must be greater than 0", HttpStatus.BAD_REQUEST);
+            }
+
+            if (pricingDto.getMaximumBidIncrement().compareTo(pricingDto.getMinimumBidIncrement()) < 0) {
+                throw new UserException("Maximum Bid Increment must be greater than or equal to Minimum Bid Increment",
+                        HttpStatus.BAD_REQUEST);
+            }
+
             logger.info("Auction Listing validated");
         } else if (pricingDto.getSaleType() == SaleType.FIXED) {
             logger.info("Fixed Price Listing validated");
@@ -292,13 +320,20 @@ public class ListingServiceImpl implements ListingService {
         }
     }
 
-    private void deletePhysicalFile(String relativePath) {
-        logger.info("Deleting physical file...");
+
+
+    private void deletePhysicalFile(String filePath) {
+        logger.info("Deleting file: {}", filePath);
         try {
-            Path path = Paths.get("api").resolve(relativePath);
-            Files.deleteIfExists(path);
+            Path fullPath = Paths.get(uploadDir)
+                    .toAbsolutePath()
+                    .normalize()
+                    .resolve(filePath);
+
+            Files.deleteIfExists(fullPath);
+
         } catch (IOException e) {
-            logger.error("Failed to delete file: {}", relativePath);
+            logger.error("Failed to delete file: {}", filePath, e);
         }
     }
 
@@ -325,25 +360,34 @@ public class ListingServiceImpl implements ListingService {
     @Override
     public void deleteListing(Long listingId, Long sellerId) {
 
-        logger.info("Deleting listing...");
-
+        logger.info("Deleting listing with ID: {}", listingId);
         Listing listing = validatorMethods.validateExists(listingId);
+
 
         if (listing.getStatus() == AuctionStatus.SOLD) {
             throw new UserException("Cannot delete a SOLD listing", HttpStatus.BAD_REQUEST);
         }
 
-        long bidCount = bidRepository.countByListing_ListingId(listingId);
+        if (listing.getImages() != null && !listing.getImages().isEmpty()) {
+            listing.getImages().forEach(image -> {
+                if (image.getFilePath() != null && !image.getFilePath().isBlank()) {
+                    deletePhysicalFile(image.getFilePath());
+                }
+            });
+        }
 
-        if (bidCount > 0) {
-            logger.error("Cannot delete listing... Bids already placed...");
-            throw new UserException("Cannot delete listing. Bids already placed.", HttpStatus.BAD_REQUEST);
+        if (listing.getCertificate() != null &&
+                listing.getCertificate().getFilePath() != null &&
+                !listing.getCertificate().getFilePath().isBlank()) {
+
+            deletePhysicalFile(listing.getCertificate().getFilePath());
         }
 
         listingRepository.delete(listing);
 
         logger.info("Listing deleted successfully ID: {}", listingId);
     }
+
 
     @Override
     public SellerListingDto getSellerAuctionListingDetail(Long listingId) {
@@ -356,12 +400,14 @@ public class ListingServiceImpl implements ListingService {
             throw new RuntimeException("Not an auction listing");
         }
 
-        BigDecimal currentHighestBid = bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(listingId)
+        BigDecimal currentHighestBid = bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc
+                        (listingId)
                 .map(Bid::getBuyerAmount)
                 .orElse(listing.getTotalBasePrice());
 
         List<BidResponseDto> top5Bids = bidRepository
-                .findTop5ByListingListingIdOrderByBuyerAmountDesc(listingId) //
+                .findTop5ByListingListingIdAndBidStatusInOrderByBuyerAmountDesc
+                        (listingId,List.of(BidStatus.PENDING,BidStatus.OUTBID,BidStatus.ACCEPTED)) //
                 .stream()
                 .map(bid -> new BidResponseDto(
                         bid.getBidId(),
@@ -372,7 +418,6 @@ public class ListingServiceImpl implements ListingService {
                         bid.getBidStatus() //
                 ))
                 .toList();
-
         long totalBids = bidRepository.countTotalBidsBySellerId(listingId);
         long activeBidders = bidRepository.countActiveBidders(listingId);
 
@@ -386,6 +431,7 @@ public class ListingServiceImpl implements ListingService {
                 listing.getUnit().getUnitName(),
                 listing.getTotalBasePrice(),
                 listing.getMinimumBidIncrement(),
+                listing.getMaximumBidIncrement(),
                 totalBids,
                 activeBidders,
                 listing.getStatus(),

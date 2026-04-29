@@ -7,7 +7,7 @@ import com.project.kisan_setu.enums.NotificationStatus;
 import java.util.List;
 
 public interface NotificationService {
-    public void createNotification(User user, String message, NotificationStatus type,
+    public NotificationResponseDto createNotification(User user, String message, NotificationStatus type,
                                    Listing listing, Bid bid, Order order);
     List<NotificationResponseDto> getUserNotifications(Long userId);
 

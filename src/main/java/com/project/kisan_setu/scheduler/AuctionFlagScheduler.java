@@ -3,7 +3,6 @@ package com.project.kisan_setu.scheduler;
 import com.project.kisan_setu.entity.Bid;
 import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.entity.User;
-import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.BidStatus;
 import com.project.kisan_setu.enums.NotificationStatus;
 import com.project.kisan_setu.repository.BidRepository;
