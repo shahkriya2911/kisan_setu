@@ -102,7 +102,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
             throw new IllegalStateException("Review allowed only for completed orders");
         }
 
-        if (ratingReviewRepository.existsByOrder_OrderIdAndIsBuyerReview(orderId, true)) {
+        if (ratingReviewRepository.existsByOrder_OrderIdAndBuyerReview(orderId, true)) {
             return ApiResponseDto.<ReviewResponseDto>builder()
                     .message("Buyer already reviewed")
                     .data(null)
@@ -114,6 +114,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         review.setSeller(order.getListing() != null ? order.getListing().getSeller() : null);
         review.setRating(requestDto.getRating());
         review.setReview(requestDto.getReview());
+        review.setIsBuyerReview(true);
         review.setIsSellerReview(false);
         review.setReviewType(ReviewType.BUYER);
         RatingAndReview saved = ratingReviewRepository.save(review);
@@ -142,7 +143,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
             throw new IllegalStateException("Review allowed only for completed orders");
         }
 
-        if (ratingReviewRepository.existsByOrder_OrderIdAndIsBuyerReview(orderId, false)) {
+        if (ratingReviewRepository.existsByOrder_OrderIdAndBuyerReview(orderId, true)) {
             return ApiResponseDto.<ReviewResponseDto>builder()
                     .message("Seller already reviewed")
                     .data(null)
@@ -156,6 +157,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         review.setRating(requestDto.getRating());
         review.setReview(requestDto.getReview());
         review.setIsBuyerReview(false);
+        review.setIsSellerReview(true);
         review.setReviewType(ReviewType.SELLER);
         RatingAndReview saved = ratingReviewRepository.save(review);
 
