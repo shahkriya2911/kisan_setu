@@ -27,12 +27,14 @@ public class CorsConfig {
         config.setAllowedHeaders(List.of(
                 "Authorization",
                 "Content-Type",
-                "Cookie"
+                "Cookie",
+                "Accept",
+                "X-Requested-With"
         ));
 
         config.setAllowCredentials(true);
 
-        config.setExposedHeaders(List.of("Set-Cookie"));
+        config.setExposedHeaders(List.of("Set-Cookie", "Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
