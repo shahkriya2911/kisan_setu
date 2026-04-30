@@ -17,6 +17,7 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOrigins(List.of(
+                "https://www.kisansetu.online",
                 "https://kisansetu.online",
                 "https://kissansetu.vercel.app"
         ));
