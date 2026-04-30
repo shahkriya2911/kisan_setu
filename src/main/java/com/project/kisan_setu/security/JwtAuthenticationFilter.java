@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             } else {
 
-                handleRefresh(request);
+                handleRefresh(request,response);
             }
 
         } catch (Exception e) {
@@ -55,18 +56,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private void handleRefresh(HttpServletRequest request) {
+    private void handleRefresh(HttpServletRequest request,
+                               HttpServletResponse response) {
 
         String refreshToken = getCookie(request, "refreshToken");
 
-        if (refreshToken == null) {
-            return;
-        }
+        if (refreshToken == null) return;
 
         try {
-            RefreshToken newToken = refreshTokenService.rotateRefreshToken(refreshToken);
+
+            RefreshToken newToken =
+                    refreshTokenService.rotateRefreshToken(refreshToken);
 
             Long userId = newToken.getUser().getUserId();
+
+            String newAccessToken =
+                    jwtUtil.generateAccessToken(userId);
+
+
+            ResponseCookie accessCookie = ResponseCookie.from("accessToken", newAccessToken)
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .domain("kisansetu.online")
+                    .sameSite("None")
+                    .maxAge(15 * 60)
+                    .build();
+
+            response.addHeader("Set-Cookie", accessCookie.toString());
 
             setAuth(userId);
 

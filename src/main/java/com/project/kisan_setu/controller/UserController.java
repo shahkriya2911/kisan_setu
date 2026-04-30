@@ -436,6 +436,7 @@ public class UserController {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
+                .domain("kisansetu.online")
                 .sameSite("None")
                 .maxAge(15 * 60)
                 .build();
@@ -444,6 +445,7 @@ public class UserController {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
+                .domain("kisansetu.online")
                 .sameSite("None")
                 .maxAge(7 * 24 * 60 * 60)
                 .build();
@@ -486,6 +488,7 @@ public class UserController {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
+                .domain("kisansetu.online")
                 .maxAge(0)
                 .sameSite("None")
                 .build();
@@ -494,6 +497,7 @@ public class UserController {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
+                .domain("kisansetu.online")
                 .maxAge(0)
                 .sameSite("None")
                 .build();
