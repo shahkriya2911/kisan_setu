@@ -3,11 +3,11 @@ package com.project.kisan_setu.security;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,96 +33,63 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        log.debug("--- JWT FILTER START ---");
-        log.debug("Request URI: {}", request.getRequestURI());
-
         try {
 
-            String accessToken = getCookieValue(request, "accessToken");
+            String accessToken = getCookie(request, "accessToken");
 
-            if (accessToken != null && !accessToken.isBlank()) {
+            if (accessToken != null && jwtUtil.validateAccessToken(accessToken)) {
 
-                try {
-                    String tokenType = jwtUtil.extractTokenType(accessToken);
-
-                    if ("ACCESS".equals(tokenType)) {
-                        Long userId = jwtUtil.extractUserId(accessToken);
-
-                        setAuthentication(userId);
-
-                        log.debug("Access token valid for user: {}", userId);
-                    }
-
-                } catch (ExpiredJwtException e) {
-                    log.warn("Access token expired → trying refresh");
-                    handleRefreshToken(request, response);
-                }
+                Long userId = jwtUtil.extractUserId(accessToken);
+                setAuth(userId);
 
             } else {
-                log.warn("Access token missing → trying refresh");
-                handleRefreshToken(request, response);
+
+                handleRefresh(request);
             }
 
         } catch (Exception e) {
-            log.error("Unexpected error in JWT filter", e);
+            log.error("JWT Filter error", e);
             SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
     }
 
+    private void handleRefresh(HttpServletRequest request) {
 
-    private void handleRefreshToken(HttpServletRequest request,
-                                    HttpServletResponse response) {
+        String refreshToken = getCookie(request, "refreshToken");
 
-        String refreshToken = getCookieValue(request, "refreshToken");
+        if (refreshToken == null) {
+            return;
+        }
 
-        if (refreshToken != null && !refreshToken.isBlank()) {
+        try {
+            RefreshToken newToken = refreshTokenService.rotateRefreshToken(refreshToken);
 
-            try {
+            Long userId = newToken.getUser().getUserId();
 
-                RefreshToken newToken =
-                        refreshTokenService.rotateRefreshToken(refreshToken);
+            setAuth(userId);
 
-                Long userId = newToken.getUser().getUserId();
-
-                // generate new access token ONLY
-                String newAccessToken =
-                        jwtUtil.generateAccessToken(userId);
-
-
-
-                setAuthentication(userId);
-
-                log.debug("Tokens refreshed successfully for user: {}", userId);
-
-            } catch (Exception ex) {
-                log.error("Refresh token failed", ex);
-                SecurityContextHolder.clearContext();
-            }
-
-        } else {
-            log.warn("Refresh token missing");
+        } catch (Exception e) {
+            log.warn("Refresh failed");
             SecurityContextHolder.clearContext();
         }
     }
-    private String getCookieValue(HttpServletRequest request, String name) {
+
+    private String getCookie(HttpServletRequest request, String name) {
 
         if (request.getCookies() == null) return null;
 
-        for (var cookie : request.getCookies()) {
-            if (name.equals(cookie.getName())) {
-                return cookie.getValue();
+        for (Cookie c : request.getCookies()) {
+            if (name.equals(c.getName())) {
+                return c.getValue();
             }
         }
 
         return null;
     }
 
-    /**
-     * Set authentication in SecurityContext
-     */
-    private void setAuthentication(Long userId) {
+    private void setAuth(Long userId) {
 
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(

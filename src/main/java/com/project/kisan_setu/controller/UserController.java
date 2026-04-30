@@ -29,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
@@ -427,14 +428,16 @@ public class UserController {
                                 refreshToken.getRefreshToken());
         }
 
-    private void writeTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
+    private void writeTokenCookies(HttpServletResponse response,
+                                   String accessToken,
+                                   String refreshToken) {
 
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
                 .sameSite("None")
-                .maxAge(jwtUtil.getAccessExpiration() / 1000)
+                .maxAge(15 * 60)
                 .build();
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
@@ -442,11 +445,11 @@ public class UserController {
                 .secure(true)
                 .path("/")
                 .sameSite("None")
-                .maxAge(jwtUtil.getRefreshExpiration() / 1000)
+                .maxAge(7 * 24 * 60 * 60)
                 .build();
 
-        response.addHeader("Set-Cookie", accessCookie.toString());
-        response.addHeader("Set-Cookie", refreshCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
     }
         private String resolveRefreshToken(HttpServletRequest request,
                         RefreshTokenRequestDto body) {
