@@ -86,30 +86,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 Long userId = newToken.getUser().getUserId();
 
+                // generate new access token ONLY
                 String newAccessToken =
                         jwtUtil.generateAccessToken(userId);
 
 
-                ResponseCookie accessCookie = ResponseCookie.from("accessToken", newAccessToken)
-                        .httpOnly(true)
-                        .secure(true)          // required for Vercel/HTTPS
-                        .path("/")
-                        .sameSite("None")      // required for cross-site cookies
-                        .maxAge(jwtUtil.getAccessExpiration() / 1000)
-                        .build();
-
-
-                ResponseCookie refreshCookie = ResponseCookie.from("refreshToken",
-                                newToken.getRefreshToken())
-                        .httpOnly(true)
-                        .secure(true)
-                        .path("/")
-                        .sameSite("None")
-                        .maxAge(jwtUtil.getRefreshExpiration() / 1000)
-                        .build();
-
-                response.addHeader("Set-Cookie", accessCookie.toString());
-                response.addHeader("Set-Cookie", refreshCookie.toString());
 
                 setAuthentication(userId);
 
@@ -125,10 +106,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.clearContext();
         }
     }
-
-    /**
-     * Read cookie safely
-     */
     private String getCookieValue(HttpServletRequest request, String name) {
 
         if (request.getCookies() == null) return null;
