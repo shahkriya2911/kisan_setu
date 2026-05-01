@@ -80,7 +80,8 @@ class JacksonSerializationTest {
                         BigDecimal.valueOf(2600),
                         "Buyer One",
                         LocalDateTime.of(2026, 4, 13, 10, 15),
-                        BidStatus.PENDING
+                        BidStatus.PENDING,
+                        99L
                 )),
                 0L,
                 List.of(),

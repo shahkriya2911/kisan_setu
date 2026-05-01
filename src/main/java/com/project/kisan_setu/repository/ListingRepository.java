@@ -73,14 +73,14 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
     SELECT l FROM Listing l
     WHERE l.saleType = :saleType
     AND l.status = :status
-    AND l.seller.userId != :userId
-    AND LOWER(l.crop.cropName) LIKE LOWER(:cropName)
+    AND l.seller.userId <> :userId
+    AND (:cropNamePattern IS NULL OR LOWER(l.crop.cropName) LIKE :cropNamePattern)
 """)
         List<Listing> findActiveAuctionListings(
-                        SaleType saleType,
-                        AuctionStatus status,
-                        Long userId,
-                        @Param("cropName") String cropName);
+                        @Param("saleType") SaleType saleType,
+                        @Param("status") AuctionStatus status,
+                        @Param("userId") Long userId,
+                        @Param("cropNamePattern") String cropNamePattern);
 
         // ACTIVE FIXED LISTINGS
         @Query("""
@@ -91,9 +91,9 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
                             AND (:cropNamePattern IS NULL OR LOWER(l.crop.cropName) LIKE :cropNamePattern)
                         """)
         List<Listing> findActiveFixedListings(
-                        SaleType saleType,
-                        AuctionStatus status,
-                        Long userId,
+                        @Param("saleType") SaleType saleType,
+                        @Param("status") AuctionStatus status,
+                        @Param("userId") Long userId,
                         @Param("cropNamePattern") String cropNamePattern);
 
         // CLOSE EXPIRED AUCTIONS (BULK UPDATE)

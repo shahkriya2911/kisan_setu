@@ -126,6 +126,7 @@ public class BuyerServiceImpl implements BuyerService {
 
         List<BuyerListingResponseDto> dtoList = listings.stream()
                 .filter(l -> l.getStatus() == AuctionStatus.ACTIVE)
+                .filter(l -> l.getSeller() == null || !userId.equals(l.getSeller().getUserId()))
                 .map(this::toBuyerListingResponse)
                 .toList();
 
@@ -163,6 +164,7 @@ public class BuyerServiceImpl implements BuyerService {
 
         List<BuyerListingResponseDto> dtoList = listings.stream()
                 .filter(l -> l.getStatus() == AuctionStatus.ACTIVE)
+                .filter(l -> l.getSeller() == null || !userId.equals(l.getSeller().getUserId()))
                 .map(this::toBuyerListingResponse)
                 .toList();
 
