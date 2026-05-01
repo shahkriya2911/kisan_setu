@@ -69,12 +69,12 @@ public class OrderController {
                 ,new OrderChangeEventResponseDto(
                         response.getListingId(),SaleType.AUCTION,
                                 AuctionStatus.PENDING,BidStatus.ACCEPTED,
-                                null,null,response));
+                                null,null,response, response.getSellerId()));
         messagingTemplate.convertAndSend("/topic/auctions/"+response.getListingId()
                 ,new OrderChangeEventResponseDto(
                         response.getListingId(),SaleType.AUCTION,
                                 AuctionStatus.PENDING,BidStatus.ACCEPTED,
-                                null,null,response));
+                                null,null,response, response.getSellerId()));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -120,7 +120,7 @@ public class OrderController {
                 new OrderChangeEventResponseDto(null,SaleType.AUCTION,
                         AuctionStatus.ACTIVE,
                         BidStatus.REJECTED,null,null,
-                        response));
+                        response, response.getSellerId()));
         return ResponseEntity.ok(response);
     }
 
@@ -190,10 +190,10 @@ public class OrderController {
         BigDecimal remainingQuantity = listing.getQuantity();
         messagingTemplate.convertAndSend("/topic/fixed",
                 new OrderChangeEventResponseDto(listingId,SaleType.FIXED,
-                        AuctionStatus.SOLD,null,remainingQuantity,response.getTotalBasePrice(),response));
+                        AuctionStatus.SOLD,null,remainingQuantity,response.getTotalBasePrice(),response, response.getSellerId()));
         messagingTemplate.convertAndSend("/topic/fixed/"+listingId,
                 new OrderChangeEventResponseDto(null,SaleType.FIXED,
-                        AuctionStatus.SOLD,null,remainingQuantity,response.getTotalBasePrice(),response));
+                        AuctionStatus.SOLD,null,remainingQuantity,response.getTotalBasePrice(),response, response.getSellerId()));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
