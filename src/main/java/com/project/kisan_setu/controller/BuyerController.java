@@ -197,11 +197,11 @@ public class BuyerController {
                                 listingId, SaleType.AUCTION,
                                 AuctionStatus.ACTIVE,
                                 BidStatus.PENDING,response.getBuyerAmount(),
-                                response));
+                                response, response.getSellerId()));
             messagingTemplate.convertAndSend("/topic/auctions/"+listingId,
                     new BuyerChangeEventResponseDto(null,
                             SaleType.AUCTION,AuctionStatus.ACTIVE,BidStatus.PENDING,response.getBuyerAmount(),
-                            response));
+                            response, response.getSellerId()));
                 logger.info("Bid placed successfully");
                 return ResponseEntity.ok(response);
 

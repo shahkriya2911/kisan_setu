@@ -415,7 +415,8 @@ public class ListingServiceImpl implements ListingService {
                         bid.getBuyerAmount(),
                         bid.getBuyer().getFullName(),
                         bid.getBidTime(),
-                        bid.getBidStatus() //
+                        bid.getBidStatus(), //
+                        bid.getListing().getSeller().getUserId()
                 ))
                 .toList();
         long totalBids = bidRepository.countTotalBidsBySellerId(listingId);

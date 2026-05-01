@@ -23,4 +23,5 @@ public class BidResponseDto {
     private String buyerName;
     private LocalDateTime bidTime;
     private BidStatus bidStatus;
+    private Long sellerId;
 }

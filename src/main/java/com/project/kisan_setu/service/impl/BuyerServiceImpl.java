@@ -315,7 +315,8 @@ public class BuyerServiceImpl implements BuyerService {
                     bid.getBuyerAmount(),
                     buyer.getFullName(),
                     bid.getBidTime(),
-                    BidStatus.PENDING
+                    BidStatus.PENDING,
+                    bid.getListing().getSeller().getUserId()
             );
         }
 
@@ -353,7 +354,8 @@ public class BuyerServiceImpl implements BuyerService {
                         bid.getBuyerAmount(),
                         bid.getBuyer().getFullName(),
                         bid.getBidTime(),
-                        bid.getBidStatus() //
+                        bid.getBidStatus(), //
+                        bid.getListing().getSeller().getUserId()
                 ))
                 .toList();
         for (int i=0;i<top5Bids.size();i++){

@@ -70,13 +70,12 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
 
         // ACTIVE AUCTION LISTINGS
         @Query("""
-                            SELECT l FROM Listing l
-                            WHERE l.saleType = :saleType
-                            AND l.status = :status
-                            AND l.seller.userId <> :userId
-                            AND l.auctionEndTime > CURRENT_TIMESTAMP
-                            AND (:cropNamePattern IS NULL OR LOWER(l.crop.cropName) LIKE :cropNamePattern)
-                        """)
+    SELECT l FROM Listing l
+    WHERE l.saleType = :saleType
+    AND l.status = :status
+    AND l.seller.userId != :userId
+    AND LOWER(l.crop.cropName) LIKE LOWER(:cropName)
+""")
         List<Listing> findActiveAuctionListings(
                         SaleType saleType,
                         AuctionStatus status,

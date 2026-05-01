@@ -21,4 +21,5 @@ public class BuyerChangeEventResponseDto {
     private BidStatus bidStatus;
     private BigDecimal currentHighestBid;
     private BidResponseDto bidResponseDto;
+    private Long sellerId;
 }
