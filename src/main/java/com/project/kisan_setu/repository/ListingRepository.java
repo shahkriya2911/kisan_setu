@@ -80,7 +80,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
                         SaleType saleType,
                         AuctionStatus status,
                         Long userId,
-                        @Param("cropNamePattern") String cropNamePattern);
+                        @Param("cropName") String cropName);
 
         // ACTIVE FIXED LISTINGS
         @Query("""
