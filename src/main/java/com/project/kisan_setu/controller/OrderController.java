@@ -164,10 +164,10 @@ public class OrderController {
                 : AuctionStatus.ACTIVE;
         messagingTemplate.convertAndSend("/topic/fixed",
                 new OrderChangeEventResponseDto(listingId, SaleType.FIXED, auctionStatus,
-                        null,response.getTotalBasePrice(),remainingQuantity,response));
+                        null,response.getTotalBasePrice(),remainingQuantity,response,response.getSellerId()));
         messagingTemplate.convertAndSend("/topic/fixed/"+listingId,
                 new OrderChangeEventResponseDto(listingId, SaleType.FIXED, auctionStatus,
-                        null,response.getTotalBasePrice(),remainingQuantity,null));
+                        null,response.getTotalBasePrice(),remainingQuantity,null,response.getSellerId()));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

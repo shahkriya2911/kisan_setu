@@ -22,4 +22,5 @@ public class OrderChangeEventResponseDto {
     private BigDecimal totalBasePrice;
     private BigDecimal quantity;
     private OrderResponseDto responseDto;
+    private Long sellerId;
 }
