@@ -12,9 +12,7 @@ import com.project.kisan_setu.service.BidService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class BidServiceImpl implements BidService {
@@ -41,7 +39,12 @@ public class BidServiceImpl implements BidService {
                                 BidStatus.ACCEPTED);
                 List<Bid> getAllBids = bidRepository
                                 .findByBuyerUserIdAndBidStatusInOrderByCreatedAtAsc(buyerId, statuses);
-                return getAllBids.stream()
+                Map<Long,Bid> latestBid = new LinkedHashMap<>();
+                for (Bid bid : getAllBids){
+                    Long listindId = bid.getListing().getListingId();
+                    latestBid.putIfAbsent(listindId,bid);
+                }
+                return latestBid.values().stream()
                                 .map(bid -> {
                                         BigDecimal highestBid = bidRepository
                                                         .findTopByListingListingIdOrderByBuyerAmountDesc(

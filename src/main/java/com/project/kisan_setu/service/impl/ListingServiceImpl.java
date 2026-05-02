@@ -60,6 +60,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -153,7 +154,7 @@ public class ListingServiceImpl implements ListingService {
         Listing saved = listingRepository.save(listing);
 
         logger.info("Listing created successfully ID: {}", saved.getListingId());
-        return ListingMapper.toResponse(saved);
+        return ListingMapper.toResponse(saved,null);
     }
 
     @Override
@@ -246,7 +247,7 @@ public class ListingServiceImpl implements ListingService {
 
         logger.info("Listing Updated Successfully ID: {}", updated.getListingId());
 
-        return ListingMapper.toResponse(updated);
+        return ListingMapper.toResponse(updated,null);
     }
 
     private void validatePricing(QualityPricingListingDto pricingDto) {
@@ -342,8 +343,14 @@ public class ListingServiceImpl implements ListingService {
         // validatorMethods.validateAdminAccess();
         logger.info("Getting all listings...");
         logger.info("Fetching all listings success...");
-        return listingRepository.findAll().stream()
-                .map(ListingMapper::toResponse)
+        List<Listing> listings = listingRepository.findAll();
+        return listings.stream()
+                .map(listing-> {
+                    Optional<Bid> highestBid = bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(listing.getListingId());
+
+                    return ListingMapper.toResponse(listing, highestBid.orElse(null)
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
@@ -354,7 +361,7 @@ public class ListingServiceImpl implements ListingService {
         logger.info("Validating listing...");
         Listing listing = validatorMethods.validateExists(id);
         logger.info("Fetching listing by id success...");
-        return ListingMapper.toResponse(listing);
+        return ListingMapper.toResponse(listing,null);
     }
 
     @Override
@@ -520,14 +527,14 @@ public class ListingServiceImpl implements ListingService {
         Page<Listing> listings = listingRepository.findBySeller_UserId(userId, pageable);
         logger.info("Fetching my listings success...");
         return listings.map(listing -> {
-            ListingResponseDto dto = ListingMapper.toResponse(listing);
+            ListingResponseDto dto = ListingMapper.toResponse(listing,null);
 
             // Fetch top bid for this listing
             Bid topBid = bidRepository.findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
                     listing.getListingId(), BidStatus.PENDING).orElse(null);
 
             if (topBid != null) {
-                dto.setBidId(topBid.getBidId());
+                dto.setTopBid(topBid.getBidId());
                 dto.setHighestBid(topBid.getBuyerAmount());
                 dto.setTopBidderName(topBid.getBuyer().getFullName());
                 dto.setTopBid(topBid.getBidId());
@@ -542,7 +549,15 @@ public class ListingServiceImpl implements ListingService {
         logger.info("Getting active listings...");
         Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.ACTIVE,
                 pageable);
-        return listings.map(ListingMapper::toResponse);
+        return listings.map(listing -> {
+
+            Optional<Bid> highestBidOpt =
+                    bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(
+                            listing.getListingId()
+                    );
+
+            return ListingMapper.toResponse(listing, highestBidOpt.orElse(null));
+        });
     }
 
     @Override
@@ -594,7 +609,15 @@ public class ListingServiceImpl implements ListingService {
         Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.PENDING,
                 pageable);
         logger.info("Fetching pending listings success...");
-        return listings.map(ListingMapper::toResponse);
+        return listings.map(listing -> {
+
+            Optional<Bid> highestBidOpt =
+                    bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(
+                            listing.getListingId()
+                    );
+
+            return ListingMapper.toResponse(listing, highestBidOpt.orElse(null));
+        });
     }
 
     @Override
@@ -602,7 +625,15 @@ public class ListingServiceImpl implements ListingService {
         logger.info("Getting sold closed listings...");
         Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.SOLD, pageable);
         logger.info("Fetching sold listing success...");
-        return listings.map(ListingMapper::toResponse);
+        return listings.map(listing -> {
+
+            Optional<Bid> highestBidOpt =
+                    bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(
+                            listing.getListingId()
+                    );
+
+            return ListingMapper.toResponse(listing, highestBidOpt.orElse(null));
+        });
     }
 
     @Override
@@ -611,7 +642,15 @@ public class ListingServiceImpl implements ListingService {
         Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.EXPIRED,
                 pageable);
         logger.info("Fetching closed listings success...");
-        return listings.map(ListingMapper::toResponse);
+        return listings.map(listing -> {
+
+            Optional<Bid> highestBidOpt =
+                    bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(
+                            listing.getListingId()
+                    );
+
+            return ListingMapper.toResponse(listing, highestBidOpt.orElse(null));
+        });
     }
 
     @Override

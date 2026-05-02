@@ -10,19 +10,17 @@ import com.project.kisan_setu.dto.ResponseDto.ProductImageResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.QualityCertificateResponseDto;
 import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
-import com.project.kisan_setu.entity.CropMaster;
-import com.project.kisan_setu.entity.DistrictMaster;
-import com.project.kisan_setu.entity.Listing;
-import com.project.kisan_setu.entity.PackagingMaster;
-import com.project.kisan_setu.entity.StateMaster;
-import com.project.kisan_setu.entity.StorageMaster;
-import com.project.kisan_setu.entity.UnitMaster;
+import com.project.kisan_setu.entity.*;
+import com.project.kisan_setu.repository.BidRepository;
+
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ListingMapper {
 
-    public static ListingResponseDto toResponse(Listing listing) {
+    public static ListingResponseDto toResponse(Listing listing, Bid highesBid) {
 
         ListingResponseDto dto = new ListingResponseDto();
         dto.setListingId(listing.getListingId());
@@ -108,7 +106,13 @@ public class ListingMapper {
 
         dto.setCreatedAt(listing.getCreatedAt());
         dto.setAuctionStatus(listing.getStatus());
+        dto.setHighestBid(listing.getTopBid());
 
+        if (highesBid!=null){
+            dto.setHighestBid(highesBid.getBuyerAmount());
+        }
+        dto.setTopBidderName(highesBid.getBuyer().getFullName());
+        dto.setTopBid(highesBid.getBidId());
         return dto;
     }
 
