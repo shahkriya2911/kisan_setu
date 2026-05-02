@@ -110,9 +110,14 @@ public class ListingMapper {
 
         if (highesBid!=null){
             dto.setHighestBid(highesBid.getBuyerAmount());
+            dto.setTopBidderName(highesBid.getBuyer().getFullName());
+            dto.setTopBid(highesBid.getBidId());
+        }else {
+            dto.setHighestBid(null);
+            dto.setTopBidderName(null);
+            dto.setTopBid(null);
         }
-        dto.setTopBidderName(highesBid.getBuyer().getFullName());
-        dto.setTopBid(highesBid.getBidId());
+
         return dto;
     }
 

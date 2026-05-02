@@ -346,10 +346,9 @@ public class ListingServiceImpl implements ListingService {
         List<Listing> listings = listingRepository.findAll();
         return listings.stream()
                 .map(listing-> {
-                    Optional<Bid> highestBid = bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(listing.getListingId());
-
-                    return ListingMapper.toResponse(listing, highestBid.orElse(null)
-                    );
+                    Optional<Bid> highestBidOpt = bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(listing.getListingId());
+                    Bid highestBid = highestBidOpt.orElse(null);
+                    return ListingMapper.toResponse(listing, highestBid);
                 })
                 .collect(Collectors.toList());
     }
@@ -555,8 +554,9 @@ public class ListingServiceImpl implements ListingService {
                     bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(
                             listing.getListingId()
                     );
+            Bid highestBid = highestBidOpt.orElse(null);
 
-            return ListingMapper.toResponse(listing, highestBidOpt.orElse(null));
+            return ListingMapper.toResponse(listing, highestBid);
         });
     }
 
@@ -615,8 +615,8 @@ public class ListingServiceImpl implements ListingService {
                     bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(
                             listing.getListingId()
                     );
-
-            return ListingMapper.toResponse(listing, highestBidOpt.orElse(null));
+            Bid highestBid = highestBidOpt.orElse(null);
+            return ListingMapper.toResponse(listing, highestBid);
         });
     }
 
@@ -631,8 +631,8 @@ public class ListingServiceImpl implements ListingService {
                     bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(
                             listing.getListingId()
                     );
-
-            return ListingMapper.toResponse(listing, highestBidOpt.orElse(null));
+            Bid highestBid = highestBidOpt.orElse(null);
+            return ListingMapper.toResponse(listing, highestBid);
         });
     }
 
@@ -648,8 +648,8 @@ public class ListingServiceImpl implements ListingService {
                     bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(
                             listing.getListingId()
                     );
-
-            return ListingMapper.toResponse(listing, highestBidOpt.orElse(null));
+            Bid highestBid = highestBidOpt.orElse(null);
+            return ListingMapper.toResponse(listing, highestBid);
         });
     }
 
