@@ -65,11 +65,11 @@ public class OrderServiceImpl implements OrderService {
         if (listing.getStatus() != AuctionStatus.ACTIVE) {
             throw new RuntimeException("Listing is not ready for order creation");
         }
-        if (orderRepository.existsByAcceptBid(bid)){
-            throw new RuntimeException("Order already created through this bid");
-        }
         if (bid.getBidStatus() == BidStatus.REJECTED || bid.getBidStatus() == BidStatus.EXPIRED) {
             throw new RuntimeException("Bid is already " + bid.getBidStatus());
+        }
+        if (orderRepository.existsByAcceptBid(bid)){
+            throw new RuntimeException("Order already created through this bid");
         }
         if (listing.getBidAccepted()) {
             throw new RuntimeException("Bid already accepted for this listing");
@@ -86,7 +86,7 @@ public class OrderServiceImpl implements OrderService {
                 );
 
         for (Bid otherBid : otherBids) {
-            if (otherBid.getBidStatus() != BidStatus.ACCEPTED) {
+            if (otherBid.getBidStatus() == BidStatus.PENDING || otherBid.getBidStatus() == BidStatus.OUTBID) {
                 otherBid.setBidStatus(BidStatus.OUTBID);
             }
         }
