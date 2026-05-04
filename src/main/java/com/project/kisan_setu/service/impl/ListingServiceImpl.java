@@ -528,15 +528,17 @@ public class ListingServiceImpl implements ListingService {
         logger.info("Fetching my listings success...");
         return listings.map(listing -> {
             Optional<Bid> highestBidOpt =
-                    bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(
-                            listing.getListingId()
+                    bidRepository.findTopByListingListingIdAndBidStatusInOrderByBuyerAmountDesc(
+                            listing.getListingId(),
+                            List.of(BidStatus.PENDING,BidStatus.ACCEPTED,BidStatus.OUTBID)
                     );
             Bid highestBid = highestBidOpt.orElse(null);
             ListingResponseDto dto = ListingMapper.toResponse(listing,highestBid);
 
             // Fetch top bid for this listing
-            Bid topBid = bidRepository.findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
-                    listing.getListingId(), BidStatus.PENDING).orElse(null);
+            Bid topBid = bidRepository.findTopByListingListingIdAndBidStatusInOrderByBuyerAmountDesc(
+                    listing.getListingId(),
+                    List.of(BidStatus.PENDING,BidStatus.ACCEPTED,BidStatus.OUTBID)).orElse(null);
 
             if (topBid != null) {
                 dto.setTopBid(topBid.getBidId());
