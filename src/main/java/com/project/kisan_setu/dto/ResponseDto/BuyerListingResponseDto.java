@@ -42,5 +42,6 @@ public class BuyerListingResponseDto {
     private List<ProductImageResponseDto> images;
     private BigDecimal minimumOrderQuantity;
     private List<BidResponseDto> top5Bids;
+    private String sellerName;
 
 }

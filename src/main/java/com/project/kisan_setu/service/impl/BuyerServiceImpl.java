@@ -391,7 +391,8 @@ public class BuyerServiceImpl implements BuyerService {
                 currentHighest,
                 images,
                 listing.getMinimumOrderQuantity(),
-                top5Bids);
+                top5Bids,
+                listing.getSeller().getFullName());
     }
 
     private ProductImageResponseDto toImageResponse(ListingImage image) {

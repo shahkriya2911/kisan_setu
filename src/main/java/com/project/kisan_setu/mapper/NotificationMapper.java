@@ -36,6 +36,8 @@ public class NotificationMapper {
             dto.setVariety(listing.getVariety());
             dto.setQuantity(listing.getQuantity());
             dto.setUnit(listing.getUnit().getUnitName());
+            dto.setState(listing.getState().getName());
+            dto.setDistrict(listing.getDistrict().getName());
 
             if (listing.getSeller() != null) {
                 dto.setSellerName(listing.getSeller().getFullName());

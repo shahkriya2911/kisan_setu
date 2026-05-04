@@ -1,4 +1,5 @@
 package com.project.kisan_setu.dto.ResponseDto;
+import com.project.kisan_setu.enums.BidStatus;
 import com.project.kisan_setu.enums.NotificationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,4 +37,6 @@ public class NotificationResponseDto {
     private String sellerName;
     private BigDecimal pricePerKg;
     private Boolean actionCompleted;
+    private String state;
+    private String district;
 }
