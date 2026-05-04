@@ -556,8 +556,8 @@ public class ListingServiceImpl implements ListingService {
         return listings.map(listing -> {
 
             Optional<Bid> highestBidOpt =
-                    bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(
-                            listing.getListingId()
+                    bidRepository.findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
+                            listing.getListingId(),BidStatus.PENDING
                     );
             Bid highestBid = highestBidOpt.orElse(null);
 
