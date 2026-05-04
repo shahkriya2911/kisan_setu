@@ -107,6 +107,7 @@ public class ListingMapper {
         dto.setCreatedAt(listing.getCreatedAt());
         dto.setAuctionStatus(listing.getStatus());
         dto.setHighestBid(listing.getTopBid());
+        dto.setSellerId(listing.getSeller().getUserId());
 
         if (highesBid!=null){
             dto.setHighestBid(highesBid.getBuyerAmount());

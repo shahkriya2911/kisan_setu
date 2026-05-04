@@ -70,4 +70,5 @@ public class ListingResponseDto {
     @JsonInclude(JsonInclude.Include.ALWAYS)
     private Long topBid;
     private BidStatus status;
+    private Long sellerId;
 }
