@@ -1,5 +1,6 @@
 package com.project.kisan_setu.repository;
 
+import aj.org.objectweb.asm.commons.Remapper;
 import com.project.kisan_setu.entity.Bid;
 import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.enums.AuctionStatus;
@@ -81,4 +82,6 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
     List<Bid> findByBuyerUserIdAndBidStatusOrderByCreatedAtAsc(Long buyerId, BidStatus bidStatus);
 
     List<Bid> findByBuyerUserIdAndBidStatusOrderByCreatedAtDesc(Long buyerId, BidStatus bidStatus);
+
+    Optional<Bid> findTopByListingListingIdAndBidStatusInOrderByBuyerAmountDesc(Long listingId, List<BidStatus> statuses);
 }

@@ -406,8 +406,9 @@ public class ListingServiceImpl implements ListingService {
             throw new RuntimeException("Not an auction listing");
         }
 
-        BigDecimal currentHighestBid = bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc
-                        (listingId)
+        BigDecimal currentHighestBid = bidRepository.
+                findTopByListingListingIdAndBidStatusInOrderByBuyerAmountDesc
+                        (listingId,List.of(BidStatus.PENDING,BidStatus.ACCEPTED,BidStatus.OUTBID))
                 .map(Bid::getBuyerAmount)
                 .orElse(listing.getTotalBasePrice());
 
