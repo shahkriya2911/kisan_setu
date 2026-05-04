@@ -113,7 +113,7 @@ public class Listing extends Auditable{
 
 
     // Relationship with bids
-    @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Bid> bids = new ArrayList<>();
 
     @ManyToOne

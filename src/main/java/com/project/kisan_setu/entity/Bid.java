@@ -1,15 +1,6 @@
 package com.project.kisan_setu.entity;
 import com.project.kisan_setu.enums.BidStatus;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -53,7 +44,7 @@ public class Bid extends Auditable{
     @JoinColumn(name = "buyer_id")
     private User buyer;
 
-    @OneToMany(mappedBy = "bid")
+    @OneToMany(mappedBy = "bid",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Notification> notifications = new ArrayList<>();
 
 
