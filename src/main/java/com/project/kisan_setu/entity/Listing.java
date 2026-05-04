@@ -6,7 +6,6 @@ import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.SaleType;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -113,7 +112,7 @@ public class Listing extends Auditable{
 
 
     // Relationship with bids
-    @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "listing")
     private List<Bid> bids = new ArrayList<>();
 
     @ManyToOne

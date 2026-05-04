@@ -36,6 +36,8 @@ import com.project.kisan_setu.mapper.BuyingRequirementMapper;
 import com.project.kisan_setu.mapper.ListingMapper;
 import com.project.kisan_setu.repository.BidRepository;
 import com.project.kisan_setu.repository.ListingRepository;
+import com.project.kisan_setu.repository.NotificationRepository;
+import com.project.kisan_setu.repository.OrderRepository;
 
 import com.project.kisan_setu.repository.BuyingRequirementRepository;
 
@@ -51,6 +53,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -71,6 +74,8 @@ public class ListingServiceImpl implements ListingService {
 
     private final ListingRepository listingRepository;
     private final BidRepository bidRepository;
+    private final NotificationRepository notificationRepository;
+    private final OrderRepository orderRepository;
     private final FileStorageService fileStorageService;
     private final ValidatorMethods validatorMethods;
     private final BuyingRequirementRepository buyingRequirementRepository;
@@ -364,6 +369,7 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
+    @Transactional
     public void deleteListing(Long listingId, Long sellerId) {
 
         logger.info("Deleting listing with ID: {}", listingId);
@@ -389,6 +395,11 @@ public class ListingServiceImpl implements ListingService {
             deletePhysicalFile(listing.getCertificate().getFilePath());
         }
 
+        notificationRepository.deleteByOrderListingListingId(listingId);
+        notificationRepository.deleteByBidListingListingId(listingId);
+        notificationRepository.deleteByListingListingId(listingId);
+        orderRepository.deleteByListingListingId(listingId);
+        bidRepository.deleteByListingListingId(listingId);
         listingRepository.delete(listing);
 
         logger.info("Listing deleted successfully ID: {}", listingId);
