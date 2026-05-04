@@ -38,11 +38,11 @@ public class BidServiceImpl implements BidService {
                 List<BidStatus> statuses = List.of(BidStatus.PENDING, BidStatus.REJECTED, BidStatus.EXPIRED,
                                 BidStatus.ACCEPTED);
                 List<Bid> getAllBids = bidRepository
-                                .findByBuyerUserIdAndBidStatusInOrderByCreatedAtAsc(buyerId, statuses);
+                                .findByBuyerUserIdAndBidStatusInOrderByCreatedAtDesc(buyerId, statuses);
                 Map<Long,Bid> latestBid = new LinkedHashMap<>();
                 for (Bid bid : getAllBids){
-                    Long listindId = bid.getListing().getListingId();
-                    latestBid.putIfAbsent(listindId,bid);
+                    Long listingId = bid.getListing().getListingId();
+                    latestBid.putIfAbsent(listingId,bid);
                 }
                 return latestBid.values().stream()
                                 .map(bid -> {
@@ -60,9 +60,14 @@ public class BidServiceImpl implements BidService {
         @Override
         public List<MyBiddingsResponseDto> getMyPendingBids() {
                 Long buyerId = validatorMethods.getCurrentUserId();
-                List<Bid> pendingBids = bidRepository
-                                .findByBuyerUserIdAndBidStatusOrderByCreatedAtAsc(buyerId, BidStatus.PENDING);
-                return pendingBids.stream()
+            List<Bid> getAllPendingBids = bidRepository
+                    .findByBuyerUserIdAndBidStatusOrderByCreatedAtDesc(buyerId, BidStatus.PENDING);
+            Map<Long,Bid> latestBid = new LinkedHashMap<>();
+            for (Bid bid : getAllPendingBids){
+                Long listingId = bid.getListing().getListingId();
+                latestBid.putIfAbsent(listingId,bid);
+            }
+                return latestBid.values().stream()
                                 .map(bid -> {
                                         BigDecimal highestBid = bidRepository
                                                         .findTopByListingListingIdOrderByBuyerAmountDesc(

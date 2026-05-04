@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BidRepository extends JpaRepository<Bid, Long> {
-    List<Bid> findByBuyerUserIdAndBidStatusInOrderByCreatedAtAsc(Long buyerId, List<BidStatus> statuses);
+    List<Bid> findByBuyerUserIdAndBidStatusInOrderByCreatedAtDesc(Long buyerId, List<BidStatus> statuses);
 
     List<Bid> findByListingListingIdOrderByBuyerAmountDesc(Long listingId);
 
@@ -79,4 +79,6 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
     List<Bid> findByListingListingIdAndBidIdNot(Long listingId, Long bidId);
 
     List<Bid> findByBuyerUserIdAndBidStatusOrderByCreatedAtAsc(Long buyerId, BidStatus bidStatus);
+
+    List<Bid> findByBuyerUserIdAndBidStatusOrderByCreatedAtDesc(Long buyerId, BidStatus bidStatus);
 }
