@@ -176,10 +176,21 @@ public class OrderServiceImpl implements OrderService {
         Bid bid = order.getAcceptBid();
         if (bid != null) {
             bid.setBidStatus(BidStatus.REJECTED);
+            bid.setAcceptedTime(null);
             bidRepository.save(bid);
         }
 
         Listing listing = order.getListing();
+        List<Bid> outbidBids = bidRepository.findByListingListingIdAndBidStatus(
+                listing.getListingId(),
+                BidStatus.OUTBID
+        );
+        for (Bid outbidBid : outbidBids) {
+            outbidBid.setBidStatus(BidStatus.PENDING);
+            outbidBid.setAcceptedTime(null);
+        }
+        bidRepository.saveAll(outbidBids);
+
         Bid nextTopBid = bidRepository
                 .findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
                         listing.getListingId(),

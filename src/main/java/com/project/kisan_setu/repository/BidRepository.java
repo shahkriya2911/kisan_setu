@@ -79,6 +79,8 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
 
     List<Bid> findByListingListingIdAndBidIdNot(Long listingId, Long bidId);
 
+    List<Bid> findByListingListingIdAndBidStatus(Long listingId, BidStatus bidStatus);
+
     List<Bid> findByBuyerUserIdAndBidStatusOrderByCreatedAtAsc(Long buyerId, BidStatus bidStatus);
 
     List<Bid> findByBuyerUserIdAndBidStatusOrderByCreatedAtDesc(Long buyerId, BidStatus bidStatus);
