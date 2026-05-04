@@ -2,6 +2,7 @@ package com.project.kisan_setu.dto.ResponseDto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.enums.BidStatus;
 import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.SaleType;
 import lombok.Getter;
@@ -68,4 +69,5 @@ public class ListingResponseDto {
     private String topBidderName;
     @JsonInclude(JsonInclude.Include.ALWAYS)
     private Long topBid;
+    private BidStatus status;
 }
