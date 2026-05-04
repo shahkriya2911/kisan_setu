@@ -526,7 +526,12 @@ public class ListingServiceImpl implements ListingService {
         Page<Listing> listings = listingRepository.findBySeller_UserId(userId, pageable);
         logger.info("Fetching my listings success...");
         return listings.map(listing -> {
-            ListingResponseDto dto = ListingMapper.toResponse(listing,null);
+            Optional<Bid> highestBidOpt =
+                    bidRepository.findTopByListingListingIdOrderByBuyerAmountDesc(
+                            listing.getListingId()
+                    );
+            Bid highestBid = highestBidOpt.orElse(null);
+            ListingResponseDto dto = ListingMapper.toResponse(listing,highestBid);
 
             // Fetch top bid for this listing
             Bid topBid = bidRepository.findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
