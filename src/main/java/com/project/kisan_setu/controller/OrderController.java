@@ -3,10 +3,15 @@ import com.project.kisan_setu.dto.ResponseDto.OrderChangeEventResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.ListingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.OrderResponseDto;
 import com.project.kisan_setu.dto.PartialLotRequestDto;
+import com.project.kisan_setu.entity.Bid;
+import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.entity.Order;
 import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.BidStatus;
 import com.project.kisan_setu.enums.SaleType;
+import com.project.kisan_setu.mapper.ListingMapper;
+import com.project.kisan_setu.repository.BidRepository;
+import com.project.kisan_setu.repository.ListingRepository;
 import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.OrderService;
 import com.project.kisan_setu.util.ValidatorMethods;
@@ -29,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 
 @RestController
@@ -40,12 +46,16 @@ public class OrderController {
     private final ValidatorMethods validatorMethods;
     private final SimpMessagingTemplate messagingTemplate;
     private final ListingService listingService;
+    private final ListingRepository listingRepository;
+    private final BidRepository bidRepository;
 
-    public OrderController(OrderService orderService, ValidatorMethods validatorMethods, SimpMessagingTemplate messagingTemplate, ListingService listingService) {
+    public OrderController(OrderService orderService, ValidatorMethods validatorMethods, SimpMessagingTemplate messagingTemplate, ListingService listingService, ListingRepository listingRepository, BidRepository bidRepository) {
         this.orderService = orderService;
         this.validatorMethods = validatorMethods;
         this.messagingTemplate = messagingTemplate;
         this.listingService = listingService;
+        this.listingRepository = listingRepository;
+        this.bidRepository = bidRepository;
     }
 
     // accept bid
@@ -116,11 +126,15 @@ public class OrderController {
         logger.debug("Reject Order attempt for order with id : {}",orderId);
         logger.info("Order rejected for order with id : {}",orderId);
         OrderResponseDto response = orderService.rejectOrder(orderId);
-        messagingTemplate.convertAndSend("/topic/auctions",
-                new OrderChangeEventResponseDto(null,SaleType.AUCTION,
-                        AuctionStatus.ACTIVE,
-                        BidStatus.REJECTED,null,null,
-                        response, response.getSellerId()));
+        Listing listing = listingRepository.findById(response.getListingId())
+                .orElseThrow(()->new RuntimeException("Listing not found"));
+        Optional<Bid> highestBidOpt = bidRepository.findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
+                listing.getListingId(),BidStatus.PENDING
+        );
+        Bid highestBid = highestBidOpt.orElse(null);
+        ListingResponseDto dto = ListingMapper.toResponse(listing,highestBid);
+        messagingTemplate.convertAndSend("/topic/auctions",dto);
+        messagingTemplate.convertAndSend("/topic/auctions/"+listing.getListingId(),dto);
         return ResponseEntity.ok(response);
     }
 
