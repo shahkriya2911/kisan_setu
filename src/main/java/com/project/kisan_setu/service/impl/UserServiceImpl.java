@@ -24,6 +24,7 @@ import com.project.kisan_setu.mapper.UserMapper;
 import com.project.kisan_setu.repository.AadhaarVerificationRepository;
 import com.project.kisan_setu.repository.BankAccountVerificationRepository;
 import com.project.kisan_setu.repository.PanCardVerificationRepository;
+import com.project.kisan_setu.repository.RefreshTokenRepository;
 import com.project.kisan_setu.repository.UserRepository;
 import com.project.kisan_setu.service.FileStorageService;
 import com.project.kisan_setu.service.NotificationService;
@@ -37,6 +38,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -56,6 +58,7 @@ public class UserServiceImpl implements UserService {
     private final ValidatorMethods validatorMethods;
     private final BankAccountVerificationRepository bankAccountVerificationRepository;
     private final RefreshTokenService refreshTokenService;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PanCardVerificationRepository panCardVerificationRepository;
     private final AadhaarVerificationRepository aadhaarVerificationRepository;
     private final FileStorageService fileStorageService;
@@ -164,13 +167,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUserById(Long userId) {
 
-        if (!userRepository.existsById(userId)) {
-            throw new UserException("User not found", HttpStatus.NOT_FOUND);
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
 
-        userRepository.deleteById(userId);
+        refreshTokenRepository.deleteByUser(user);
+        userRepository.delete(user);
     }
 
     @Override
