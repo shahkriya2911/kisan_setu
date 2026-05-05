@@ -45,6 +45,11 @@ public class RatingReviewMapper {
                         : false)
 
 
+                .isSellerReview(review.getIsSellerReview() != null
+                        ? review.getIsSellerReview()
+                        : false)
+
+
                 .createdAt(review.getCreatedAt() != null
                         ? review.getCreatedAt().toString()
                         : null)

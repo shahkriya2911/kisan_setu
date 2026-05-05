@@ -108,18 +108,25 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
                     .data(null)
                     .build();
         }
+
+        if (order.getListing() == null || order.getListing().getSeller() == null) {
+            throw new IllegalStateException("Seller not found for this order");
+        }
+
         RatingAndReview review = new RatingAndReview();
         review.setOrder(order);
         review.setBuyer(order.getBuyer());
-        review.setSeller(order.getListing() != null ? order.getListing().getSeller() : null);
+        review.setSeller(order.getListing().getSeller());
         review.setRating(requestDto.getRating());
         review.setReview(requestDto.getReview());
+        review.setIsBuyerReview(true);
         review.setIsSellerReview(false);
         review.setReviewType(ReviewType.BUYER);
+
         RatingAndReview saved = ratingReviewRepository.save(review);
 
         return ApiResponseDto.<ReviewResponseDto>builder()
-                .message("Seller reviewed successfully")
+                .message("Buyer reviewed seller successfully")
                 .data(RatingReviewMapper.mapReviewToDto(saved))
                 .build();
     }
@@ -142,7 +149,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
             throw new IllegalStateException("Review allowed only for completed orders");
         }
 
-        if (ratingReviewRepository.existsByOrder_OrderIdAndIsBuyerReview(orderId, false)) {
+        if (ratingReviewRepository.existsByOrder_OrderIdAndIsSellerReview(orderId, true)) {
             return ApiResponseDto.<ReviewResponseDto>builder()
                     .message("Seller already reviewed")
                     .data(null)
@@ -156,15 +163,16 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         review.setRating(requestDto.getRating());
         review.setReview(requestDto.getReview());
         review.setIsBuyerReview(false);
+        review.setIsSellerReview(true);
         review.setReviewType(ReviewType.SELLER);
+
         RatingAndReview saved = ratingReviewRepository.save(review);
 
         return ApiResponseDto.<ReviewResponseDto>builder()
-                .message("Buyer reviewed successfully")
+                .message("Seller reviewed buyer successfully")
                 .data(RatingReviewMapper.mapReviewToDto(saved))
                 .build();
     }
-
     @Override
     public ApiResponseDto<ReportResponseDto> reportSeller(Long orderId, ReportUserRequestDto requestDto) {
 

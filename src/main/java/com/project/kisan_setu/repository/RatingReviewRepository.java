@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RatingReviewRepository extends JpaRepository<RatingAndReview,Long> {
 
-    boolean existsByOrder_OrderIdAndSeller_UserId(Long orderId, Long userId);
+    boolean existsByOrder_OrderIdAndIsBuyerReview(Long orderId, Boolean isBuyerReview);
 
-    boolean existsByOrder_OrderIdAndIsBuyerReview(Long orderId, boolean b);
+    boolean existsByOrder_OrderIdAndIsSellerReview(Long orderId, Boolean isSellerReview);
 }
