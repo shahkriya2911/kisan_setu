@@ -22,8 +22,8 @@ public class ReviewResponseDto {
     private Long sellerId;
     private String sellerName;
 
-    private Boolean buyerReview;
-    private Boolean sellerReview;
+    private Boolean isBuyerReview;
+    private Boolean isSellerReview;
 
     private String createdAt;
 }

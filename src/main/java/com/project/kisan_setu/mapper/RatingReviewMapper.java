@@ -38,12 +38,11 @@ public class RatingReviewMapper {
                         ? review.getSeller().getFullName()
                         : null)
 
-
-                .buyerReview(review.getBuyerReview() != null
+                .isBuyerReview(review.getBuyerReview() != null
                         ? review.getBuyerReview()
                         : false)
 
-                .sellerReview(review.getSellerReview() != null
+                .isSellerReview(review.getSellerReview() != null
                         ? review.getSellerReview()
                         : false)
 
