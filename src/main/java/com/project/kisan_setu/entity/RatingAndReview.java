@@ -13,7 +13,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "ratingsAndReview")
+@Table(name = "ratings_and_review")
 @Data
 public class RatingAndReview extends Auditable {
 
@@ -48,4 +48,5 @@ public class RatingAndReview extends Auditable {
     @Enumerated(EnumType.STRING)
     @Column(name = "review_type", nullable = false)
     private ReviewType reviewType;
+
 }
