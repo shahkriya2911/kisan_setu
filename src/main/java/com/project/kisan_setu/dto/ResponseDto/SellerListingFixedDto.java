@@ -1,5 +1,6 @@
 package com.project.kisan_setu.dto.ResponseDto;
 
+import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.SaleType;
 import lombok.*;
@@ -46,4 +47,5 @@ public class SellerListingFixedDto {
     private PurchaseType purchaseType;
     private BigDecimal quantity;
     private BigDecimal moq;
+    private AuctionStatus auctionStatus;
 }

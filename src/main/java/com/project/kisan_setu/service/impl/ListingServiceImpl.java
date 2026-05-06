@@ -516,7 +516,8 @@ public class ListingServiceImpl implements ListingService {
                 listing.getSaleType(),
                 listing.getPurchaseType(),
                 listing.getQuantity(),
-                listing.getMinimumOrderQuantity());
+                listing.getMinimumOrderQuantity(),
+                listing.getStatus());
     }
 
     @Override
