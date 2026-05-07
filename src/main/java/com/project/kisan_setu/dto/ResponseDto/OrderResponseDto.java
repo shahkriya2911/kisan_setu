@@ -4,6 +4,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,4 +22,5 @@ public class OrderResponseDto {
     private String otp;
     private Boolean otpVerified;
     private LocalDateTime createdAt;
+    private List<ProductImageResponseDto> images;
 }

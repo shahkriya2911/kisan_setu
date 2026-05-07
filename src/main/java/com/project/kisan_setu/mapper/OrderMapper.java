@@ -17,6 +17,7 @@ public class OrderMapper {
         dto.setCreatedAt(order.getCreatedAt());
         dto.setQuantity(order.getQuantity());
         dto.setTotalBasePrice(order.getTotalBasePrice());
+        dto.setImages(ListingMapper.mapImages(order.getListing()));
         return dto;
     }
 }
