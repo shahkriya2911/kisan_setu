@@ -157,7 +157,8 @@ public class OrderController {
                 bid.getBuyer().getFullName(),
                 bid.getBidTime(),
                 bid.getBidStatus(),
-                bid.getListing().getSeller().getUserId()
+                bid.getListing().getSeller().getUserId(),
+                bid.getListing().getListingId()
         );
     }
 

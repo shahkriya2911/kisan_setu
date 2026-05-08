@@ -24,4 +24,5 @@ public class BidResponseDto {
     private LocalDateTime bidTime;
     private BidStatus bidStatus;
     private Long sellerId;
+    private Long listingId;
 }
