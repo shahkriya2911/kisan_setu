@@ -192,8 +192,18 @@ public class BuyerController {
                 logger.debug("Post bid for listing with id : {}", listingId);
 
                 BidResponseDto response = buyerService.placeBid(listingId, dto);
-                messagingTemplate.convertAndSend("/topic/auctions", response);
-            messagingTemplate.convertAndSend("/topic/auctions/"+listingId, response);
+                messagingTemplate.convertAndSend("/topic/auctions",
+                        new BuyerChangeEventResponseDto(
+                                listingId, SaleType.AUCTION,
+                                AuctionStatus.ACTIVE,
+                                BidStatus.PENDING,response.getBuyerAmount(),
+                                response, response.getSellerId()));
+            messagingTemplate.convertAndSend("/topic/auctions/"+listingId,
+                    new BuyerChangeEventResponseDto(null,
+                            SaleType.AUCTION,AuctionStatus.ACTIVE,BidStatus.PENDING,response.getBuyerAmount(),
+                            response, response.getSellerId()));
+            messagingTemplate.convertAndSend("/topic/auction-bids", response);
+            messagingTemplate.convertAndSend("/topic/auction-bids/"+listingId, response);
                 logger.info("Bid placed successfully");
                 return ResponseEntity.ok(response);
 

@@ -1,5 +1,7 @@
 package com.project.kisan_setu.controller;
 import com.project.kisan_setu.dto.ResponseDto.OrderChangeEventResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.AuctionBidUpdateResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.BidResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.ListingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.OrderResponseDto;
 import com.project.kisan_setu.dto.PartialLotRequestDto;
@@ -135,7 +137,28 @@ public class OrderController {
         ListingResponseDto dto = ListingMapper.toResponse(listing,highestBid);
         messagingTemplate.convertAndSend("/topic/auctions",dto);
         messagingTemplate.convertAndSend("/topic/auctions/"+listing.getListingId(),dto);
+        AuctionBidUpdateResponseDto bidUpdate = new AuctionBidUpdateResponseDto(
+                dto,
+                toBidResponse(highestBid)
+        );
+        messagingTemplate.convertAndSend("/topic/auction-bids", bidUpdate);
+        messagingTemplate.convertAndSend("/topic/auction-bids/"+listing.getListingId(), bidUpdate);
         return ResponseEntity.ok(response);
+    }
+
+    private BidResponseDto toBidResponse(Bid bid) {
+        if (bid == null) {
+            return null;
+        }
+        return new BidResponseDto(
+                bid.getBidId(),
+                bid.getBuyer().getUserId(),
+                bid.getBuyerAmount(),
+                bid.getBuyer().getFullName(),
+                bid.getBidTime(),
+                bid.getBidStatus(),
+                bid.getListing().getSeller().getUserId()
+        );
     }
 
     @GetMapping("/{orderId}")
