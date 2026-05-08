@@ -69,6 +69,8 @@ public class ListingResponseDto {
     private String topBidderName;
     @JsonInclude(JsonInclude.Include.ALWAYS)
     private Long topBid;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private BidResponseDto bidResponseDto;
     private BidStatus status;
     private Long sellerId;
 }

@@ -5,6 +5,7 @@ import com.project.kisan_setu.dto.RequestDto.ProductListingDto;
 import com.project.kisan_setu.dto.RequestDto.QualityLocationListingDto;
 import com.project.kisan_setu.dto.RequestDto.QualityPricingListingDto;
 import com.project.kisan_setu.dto.ResponseDto.ListingResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.BidResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.ListingSummaryResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.ProductImageResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.QualityCertificateResponseDto;
@@ -114,10 +115,20 @@ public class ListingMapper {
             dto.setTopBidderName(highesBid.getBuyer().getFullName());
             dto.setTopBid(highesBid.getBidId());
             dto.setStatus(highesBid.getBidStatus());
+            dto.setBidResponseDto(new BidResponseDto(
+                    highesBid.getBidId(),
+                    highesBid.getBuyer().getUserId(),
+                    highesBid.getBuyerAmount(),
+                    highesBid.getBuyer().getFullName(),
+                    highesBid.getBidTime(),
+                    highesBid.getBidStatus(),
+                    highesBid.getListing().getSeller().getUserId()
+            ));
         }else {
             dto.setHighestBid(null);
             dto.setTopBidderName(null);
             dto.setTopBid(null);
+            dto.setBidResponseDto(null);
         }
 
         return dto;
