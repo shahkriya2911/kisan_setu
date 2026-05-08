@@ -45,6 +45,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
         Long userId = validatorMethods.getCurrentUserId();
             return orderRepository.findByBuyer_UserIdOrSeller_UserId(userId, userId)
                     .stream()
+                    .filter(this::isVisibleOrderHistoryStatus)
                     .map(order -> mapToDto(order, userId))
                     .toList();
 
@@ -318,6 +319,11 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
             return "RELEASED";
         }
         return order.getStatus().name();
+    }
+
+    private boolean isVisibleOrderHistoryStatus(Order order) {
+        return order.getStatus() == OrderStatus.PAYMENT_HELD
+                || order.getStatus() == OrderStatus.COMPLETED;
     }
 
 }

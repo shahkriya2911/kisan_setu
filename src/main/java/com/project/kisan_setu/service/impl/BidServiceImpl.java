@@ -93,8 +93,12 @@ public class BidServiceImpl implements BidService {
         public List<MyBiddingsResponseDto> getMyRejectedBids() {
                 Long buyerId = validatorMethods.getCurrentUserId();
                 List<Bid> rejectBids = bidRepository
-                                .findByBuyerUserIdAndBidStatusOrderByCreatedAtAsc(buyerId, BidStatus.REJECTED);
-                return rejectBids.stream()
+                                .findByBuyerUserIdAndBidStatusOrderByCreatedAtDesc(buyerId, BidStatus.REJECTED);
+                Map<Long, Bid> latestRejectedBidByListing = new LinkedHashMap<>();
+                for (Bid bid : rejectBids) {
+                        latestRejectedBidByListing.putIfAbsent(bid.getListing().getListingId(), bid);
+                }
+                return latestRejectedBidByListing.values().stream()
                                 .map(bid -> {
                                         BigDecimal highestBid = bidRepository
                                                         .findTopByListingListingIdOrderByBuyerAmountDesc(
