@@ -23,4 +23,13 @@ public class OrderResponseDto {
     private Boolean otpVerified;
     private LocalDateTime createdAt;
     private List<ProductImageResponseDto> images;
+    private String cropName;
+    private String variety;
+    private String bidderName;
+    private BigDecimal buyerAmount;
+    private BigDecimal pricePerUnit;
+    private BigDecimal currentHighestBid;
+    private String state;
+    private String district;
+    private String unit;
 }

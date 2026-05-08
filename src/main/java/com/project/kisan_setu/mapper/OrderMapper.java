@@ -18,6 +18,15 @@ public class OrderMapper {
         dto.setQuantity(order.getQuantity());
         dto.setTotalBasePrice(order.getTotalBasePrice());
         dto.setImages(ListingMapper.mapImages(order.getListing()));
+        dto.setCropName(order.getListing().getCrop().getCropName());
+        dto.setVariety(order.getListing().getVariety());
+        dto.setBidderName(order.getBuyer().getFullName());
+        dto.setBuyerAmount(order.getAcceptBid().getBuyerAmount());
+        dto.setPricePerUnit(order.getPricePerKg());
+        dto.setCurrentHighestBid(order.getAcceptBid().getListing().getTopBid());
+        dto.setState(order.getListing().getState().getName());
+        dto.setDistrict(order.getListing().getDistrict().getName());
+        dto.setUnit(order.getListing().getUnit().getUnitName());
         return dto;
     }
 }
