@@ -22,7 +22,7 @@ public class OrderMapper {
         dto.setVariety(order.getListing().getVariety());
         dto.setBidderName(order.getBuyer().getFullName());
         dto.setBuyerAmount(order.getAcceptBid().getBuyerAmount());
-        dto.setPricePerUnit(order.getPricePerKg());
+        dto.setPricePerUnit(order.getListing().getPricePerKg());
         dto.setCurrentHighestBid(order.getAcceptBid().getListing().getTopBid());
         dto.setState(order.getListing().getState().getName());
         dto.setDistrict(order.getListing().getDistrict().getName());
