@@ -537,7 +537,10 @@ public class ListingServiceImpl implements ListingService {
         );
         Long pendingApprovals = sellerBidApprovals + buyerOrderApprovals;
         Long totalBidsReceived = bidRepository.countTotalBidsBySellerId(sellerId);
-        BigDecimal totalRevenue = bidRepository.sumAmountByListingSellerId(sellerId);
+        BigDecimal totalRevenue = orderRepository.sumAmountBySellerUserIdAndStatusIn(
+                sellerId,
+                List.of(OrderStatus.PAYMENT_HELD, OrderStatus.COMPLETED)
+        );
         logger.info("Fetching seller overview success...");
         return new DashboardDto(activeListings, totalBidsReceived, pendingApprovals, totalRevenue);
     }

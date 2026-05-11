@@ -81,7 +81,8 @@ class JacksonSerializationTest {
                         "Buyer One",
                         LocalDateTime.of(2026, 4, 13, 10, 15),
                         BidStatus.PENDING,
-                        99L
+                        99L,
+                        5L
                 )),
                 0L,
                 List.of(),
