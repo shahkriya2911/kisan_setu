@@ -69,7 +69,7 @@ public class BuyerController {
         public ResponseEntity<Page<BuyingRequirementResponseDto>> getMyRequirements(
                         @RequestParam(required = false) String cropName,
                         @RequestParam(name = "search", required = false) String search,
-                        @PageableDefault(size = 10, sort = "requirementId", direction = Sort.Direction.DESC) Pageable pageable) {
+                        @PageableDefault(size = 6, sort = "requirementId", direction = Sort.Direction.DESC) Pageable pageable) {
                 logger.debug("Get my buyer requirements request attempt");
                 return ResponseEntity.ok(buyerService.getMyRequirements(pageable,
                                 resolveCropNameFilter(cropName, search)));

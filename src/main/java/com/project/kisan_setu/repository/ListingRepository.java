@@ -57,10 +57,8 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
         @Query("""
                         SELECT l FROM Listing l
                         WHERE l.seller.userId = :sellerId
-                        AND (:status IS NULL OR l.status = :status)
                         AND (
-                            :search IS NULL
-                            OR LOWER(l.crop.cropName) LIKE LOWER(CONCAT('%', :search, '%'))
+                            LOWER(l.crop.cropName) LIKE LOWER(CONCAT('%', :search, '%'))
                             OR LOWER(l.variety) LIKE LOWER(CONCAT('%', :search, '%'))
                             OR LOWER(l.grade) LIKE LOWER(CONCAT('%', :search, '%'))
                             OR LOWER(l.state.name) LIKE LOWER(CONCAT('%', :search, '%'))
@@ -72,6 +70,27 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
                         )
                         """)
         Page<Listing> searchSellerListings(
+                        @Param("sellerId") Long sellerId,
+                        @Param("search") String search,
+                        Pageable pageable);
+
+        @Query("""
+                        SELECT l FROM Listing l
+                        WHERE l.seller.userId = :sellerId
+                        AND l.status = :status
+                        AND (
+                            LOWER(l.crop.cropName) LIKE LOWER(CONCAT('%', :search, '%'))
+                            OR LOWER(l.variety) LIKE LOWER(CONCAT('%', :search, '%'))
+                            OR LOWER(l.grade) LIKE LOWER(CONCAT('%', :search, '%'))
+                            OR LOWER(l.state.name) LIKE LOWER(CONCAT('%', :search, '%'))
+                            OR LOWER(l.district.name) LIKE LOWER(CONCAT('%', :search, '%'))
+                            OR LOWER(l.unit.unitName) LIKE LOWER(CONCAT('%', :search, '%'))
+                            OR LOWER(CAST(l.saleType AS string)) LIKE LOWER(CONCAT('%', :search, '%'))
+                            OR LOWER(CAST(l.purchaseType AS string)) LIKE LOWER(CONCAT('%', :search, '%'))
+                            OR LOWER(CAST(l.status AS string)) LIKE LOWER(CONCAT('%', :search, '%'))
+                        )
+                        """)
+        Page<Listing> searchSellerListingsByStatus(
                         @Param("sellerId") Long sellerId,
                         @Param("status") AuctionStatus status,
                         @Param("search") String search,
