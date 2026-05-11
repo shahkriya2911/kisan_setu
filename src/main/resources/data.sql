@@ -669,3 +669,72 @@ INSERT INTO report_reason_master_Buyer (reason_name) VALUES
 ('Suspected fraud'),
 ('Other')
 ON CONFLICT (reason_name) DO NOTHING;
+
+INSERT INTO schemes (
+    scheme_id,
+    scheme_title,
+    scheme_full_name,
+    scheme_category,
+    scheme_description,
+    scheme_eligibility,
+    scheme_state,
+    scheme_official_link,
+    scheme_last_updated_date
+) VALUES
+(1, 'PM-KISAN', 'Pradhan Mantri Kisan Samman Nidhi', 'Financial Support', 'Provides income support of Rs. 6000 per year to eligible farmer families.', 'All landholding farmer families', 'All India', 'https://pmkisan.gov.in', CURRENT_TIMESTAMP),
+(2, 'PMFBY', 'Pradhan Mantri Fasal Bima Yojana', 'Insurance', 'Crop insurance scheme providing financial protection against crop loss.', 'Farmers growing notified crops', 'All India', 'https://pmfby.gov.in', CURRENT_TIMESTAMP),
+(3, 'KCC', 'Kisan Credit Card', 'Credit', 'Provides credit support to farmers for agricultural needs.', 'Farmers with cultivable land', 'All India', 'https://www.myscheme.gov.in/schemes/kcc', CURRENT_TIMESTAMP),
+(4, 'Soil Health Card', 'Soil Health Card Scheme', 'Agriculture Support', 'Provides soil testing and fertilizer recommendations.', 'All farmers', 'All India', 'https://soilhealth.dac.gov.in', CURRENT_TIMESTAMP),
+(5, 'PMKSY', 'Pradhan Mantri Krishi Sinchai Yojana', 'Irrigation', 'Improves irrigation facilities and water efficiency.', 'All farmers', 'All India', 'https://pmksy.gov.in', CURRENT_TIMESTAMP),
+(6, 'eNAM', 'National Agriculture Market', 'Market', 'Online trading platform for agricultural commodities.', 'Farmers and traders', 'All India', 'https://enam.gov.in', CURRENT_TIMESTAMP),
+(7, 'PM KUSUM', 'Pradhan Mantri Kisan Urja Suraksha Yojana', 'Solar Subsidy', 'Provides solar energy solutions for farmers.', 'Farmers with agricultural land', 'All India', 'https://pmkusum.mnre.gov.in', CURRENT_TIMESTAMP),
+(8, 'NABARD Subsidy', 'NABARD Farm Infrastructure Subsidy', 'Subsidy', 'Financial support for farm infrastructure development.', 'Farmers and FPOs', 'All India', 'https://www.nabard.org', CURRENT_TIMESTAMP),
+(9, 'Gujarat Tractor Subsidy', 'Tractor Assistance Scheme Gujarat', 'Subsidy', 'Subsidy for purchasing tractors and equipment.', 'Farmers in Gujarat', 'Gujarat', 'https://ikhedut.gujarat.gov.in', CURRENT_TIMESTAMP),
+(10, 'Gujarat Drip Irrigation', 'Micro Irrigation Scheme Gujarat', 'Irrigation', 'Supports drip irrigation systems.', 'Farmers in Gujarat', 'Gujarat', 'https://ikhedut.gujarat.gov.in', CURRENT_TIMESTAMP)
+ON CONFLICT (scheme_id) DO UPDATE SET
+    scheme_title = EXCLUDED.scheme_title,
+    scheme_full_name = EXCLUDED.scheme_full_name,
+    scheme_category = EXCLUDED.scheme_category,
+    scheme_description = EXCLUDED.scheme_description,
+    scheme_eligibility = EXCLUDED.scheme_eligibility,
+    scheme_state = EXCLUDED.scheme_state,
+    scheme_official_link = EXCLUDED.scheme_official_link,
+    scheme_last_updated_date = EXCLUDED.scheme_last_updated_date;
+
+DELETE FROM scheme_benefits WHERE scheme_id BETWEEN 1 AND 10;
+
+INSERT INTO scheme_benefits (scheme_id, benefit) VALUES
+(1, 'Rs. 6000 per year direct bank transfer'),
+(1, 'Rs. 2000 per installment'),
+(1, 'Support for small and marginal farmers'),
+(2, 'Low premium rates'),
+(2, 'Coverage for crop damage'),
+(2, 'Fast claim settlement'),
+(3, 'Low interest loans'),
+(3, 'Flexible repayment'),
+(3, 'Insurance included'),
+(4, 'Free soil testing'),
+(4, 'Better fertilizer usage'),
+(4, 'Improved crop yield'),
+(5, 'Subsidy on irrigation equipment'),
+(5, 'Water conservation'),
+(5, 'Micro irrigation support'),
+(6, 'Better price discovery'),
+(6, 'Online mandi access'),
+(6, 'Direct selling'),
+(7, 'Solar pump subsidy'),
+(7, 'Reduced electricity cost'),
+(7, 'Extra income via solar energy'),
+(8, 'Warehouse subsidy'),
+(8, 'Cold storage support'),
+(8, 'Infrastructure funding'),
+(9, 'Tractor subsidy'),
+(9, 'Farm mechanization support'),
+(10, 'Up to 70% subsidy'),
+(10, 'Water saving'),
+(10, 'Better crop yield');
+
+SELECT setval(
+    pg_get_serial_sequence('schemes', 'scheme_id'),
+    GREATEST((SELECT COALESCE(MAX(scheme_id), 1) FROM schemes), 1)
+);
