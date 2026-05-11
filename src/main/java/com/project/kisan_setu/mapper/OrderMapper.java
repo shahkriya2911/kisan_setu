@@ -21,9 +21,13 @@ public class OrderMapper {
         dto.setCropName(order.getListing().getCrop().getCropName());
         dto.setVariety(order.getListing().getVariety());
         dto.setBidderName(order.getBuyer().getFullName());
-        dto.setBuyerAmount(order.getAcceptBid().getBuyerAmount());
+        dto.setBuyerAmount(order.getAcceptBid() != null
+                ? order.getAcceptBid().getBuyerAmount()
+                : order.getAmount());
         dto.setPricePerUnit(order.getListing().getPricePerKg());
-        dto.setCurrentHighestBid(order.getAcceptBid().getListing().getTopBid());
+        dto.setCurrentHighestBid(order.getAcceptBid() != null
+                ? order.getAcceptBid().getListing().getTopBid()
+                : order.getListing().getTopBid());
         dto.setState(order.getListing().getState().getName());
         dto.setDistrict(order.getListing().getDistrict().getName());
         dto.setUnit(order.getListing().getUnit().getUnitName());

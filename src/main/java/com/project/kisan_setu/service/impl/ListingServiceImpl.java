@@ -28,6 +28,7 @@ import com.project.kisan_setu.entity.Bid;
 import com.project.kisan_setu.entity.BuyingRequirement;
 import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.BidStatus;
+import com.project.kisan_setu.enums.OrderStatus;
 import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.SaleType;
 import com.project.kisan_setu.enums.RequirementStatus;
@@ -529,11 +530,16 @@ public class ListingServiceImpl implements ListingService {
 
         Long sellerId = seller.getUserId();
         Long activeListings = listingRepository.countBySeller_UserIdAndStatus(sellerId, AuctionStatus.ACTIVE);
-        Long pendingApprovals = listingRepository.countBySeller_UserIdAndStatus(sellerId, AuctionStatus.PENDING);
+        Long sellerBidApprovals = bidRepository.countActiveListingsWithPendingBidsBySellerId(sellerId);
+        Long buyerOrderApprovals = orderRepository.countByBuyer_UserIdAndStatus(
+                sellerId,
+                OrderStatus.PENDING_BUYER_CONFIRMATION
+        );
+        Long pendingApprovals = sellerBidApprovals + buyerOrderApprovals;
         Long totalBidsReceived = bidRepository.countTotalBidsBySellerId(sellerId);
         BigDecimal totalRevenue = bidRepository.sumAmountByListingSellerId(sellerId);
         logger.info("Fetching seller overview success...");
-        return new DashboardDto(activeListings, pendingApprovals, totalBidsReceived, totalRevenue);
+        return new DashboardDto(activeListings, totalBidsReceived, pendingApprovals, totalRevenue);
     }
 
     @Override

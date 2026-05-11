@@ -24,6 +24,8 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
 
     long countByBuyerUserIdAndStatus(Long userId, OrderStatus orderStatus);
 
+    long countByBuyer_UserIdAndStatus(Long userId, OrderStatus orderStatus);
+
     Order findByListingListingId(Long listingId);
 
     void deleteByListingListingId(Long listingId);
