@@ -41,29 +41,31 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
     private final InvoiceService invoiceService;
     private static final Logger log = LoggerFactory.getLogger(OrderHistoryServiceImpl.class);
     @Override
-    public List<OrderHistoryResponseDto> getAllOrderHistory() {
+    public List<OrderHistoryResponseDto> getAllOrderHistory(String search) {
         Long userId = validatorMethods.getCurrentUserId();
             return orderRepository.findByBuyer_UserIdOrSeller_UserId(userId, userId)
                     .stream()
                     .filter(this::isVisibleOrderHistoryStatus)
                     .map(order -> mapToDto(order, userId))
+                    .filter(dto -> matchesSearch(dto, search))
                     .toList();
 
     }
     @Override
-    public List<OrderHistoryResponseDto> getPurchasedOrderHistory() {
+    public List<OrderHistoryResponseDto> getPurchasedOrderHistory(String search) {
         Long userId = validatorMethods.getCurrentUserId();;
         return orderRepository.findByBuyer_UserId(userId)
                 .stream()
                 .filter(order -> order.getStatus() == OrderStatus.PAYMENT_HELD
                         || order.getStatus() == OrderStatus.COMPLETED)
                 .map(order -> mapToDto(order, userId))
+                .filter(dto -> matchesSearch(dto, search))
                 .toList();
     }
 
     @Transactional
     @Override
-    public List<OrderHistoryResponseDto> getSoldOrderHistory() {
+    public List<OrderHistoryResponseDto> getSoldOrderHistory(String search) {
         Long userId = validatorMethods.getCurrentUserId();
         log.info("Fetching sold order history for userId: {}", userId);
 
@@ -84,6 +86,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
                                 order.getListing() != null
                 )
                 .map(order -> mapToDto(order, userId))
+                .filter(dto -> matchesSearch(dto, search))
                 .toList();
     }
 
@@ -324,6 +327,32 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
     private boolean isVisibleOrderHistoryStatus(Order order) {
         return order.getStatus() == OrderStatus.PAYMENT_HELD
                 || order.getStatus() == OrderStatus.COMPLETED;
+    }
+
+    private boolean matchesSearch(OrderHistoryResponseDto dto, String search) {
+        String normalized = normalizeSearch(search);
+        if (normalized == null) {
+            return true;
+        }
+        return contains(dto.getCommodity(), normalized)
+                || contains(dto.getVariety(), normalized)
+                || contains(dto.getBuyerName(), normalized)
+                || contains(dto.getSellerName(), normalized)
+                || contains(dto.getState(), normalized)
+                || contains(dto.getDistrict(), normalized)
+                || contains(dto.getType(), normalized)
+                || contains(dto.getPaymentLabel(), normalized)
+                || contains(dto.getOrderStatus(), normalized)
+                || contains(dto.getOrderId(), normalized)
+                || contains(dto.getListingId(), normalized);
+    }
+
+    private String normalizeSearch(String search) {
+        return search == null || search.isBlank() ? null : search.trim().toLowerCase();
+    }
+
+    private boolean contains(Object value, String search) {
+        return value != null && value.toString().toLowerCase().contains(search);
     }
 
 }

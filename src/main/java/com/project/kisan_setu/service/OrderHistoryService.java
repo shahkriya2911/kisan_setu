@@ -11,9 +11,9 @@ import java.util.List;
 
 public interface OrderHistoryService {
 
-    List<OrderHistoryResponseDto> getAllOrderHistory();
-    List<OrderHistoryResponseDto> getPurchasedOrderHistory();
-    List<OrderHistoryResponseDto> getSoldOrderHistory();
+    List<OrderHistoryResponseDto> getAllOrderHistory(String search);
+    List<OrderHistoryResponseDto> getPurchasedOrderHistory(String search);
+    List<OrderHistoryResponseDto> getSoldOrderHistory(String search);
     ApiResponseDto<ReviewResponseDto> submitSellerReview(Long orderId, ReviewRequestDto requestDto);
     ApiResponseDto<ReviewResponseDto> submitBuyerReview(Long orderId, ReviewRequestDto requestDto);
     ApiResponseDto<ReportResponseDto> reportSeller(Long orderId, ReportUserRequestDto requestDto);

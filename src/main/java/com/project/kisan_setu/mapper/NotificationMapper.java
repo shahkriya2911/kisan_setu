@@ -31,6 +31,7 @@ public class NotificationMapper {
             }
             if (n.getType() == NotificationStatus.BID_ACCEPTED){
                 dto.setPricePerKg(listing.getPricePerKg());
+                dto.setImages(mapImages(listing));
             }
 
             dto.setVariety(listing.getVariety());
@@ -56,6 +57,9 @@ public class NotificationMapper {
         if (n.getOrder() != null){
             Order order = n.getOrder();
             dto.setOrderId(order.getOrderId());
+            if (dto.getBidAmount() == null) {
+                dto.setBidAmount(order.getAmount());
+            }
         }
         return dto;
     }

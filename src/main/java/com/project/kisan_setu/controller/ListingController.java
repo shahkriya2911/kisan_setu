@@ -234,11 +234,12 @@ public class ListingController {
         @SecurityRequirement(name = "cookieAuth")
         public ResponseEntity<Page<ListingResponseDto>> pendingListings(
                         @Parameter(description = "Authentication object", required = true) Authentication authentication,
+                        @RequestParam(required = false) String search,
                         @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 3, sort = "postedOn") Pageable pageable) {
                 logger.debug("Get all pending listings for user with id : {}",
                                 Long.parseLong(authentication.getName()));
                 Long userId = Long.parseLong(authentication.getName());
-                Page<ListingResponseDto> listings = listingService.pendingListings(userId, pageable);
+                Page<ListingResponseDto> listings = listingService.pendingListings(userId, pageable, search);
                 logger.info("Fetched all pending listings for user with id : {} successfully", userId);
                 return ResponseEntity.ok(listings);
         }
@@ -253,10 +254,11 @@ public class ListingController {
         @SecurityRequirement(name = "cookieAuth")
         public ResponseEntity<Page<ListingResponseDto>> soldListings(
                         @Parameter(description = "Authentication object", required = true) Authentication authentication,
+                        @RequestParam(required = false) String search,
                         @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 3, sort = "postedOn") Pageable pageable) {
                 logger.debug("Get all sold listings for user with id : {}", Long.parseLong(authentication.getName()));
                 Long userId = Long.parseLong(authentication.getName());
-                Page<ListingResponseDto> listings = listingService.soldListings(userId, pageable);
+                Page<ListingResponseDto> listings = listingService.soldListings(userId, pageable, search);
                 logger.info("Fetched all sold listings for user with id : {} successfully", userId);
                 return ResponseEntity.ok(listings);
         }
@@ -271,10 +273,11 @@ public class ListingController {
         @SecurityRequirement(name = "cookieAuth")
         public ResponseEntity<Page<ListingResponseDto>> closedListings(
                         @Parameter(description = "Authentication object", required = true) Authentication authentication,
+                        @RequestParam(required = false) String search,
                         @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 3, sort = "postedOn") Pageable pageable) {
                 logger.debug("Get all expired listings for user with id : {}", Long.parseLong(authentication.getName()));
                 Long userId = Long.parseLong(authentication.getName());
-                Page<ListingResponseDto> listings = listingService.closedListings(userId, pageable);
+                Page<ListingResponseDto> listings = listingService.closedListings(userId, pageable, search);
                 logger.info("Fetched all expired listings for user with id : {} successfully", userId);
                 return ResponseEntity.ok(listings);
         }
@@ -289,10 +292,11 @@ public class ListingController {
         @SecurityRequirement(name = "cookieAuth")
         public ResponseEntity<Page<ListingResponseDto>> activeListings(
                         @Parameter(description = "Authentication object", required = true) Authentication authentication,
+                        @RequestParam(required = false) String search,
                         @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 3, sort = "postedOn") Pageable pageable) {
                 logger.debug("Get all active listings for user with id : {}", Long.parseLong(authentication.getName()));
                 Long userId = Long.parseLong(authentication.getName());
-                Page<ListingResponseDto> listings = listingService.activeListings(userId, pageable);
+                Page<ListingResponseDto> listings = listingService.activeListings(userId, pageable, search);
                 logger.info("Fetched all active listings for user with id : {} successfully", userId);
                 return ResponseEntity.ok(listings);
         }
@@ -307,10 +311,11 @@ public class ListingController {
         @SecurityRequirement(name = "cookieAuth")
         public ResponseEntity<Page<ListingResponseDto>> myListings(
                         @Parameter(description = "Authentication object", required = true) Authentication authentication,
+                        @RequestParam(required = false) String search,
                         @Parameter(description = "Pagination and sorting parameters") @PageableDefault(size = 3, sort = "postedOn") Pageable pageable) {
                 logger.debug("Get all my listings for user with id : {}", Long.parseLong(authentication.getName()));
                 Long userId = Long.parseLong(authentication.getName());
-                Page<ListingResponseDto> listings = listingService.myListings(userId, pageable);
+                Page<ListingResponseDto> listings = listingService.myListings(userId, pageable, search);
                 logger.info("Fetched all my listings for user with id : {} successfully", userId);
                 return ResponseEntity.ok(listings);
         }

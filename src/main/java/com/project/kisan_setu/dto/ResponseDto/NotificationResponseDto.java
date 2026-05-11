@@ -36,6 +36,7 @@ public class NotificationResponseDto {
 
     private String sellerName;
     private BigDecimal pricePerKg;
+    private List<ProductImageResponseDto> images;
     private Boolean actionCompleted;
     private String state;
     private String district;

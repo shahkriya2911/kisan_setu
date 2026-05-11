@@ -344,6 +344,10 @@ public class ListingServiceImpl implements ListingService {
         }
     }
 
+    private String normalizeSearch(String search) {
+        return search == null || search.isBlank() ? null : search.trim();
+    }
+
     @Override
     public List<ListingResponseDto> getAllListings() {
         // validatorMethods.validateAdminAccess();
@@ -546,9 +550,9 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public Page<ListingResponseDto> myListings(Long userId, Pageable pageable) {
+    public Page<ListingResponseDto> myListings(Long userId, Pageable pageable, String search) {
         logger.info("Getting all my listings...");
-        Page<Listing> listings = listingRepository.findBySeller_UserId(userId, pageable);
+        Page<Listing> listings = listingRepository.searchSellerListings(userId, null, normalizeSearch(search), pageable);
         logger.info("Fetching my listings success...");
         return listings.map(listing -> {
             Optional<Bid> highestBidOpt =
@@ -576,10 +580,10 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public Page<ListingResponseDto> activeListings(Long sellerId, Pageable pageable) {
+    public Page<ListingResponseDto> activeListings(Long sellerId, Pageable pageable, String search) {
         logger.info("Getting active listings...");
-        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.ACTIVE,
-                pageable);
+        Page<Listing> listings = listingRepository.searchSellerListings(
+                sellerId, AuctionStatus.ACTIVE, normalizeSearch(search), pageable);
         return listings.map(listing -> {
 
             Optional<Bid> highestBidOpt =
@@ -636,10 +640,10 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public Page<ListingResponseDto> pendingListings(Long sellerId, Pageable pageable) {
+    public Page<ListingResponseDto> pendingListings(Long sellerId, Pageable pageable, String search) {
         logger.info("Getting pending listings...");
-        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.PENDING,
-                pageable);
+        Page<Listing> listings = listingRepository.searchSellerListings(
+                sellerId, AuctionStatus.PENDING, normalizeSearch(search), pageable);
         logger.info("Fetching pending listings success...");
         return listings.map(listing -> {
 
@@ -653,9 +657,10 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public Page<ListingResponseDto> soldListings(Long sellerId, Pageable pageable) {
+    public Page<ListingResponseDto> soldListings(Long sellerId, Pageable pageable, String search) {
         logger.info("Getting sold closed listings...");
-        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.SOLD, pageable);
+        Page<Listing> listings = listingRepository.searchSellerListings(
+                sellerId, AuctionStatus.SOLD, normalizeSearch(search), pageable);
         logger.info("Fetching sold listing success...");
         return listings.map(listing -> {
 
@@ -669,10 +674,10 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public Page<ListingResponseDto> closedListings(Long sellerId, Pageable pageable) {
+    public Page<ListingResponseDto> closedListings(Long sellerId, Pageable pageable, String search) {
         logger.info("Getting closed listings...");
-        Page<Listing> listings = listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.EXPIRED,
-                pageable);
+        Page<Listing> listings = listingRepository.searchSellerListings(
+                sellerId, AuctionStatus.EXPIRED, normalizeSearch(search), pageable);
         logger.info("Fetching closed listings success...");
         return listings.map(listing -> {
 

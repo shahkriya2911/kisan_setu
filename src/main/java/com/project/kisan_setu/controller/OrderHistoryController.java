@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
@@ -37,8 +38,9 @@ public class OrderHistoryController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<List<OrderHistoryResponseDto>> getAllOrderHistory() {
-        return ResponseEntity.ok(orderHistoryService.getAllOrderHistory());
+    public ResponseEntity<List<OrderHistoryResponseDto>> getAllOrderHistory(
+            @RequestParam(required = false) String search) {
+        return ResponseEntity.ok(orderHistoryService.getAllOrderHistory(search));
     }
 
     @GetMapping("/purchased")
@@ -49,8 +51,9 @@ public class OrderHistoryController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<List<OrderHistoryResponseDto>> getPurchasedOrderHistory() {
-        return ResponseEntity.ok(orderHistoryService.getPurchasedOrderHistory());
+    public ResponseEntity<List<OrderHistoryResponseDto>> getPurchasedOrderHistory(
+            @RequestParam(required = false) String search) {
+        return ResponseEntity.ok(orderHistoryService.getPurchasedOrderHistory(search));
     }
 
     @GetMapping("/sold")
@@ -61,8 +64,9 @@ public class OrderHistoryController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<List<OrderHistoryResponseDto>> getSoldOrderHistory() {
-        return ResponseEntity.ok(orderHistoryService.getSoldOrderHistory());
+    public ResponseEntity<List<OrderHistoryResponseDto>> getSoldOrderHistory(
+            @RequestParam(required = false) String search) {
+        return ResponseEntity.ok(orderHistoryService.getSoldOrderHistory(search));
     }
 
     @PostMapping("/seller/{orderId}")
