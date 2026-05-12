@@ -471,7 +471,7 @@ public class ListingServiceImpl implements ListingService {
                 listing.getStorage().getStorageType(),
                 top5Bids,
                 null,
-                ListingMapper.mapImages(listing),
+                ListingMapper.mapAllImages(listing),
                 listing.getHarvestDate(),
                 listing.getPackaging().getPackagingType(),
                 listing.getSeller().getUserId());
@@ -738,24 +738,47 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public List<BuyingRequirementResponseDto> getAllRequirementsForSeller(String cropName) {
+    public List<BuyingRequirementResponseDto> getAllRequirementsForSeller(String search) {
 
         Long currentUserId = validatorMethods.getCurrentUserId();
 
-        List<BuyingRequirement> list;
-        if (cropName != null && !cropName.isBlank()) {
-            list = buyingRequirementRepository
-                    .findByRequirementStatusAndBuyer_UserIdNotAndCrop_CropNameContainingIgnoreCase(
-                            RequirementStatus.OPEN, currentUserId, cropName.trim());
-        } else {
-            list = buyingRequirementRepository
-                    .findByRequirementStatusAndBuyer_UserIdNot(
-                            RequirementStatus.OPEN, currentUserId);
-        }
+        String normalizedSearch = normalizeSearch(search);
+        List<BuyingRequirement> list = buyingRequirementRepository
+                .findByRequirementStatusAndBuyer_UserIdNot(
+                        RequirementStatus.OPEN, currentUserId);
 
         return list.stream()
                 .map(BuyingRequirementMapper::toDto)
+                .filter(dto -> matchesRequirementSearch(dto, normalizedSearch))
                 .toList();
+    }
+
+    private boolean matchesRequirementSearch(BuyingRequirementResponseDto dto, String search) {
+        if (search == null) {
+            return true;
+        }
+        String normalized = search.toLowerCase();
+        return contains(dto.getCropName(), normalized)
+                || contains(dto.getVariety(), normalized)
+                || contains(dto.getGrade(), normalized)
+                || contains(dto.getUnit(), normalized)
+                || contains(dto.getState(), normalized)
+                || contains(dto.getDistrict(), normalized)
+                || contains(dto.getDeliveryAddress(), normalized)
+                || contains(dto.getBuyerName(), normalized)
+                || contains(dto.getUrgency(), normalized)
+                || contains(dto.getAdditionalNotes(), normalized)
+                || contains(dto.getQuantityRequired(), normalized)
+                || contains(dto.getExpectedMinPrice(), normalized)
+                || contains(dto.getExpectedMaxPrice(), normalized)
+                || contains(dto.getDeadline(), normalized)
+                || contains(dto.getBuyerId(), normalized)
+                || contains(dto.getSellerId(), normalized)
+                || contains(dto.getRequirementId(), normalized);
+    }
+
+    private boolean contains(Object value, String search) {
+        return value != null && value.toString().toLowerCase().contains(search);
     }
 
     @Override

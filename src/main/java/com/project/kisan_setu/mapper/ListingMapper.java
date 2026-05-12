@@ -306,6 +306,24 @@ public class ListingMapper {
                 })
                 .orElse(null);
     }
+
+    public static List<ProductImageResponseDto> mapAllImages(Listing listing) {
+        if (listing.getImages() == null || listing.getImages().isEmpty()) {
+            return null;
+        }
+
+        return listing.getImages().stream()
+                .map(img -> {
+                    ProductImageResponseDto dto = new ProductImageResponseDto();
+                    dto.setFileName(img.getFileName());
+                    dto.setFilePath(img.getFilePath());
+                    dto.setFileType(img.getFileType());
+                    dto.setIsPrimary(img.getIsPrimary());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
     public static AuctionListingResponseDto toAuctionListingResponseDto(Listing listing, Long topBid) {
 
         if (listing == null) {

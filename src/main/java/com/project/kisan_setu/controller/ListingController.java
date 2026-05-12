@@ -329,11 +329,12 @@ public class ListingController {
         })
         @SecurityRequirement(name = "cookieAuth")
         public ResponseEntity<List<BuyingRequirementResponseDto>> getRequirementsForSeller(
-                        @RequestParam(required = false) String cropName) {
+                        @RequestParam(required = false) String cropName,
+                        @RequestParam(required = false) String search) {
                 logger.info("Get buyer requirements for seller");
                 logger.info("Buyer requirements for seller fetched successfully");
                 return ResponseEntity.ok(
-                                listingService.getAllRequirementsForSeller(cropName));
+                                listingService.getAllRequirementsForSeller(resolveCropNameFilter(cropName, search)));
         }
 
         @GetMapping("/requirements/contact/{requirementId}")
@@ -443,5 +444,15 @@ public class ListingController {
                 logger.info("Fetched all active listings for user with id : {} successfully", userId);
 
                 return ResponseEntity.ok(listings);
+        }
+
+        private String resolveCropNameFilter(String cropName, String search) {
+                if (search != null && !search.isBlank()) {
+                        return search.trim();
+                }
+                if (cropName != null && !cropName.isBlank()) {
+                        return cropName.trim();
+                }
+                return null;
         }
 }
