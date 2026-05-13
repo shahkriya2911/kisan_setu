@@ -75,6 +75,19 @@ public class BuyerController {
                                 resolveCropNameFilter(cropName, search)));
         }
 
+        @GetMapping("/buyer-requirement/summary")
+        @Operation(summary = "Get buyer requirement summary", description = "Used by buyer to get total, normal, and urgent requirement counts")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Buyer requirement summary fetched successfully"),
+                        @ApiResponse(responseCode = "401", description = "Unauthorized user"),
+                        @ApiResponse(responseCode = "500", description = "Something went wrong")
+        })
+        @SecurityRequirement(name = "cookieAuth")
+        public ResponseEntity<BuyerRequirementSummaryDto> getMyRequirementSummary() {
+                logger.debug("Get my buyer requirement summary request attempt");
+                return ResponseEntity.ok(buyerService.getMyRequirementSummary());
+        }
+
         @DeleteMapping("/buyer-requirement/{requirementId}")
         @Operation(summary = "Delete buyer requirement method", description = "Used by buyer to delete their own buyer requirement")
         @ApiResponses(value = {

@@ -64,6 +64,8 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
             """)
     Long countActiveListingsWithPendingBidsBySellerId(@Param("sellerId") Long sellerId);
 
+    Long countByListingSellerUserIdAndBidStatus(Long sellerId, BidStatus bidStatus);
+
     @Query("SELECT COALESCE(SUM(b.buyerAmount), 0) FROM Bid b WHERE b.listing.seller.userId = :sellerId")
     BigDecimal sumAmountByListingSellerId(@Param("sellerId") Long sellerId);
 

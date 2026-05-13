@@ -10,6 +10,7 @@ import com.project.kisan_setu.dto.ResponseDto.ListingSummaryResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.RecentBidResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.SellerListingDto;
 import com.project.kisan_setu.dto.ResponseDto.SellerListingFixedDto;
+import com.project.kisan_setu.dto.ResponseDto.SellerListingSummaryDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +35,8 @@ public interface ListingService {
     SellerListingFixedDto getSellerFixedListingDetail(Long listingId);
 
     DashboardDto getSellerOverview();
+
+    SellerListingSummaryDto getMyListingSummary();
 
     Page<ListingResponseDto> activeListings(Long sellerId, Pageable pageable, String search);
 

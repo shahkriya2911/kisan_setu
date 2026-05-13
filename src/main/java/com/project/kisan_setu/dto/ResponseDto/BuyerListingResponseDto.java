@@ -43,5 +43,6 @@ public class BuyerListingResponseDto {
     private BigDecimal minimumOrderQuantity;
     private List<BidResponseDto> top5Bids;
     private String sellerName;
+    private QualityCertificateResponseDto certificate;
 
 }

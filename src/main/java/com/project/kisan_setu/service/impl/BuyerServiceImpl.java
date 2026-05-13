@@ -3,7 +3,9 @@ import com.project.kisan_setu.dto.RequestDto.BuyingRequirementRequestDto;
 import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.BidResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyerListingResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.BuyerRequirementSummaryDto;
 import com.project.kisan_setu.dto.ResponseDto.ProductImageResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.QualityCertificateResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
 import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.entity.BuyingRequirement;
@@ -18,7 +20,9 @@ import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.BidStatus;
 import com.project.kisan_setu.enums.NotificationStatus;
+import com.project.kisan_setu.enums.RequirementStatus;
 import com.project.kisan_setu.enums.SaleType;
+import com.project.kisan_setu.enums.Urgency;
 import com.project.kisan_setu.exception.UserException;
 import com.project.kisan_setu.mapper.BuyingRequirementMapper;
 import com.project.kisan_setu.repository.BidRepository;
@@ -79,6 +83,26 @@ public class BuyerServiceImpl implements BuyerService {
                         userId, filterCrop, pageable);
 
         return requirements.map(BuyingRequirementMapper::toDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BuyerRequirementSummaryDto getMyRequirementSummary() {
+        Long userId = validatorMethods.getCurrentUserId();
+
+        Long totalRequirements = buyingRequirementRepository
+                .countByBuyerUserIdAndRequirementStatus(userId, RequirementStatus.OPEN);
+        Long normalRequirements = buyingRequirementRepository
+                .countByBuyerUserIdAndRequirementStatusAndUrgency(
+                        userId, RequirementStatus.OPEN, Urgency.NORMAL);
+        Long urgentRequirements = buyingRequirementRepository
+                .countByBuyerUserIdAndRequirementStatusAndUrgency(
+                        userId, RequirementStatus.OPEN, Urgency.URGENT);
+
+        return new BuyerRequirementSummaryDto(
+                totalRequirements,
+                normalRequirements,
+                urgentRequirements);
     }
 
     @Override
@@ -394,7 +418,8 @@ public class BuyerServiceImpl implements BuyerService {
                 images,
                 listing.getMinimumOrderQuantity(),
                 top5Bids,
-                listing.getSeller().getFullName());
+                listing.getSeller().getFullName(),
+                toCertificateResponse(listing));
     }
 
     private ProductImageResponseDto toImageResponse(ListingImage image) {
@@ -403,6 +428,18 @@ public class BuyerServiceImpl implements BuyerService {
         dto.setFilePath(image.getFilePath());
         dto.setFileType(image.getFileType());
         dto.setIsPrimary(image.getIsPrimary());
+        return dto;
+    }
+
+    private QualityCertificateResponseDto toCertificateResponse(Listing listing) {
+        if (listing.getCertificate() == null) {
+            return null;
+        }
+
+        QualityCertificateResponseDto dto = new QualityCertificateResponseDto();
+        dto.setFileName(listing.getCertificate().getFileName());
+        dto.setFilePath(listing.getCertificate().getFilePath());
+        dto.setFileType(listing.getCertificate().getFileType());
         return dto;
     }
 

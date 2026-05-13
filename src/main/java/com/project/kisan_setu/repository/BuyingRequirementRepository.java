@@ -2,6 +2,7 @@ package com.project.kisan_setu.repository;
 
 import com.project.kisan_setu.entity.BuyingRequirement;
 import com.project.kisan_setu.enums.RequirementStatus;
+import com.project.kisan_setu.enums.Urgency;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,6 +20,11 @@ public interface BuyingRequirementRepository
 
     Page<BuyingRequirement> findByBuyerUserIdAndCrop_CropNameContainingIgnoreCase(
             Long buyerId, String cropName, Pageable pageable);
+
+    Long countByBuyerUserIdAndRequirementStatus(Long buyerId, RequirementStatus requirementStatus);
+
+    Long countByBuyerUserIdAndRequirementStatusAndUrgency(
+            Long buyerId, RequirementStatus requirementStatus, Urgency urgency);
 
     List<BuyingRequirement> findByCrop_CropNameIgnoreCase(String cropName);
 

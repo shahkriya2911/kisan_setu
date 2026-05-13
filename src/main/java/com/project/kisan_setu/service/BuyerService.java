@@ -4,6 +4,7 @@ import com.project.kisan_setu.dto.RequestDto.BuyingRequirementRequestDto;
 import com.project.kisan_setu.dto.RequestDto.PlaceBidRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.BidResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyerListingResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.BuyerRequirementSummaryDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,8 @@ public interface BuyerService {
     BuyingRequirementResponseDto postRequirement(BuyingRequirementRequestDto dto);
 
     Page<BuyingRequirementResponseDto> getMyRequirements(Pageable pageable, String cropName);
+
+    BuyerRequirementSummaryDto getMyRequirementSummary();
 
     void deleteRequirement(Long requirementId);
 

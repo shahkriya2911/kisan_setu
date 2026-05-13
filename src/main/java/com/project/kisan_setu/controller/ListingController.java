@@ -208,6 +208,19 @@ public class ListingController {
                 return ResponseEntity.ok(listingService.getSellerOverview());
         }
 
+        @GetMapping("/my-listings/summary")
+        @Operation(summary = "Get seller listing summary", description = "Used by seller to get total listings, active bids, and sold listings count")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Seller listing summary fetched successfully"),
+                        @ApiResponse(responseCode = "401", description = "Unauthorized user"),
+                        @ApiResponse(responseCode = "500", description = "Something went wrong")
+        })
+        @SecurityRequirement(name = "cookieAuth")
+        public ResponseEntity<SellerListingSummaryDto> getMyListingSummary() {
+                logger.info("Get seller listing summary request");
+                return ResponseEntity.ok(listingService.getMyListingSummary());
+        }
+
         @PostMapping("/extend-auction")
         @Operation(summary = "Extend auction time", description = "Used by seller to extend auction time")
         @ApiResponses(value = {

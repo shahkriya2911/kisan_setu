@@ -9,6 +9,7 @@ import com.project.kisan_setu.dto.ResponseDto.BuyerContactResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.ListingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.SellerListingDto;
 import com.project.kisan_setu.dto.ResponseDto.SellerListingFixedDto;
+import com.project.kisan_setu.dto.ResponseDto.SellerListingSummaryDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.ListingSummaryResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.RecentBidResponseDto;
@@ -547,6 +548,18 @@ public class ListingServiceImpl implements ListingService {
         );
         logger.info("Fetching seller overview success...");
         return new DashboardDto(activeListings, totalBidsReceived, pendingApprovals, totalRevenue);
+    }
+
+    @Override
+    public SellerListingSummaryDto getMyListingSummary() {
+        logger.info("Getting seller listing summary...");
+        Long sellerId = validatorMethods.getCurrentUserId();
+
+        Long totalListings = listingRepository.countBySellerUserId(sellerId);
+        Long activeBids = bidRepository.countByListingSellerUserIdAndBidStatus(sellerId, BidStatus.PENDING);
+        Long soldListings = listingRepository.countBySeller_UserIdAndStatus(sellerId, AuctionStatus.SOLD);
+
+        return new SellerListingSummaryDto(totalListings, activeBids, soldListings);
     }
 
     @Override
