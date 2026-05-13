@@ -75,7 +75,7 @@ public class BuyerController {
                                 resolveCropNameFilter(cropName, search)));
         }
 
-        @GetMapping("/buyer-requirement/summary")
+        @GetMapping({"/buyer-requirement/summary"})
         @Operation(summary = "Get buyer requirement summary", description = "Used by buyer to get total, normal, and urgent requirement counts")
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "Buyer requirement summary fetched successfully"),
