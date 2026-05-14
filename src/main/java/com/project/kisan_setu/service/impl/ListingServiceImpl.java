@@ -27,6 +27,7 @@ import com.project.kisan_setu.entity.StorageMaster;
 import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.entity.Bid;
 import com.project.kisan_setu.entity.BuyingRequirement;
+import com.project.kisan_setu.entity.Order;
 import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.BidStatus;
 import com.project.kisan_setu.enums.OrderStatus;
@@ -554,6 +555,7 @@ public class ListingServiceImpl implements ListingService {
     public SellerListingSummaryDto getMyListingSummary() {
         logger.info("Getting seller listing summary...");
         Long sellerId = validatorMethods.getCurrentUserId();
+        syncCompletedOrderListingsAsSold(sellerId);
 
         Long totalListings = listingRepository.countBySellerUserId(sellerId);
         Long activeBids = bidRepository.countByListingSellerUserIdAndBidStatus(sellerId, BidStatus.PENDING);
@@ -562,9 +564,27 @@ public class ListingServiceImpl implements ListingService {
         return new SellerListingSummaryDto(totalListings, activeBids, soldListings);
     }
 
+    private void syncCompletedOrderListingsAsSold(Long sellerId) {
+        List<Listing> staleListings = orderRepository
+                .findBySellerUserIdAndStatusWithListing(sellerId, OrderStatus.COMPLETED)
+                .stream()
+                .map(Order::getListing)
+                .filter(listing -> listing != null && listing.getStatus() != AuctionStatus.SOLD)
+                .peek(listing -> {
+                    listing.setStatus(AuctionStatus.SOLD);
+                    listing.setIsSold(true);
+                })
+                .toList();
+
+        if (!staleListings.isEmpty()) {
+            listingRepository.saveAll(staleListings);
+        }
+    }
+
     @Override
     public Page<ListingResponseDto> myListings(Long userId, Pageable pageable, String search) {
         logger.info("Getting all my listings...");
+        syncCompletedOrderListingsAsSold(userId);
         String normalizedSearch = normalizeSearch(search);
         Page<Listing> listings = normalizedSearch == null
                 ? listingRepository.findBySeller_UserId(userId, pageable)
@@ -660,6 +680,7 @@ public class ListingServiceImpl implements ListingService {
     @Override
     public Page<ListingResponseDto> pendingListings(Long sellerId, Pageable pageable, String search) {
         logger.info("Getting pending listings...");
+        syncCompletedOrderListingsAsSold(sellerId);
         String normalizedSearch = normalizeSearch(search);
         Page<Listing> listings = normalizedSearch == null
                 ? listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.PENDING, pageable)
@@ -679,6 +700,7 @@ public class ListingServiceImpl implements ListingService {
     @Override
     public Page<ListingResponseDto> soldListings(Long sellerId, Pageable pageable, String search) {
         logger.info("Getting sold closed listings...");
+        syncCompletedOrderListingsAsSold(sellerId);
         String normalizedSearch = normalizeSearch(search);
         Page<Listing> listings = normalizedSearch == null
                 ? listingRepository.findBySeller_UserIdAndStatus(sellerId, AuctionStatus.SOLD, pageable)

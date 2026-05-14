@@ -49,6 +49,17 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
 
     List<Order> findBySeller_UserId(Long userId);
 
+    @Query("""
+            SELECT o
+            FROM Order o
+            JOIN FETCH o.listing l
+            WHERE o.seller.userId = :sellerId
+            AND o.status = :status
+            """)
+    List<Order> findBySellerUserIdAndStatusWithListing(
+            @Param("sellerId") Long sellerId,
+            @Param("status") OrderStatus status);
+
     Optional<Order> findByAcceptBid(Bid bid);
 
 //    long countDistinctBuyers();

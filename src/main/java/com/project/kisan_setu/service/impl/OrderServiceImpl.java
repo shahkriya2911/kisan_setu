@@ -456,6 +456,20 @@ public class OrderServiceImpl implements OrderService {
         order.setOtpVerified(true);
         order.setStatus(OrderStatus.COMPLETED);
         order.setEscrowStatus(EscrowStatus.RELEASED);
+        order.setCompletedAt(LocalDateTime.now());
+
+        Listing listing = order.getListing();
+        if (listing != null) {
+            boolean shouldMarkSold = listing.getSaleType() == SaleType.AUCTION
+                    || listing.getPurchaseType() == PurchaseType.WHOLE_LOT_ONLY
+                    || (listing.getQuantity() != null && listing.getQuantity().compareTo(BigDecimal.ZERO) <= 0);
+
+            if (shouldMarkSold) {
+                listing.setStatus(AuctionStatus.SOLD);
+                listing.setIsSold(true);
+                listingRepository.save(listing);
+            }
+        }
 
         orderRepository.save(order);
 
@@ -464,7 +478,7 @@ public class OrderServiceImpl implements OrderService {
                 order.getSeller(),
                 "Payment released for order #" + order.getOrderId(),
                 NotificationStatus.PAYMENT_RELEASED,
-                order.getListing(),
+                listing,
                 null,
                 order
         );
