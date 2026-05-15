@@ -76,6 +76,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/users/signup",
                                 "/api/users/login",
+                                "/api/schemes",
                                 "/api/users/refresh",
                                 "/api/users/logout",
                                 "/swagger-ui/**",
