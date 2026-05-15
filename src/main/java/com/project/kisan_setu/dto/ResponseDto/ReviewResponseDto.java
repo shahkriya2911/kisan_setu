@@ -23,6 +23,7 @@ public class ReviewResponseDto {
     private String sellerName;
 
     private Boolean isBuyerReview;
+    private Boolean isSellerReview;
 
     private String createdAt;
 }

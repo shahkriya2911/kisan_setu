@@ -13,12 +13,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(
-        name = "ratingsAndReview",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"order_id", "review_type"})
-        }
-)
+@Table(name = "ratings_and_review")
 @Data
 public class RatingAndReview extends Auditable {
 
@@ -44,13 +39,14 @@ public class RatingAndReview extends Auditable {
     @JoinColumn(name = "seller_id", nullable = false)
     private User seller;
 
-    @Column(nullable = false)
-    private Boolean isBuyerReview = false;
+    @Column(name = "is_buyer_review", nullable = false)
+    private Boolean buyerReview = false;
 
-    @Column(nullable = false)
-    private Boolean isSellerReview = false;
+    @Column(name = "is_seller_review", nullable = false)
+    private Boolean sellerReview = false;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "review_type", nullable = false)
     private ReviewType reviewType;
+
 }

@@ -29,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
@@ -427,47 +428,31 @@ public class UserController {
                                 refreshToken.getRefreshToken());
         }
 
-        private void writeTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
-                ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
-                                .httpOnly(true)
-                                .secure(secureCookie)
-                                .path("/")
-                                .maxAge(jwtUtil.getAccessExpiration() / 1000)
-                                .sameSite("Lax")
-                                .build();
+    private void writeTokenCookies(HttpServletResponse response,
+                                   String accessToken,
+                                   String refreshToken) {
 
-                ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
-                                .httpOnly(true)
-                                .secure(secureCookie)
-                                .path("/")
-                                .maxAge(jwtUtil.getRefreshExpiration() / 1000)
-                                .sameSite("Lax")
-                                .build();
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .domain("kisansetu.online")
+                .sameSite("None")
+                .maxAge(15 * 60)
+                .build();
 
-                response.addHeader("Set-Cookie", accessCookie.toString());
-                response.addHeader("Set-Cookie", refreshCookie.toString());
-        }
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .domain("kisansetu.online")
+                .sameSite("None")
+                .maxAge(7 * 24 * 60 * 60)
+                .build();
 
-        private void clearAuthCookies(HttpServletResponse response) {
-                ResponseCookie clearAccessCookie = ResponseCookie.from("accessToken", "")
-                                .httpOnly(true)
-                                .secure(secureCookie)
-                                .path("/")
-                                .maxAge(0)
-                                .sameSite("Lax")
-                                .build();
-
-                ResponseCookie clearRefreshCookie = ResponseCookie.from("refreshToken", "")
-                                .httpOnly(true)
-                                .secure(secureCookie)
-                                .path("/")
-                                .maxAge(0)
-                                .sameSite("Lax")
-                                .build();
-                response.addHeader("Set-Cookie", clearAccessCookie.toString());
-                response.addHeader("Set-Cookie", clearRefreshCookie.toString());
-        }
-
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+    }
         private String resolveRefreshToken(HttpServletRequest request,
                         RefreshTokenRequestDto body) {
 
@@ -497,4 +482,27 @@ public class UserController {
                 }
                 return Optional.empty();
         }
+    private void clearAuthCookies(HttpServletResponse response) {
+
+        ResponseCookie clearAccessCookie = ResponseCookie.from("accessToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .domain("kisansetu.online")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+
+        ResponseCookie clearRefreshCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .domain("kisansetu.online")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+
+        response.addHeader("Set-Cookie", clearAccessCookie.toString());
+        response.addHeader("Set-Cookie", clearRefreshCookie.toString());
+    }
 }
