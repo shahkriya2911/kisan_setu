@@ -208,7 +208,7 @@ public class ListingController {
                 return ResponseEntity.ok(listingService.getSellerOverview());
         }
 
-        @GetMapping({"/my-listings/summary"})
+        @GetMapping({"/my-listings/summary", "/my-listings-summary"})
         @Operation(summary = "Get seller listing summary", description = "Used by seller to get total listings, active bids, and sold listings count")
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "Seller listing summary fetched successfully"),

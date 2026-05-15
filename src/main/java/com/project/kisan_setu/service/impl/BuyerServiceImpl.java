@@ -417,11 +417,10 @@ public class BuyerServiceImpl implements BuyerService {
                 listing.getAuctionEndTime(),
                 currentHighest,
                 images,
-                listing.getMinimumOrderQuantity(),
+                ListingMapper.resolveMinimumOrderQuantity(listing),
                 top5Bids,
                 listing.getSeller().getFullName(),
                 toCertificateResponse(listing));
-                ListingMapper.resolveMinimumOrderQuantity(listing));
     }
 
     private ProductImageResponseDto toImageResponse(ListingImage image) {
