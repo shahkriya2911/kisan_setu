@@ -48,11 +48,8 @@ public class SecurityConfig {
                         .frameOptions(frameOptions -> frameOptions.disable())
                         .contentSecurityPolicy(csp -> csp.policyDirectives(
                                 "frame-ancestors 'self' " +
-                                        "http://localhost:3000 " +
-                                        "http://192.168.31.213:3000 " +
-                                        "https://www.kisansetu.online" +
-                                        "https://kissansetu.vercel.app " +
-                                        "http://192.168.31.213:3001"
+                                        "https://www.kisansetu.online " +
+                                        "https://kissansetu.vercel.app "
 
                         ))
                 )
