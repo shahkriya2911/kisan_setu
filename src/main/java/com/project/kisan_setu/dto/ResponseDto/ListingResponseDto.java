@@ -2,7 +2,9 @@ package com.project.kisan_setu.dto.ResponseDto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.enums.BidStatus;
 import com.project.kisan_setu.enums.PurchaseType;
+import com.project.kisan_setu.enums.SaleType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,7 +34,7 @@ public class ListingResponseDto {
     private BigDecimal pricePerKg;
     private BigDecimal totalBasePrice;
     private PurchaseType purchaseType;
-    private String saleType;
+    private SaleType saleType;
 
     // Partial Orders fields
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -42,6 +44,7 @@ public class ListingResponseDto {
 
     // Auction fields
     private BigDecimal minimumBidIncrement;
+    private BigDecimal maximumBidIncrement;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private LocalDateTime auctionEndTime;
 
@@ -66,5 +69,6 @@ public class ListingResponseDto {
     private String topBidderName;
     @JsonInclude(JsonInclude.Include.ALWAYS)
     private Long topBid;
-    private Long bidId;
+    private BidStatus status;
+    private Long sellerId;
 }

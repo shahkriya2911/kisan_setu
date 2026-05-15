@@ -1,5 +1,4 @@
 package com.project.kisan_setu.service.impl;
-
 import com.project.kisan_setu.dto.ResponseDto.MyBiddingsResponseDto;
 import com.project.kisan_setu.entity.Bid;
 import com.project.kisan_setu.entity.Order;
@@ -13,9 +12,7 @@ import com.project.kisan_setu.service.BidService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class BidServiceImpl implements BidService {
@@ -41,8 +38,13 @@ public class BidServiceImpl implements BidService {
                 List<BidStatus> statuses = List.of(BidStatus.PENDING, BidStatus.REJECTED, BidStatus.EXPIRED,
                                 BidStatus.ACCEPTED);
                 List<Bid> getAllBids = bidRepository
-                                .findByBuyerUserIdAndBidStatusInOrderByCreatedAtAsc(buyerId, statuses);
-                return getAllBids.stream()
+                                .findByBuyerUserIdAndBidStatusInOrderByCreatedAtDesc(buyerId, statuses);
+                Map<Long,Bid> latestBid = new LinkedHashMap<>();
+                for (Bid bid : getAllBids){
+                    Long listingId = bid.getListing().getListingId();
+                    latestBid.putIfAbsent(listingId,bid);
+                }
+                return latestBid.values().stream()
                                 .map(bid -> {
                                         BigDecimal highestBid = bidRepository
                                                         .findTopByListingListingIdOrderByBuyerAmountDesc(
@@ -58,9 +60,14 @@ public class BidServiceImpl implements BidService {
         @Override
         public List<MyBiddingsResponseDto> getMyPendingBids() {
                 Long buyerId = validatorMethods.getCurrentUserId();
-                List<Bid> pendingBids = bidRepository
-                                .findByBuyerUserIdAndBidStatusOrderByCreatedAtAsc(buyerId, BidStatus.PENDING);
-                return pendingBids.stream()
+            List<Bid> getAllPendingBids = bidRepository
+                    .findByBuyerUserIdAndBidStatusOrderByCreatedAtDesc(buyerId, BidStatus.PENDING);
+            Map<Long,Bid> latestBid = new LinkedHashMap<>();
+            for (Bid bid : getAllPendingBids){
+                Long listingId = bid.getListing().getListingId();
+                latestBid.putIfAbsent(listingId,bid);
+            }
+                return latestBid.values().stream()
                                 .map(bid -> {
                                         BigDecimal highestBid = bidRepository
                                                         .findTopByListingListingIdOrderByBuyerAmountDesc(
@@ -86,8 +93,12 @@ public class BidServiceImpl implements BidService {
         public List<MyBiddingsResponseDto> getMyRejectedBids() {
                 Long buyerId = validatorMethods.getCurrentUserId();
                 List<Bid> rejectBids = bidRepository
-                                .findByBuyerUserIdAndBidStatusOrderByCreatedAtAsc(buyerId, BidStatus.REJECTED);
-                return rejectBids.stream()
+                                .findByBuyerUserIdAndBidStatusOrderByCreatedAtDesc(buyerId, BidStatus.REJECTED);
+                Map<Long, Bid> latestRejectedBidByListing = new LinkedHashMap<>();
+                for (Bid bid : rejectBids) {
+                        latestRejectedBidByListing.putIfAbsent(bid.getListing().getListingId(), bid);
+                }
+                return latestRejectedBidByListing.values().stream()
                                 .map(bid -> {
                                         BigDecimal highestBid = bidRepository
                                                         .findTopByListingListingIdOrderByBuyerAmountDesc(

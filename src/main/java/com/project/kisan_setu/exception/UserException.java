@@ -1,5 +1,4 @@
 package com.project.kisan_setu.exception;
-import jakarta.annotation.Generated;
 import org.springframework.http.HttpStatus;
 
 

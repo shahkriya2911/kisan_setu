@@ -11,6 +11,13 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification,Long> {
 
     List<Notification> findByUser_UserIdOrderByCreatedAtDesc(Long userId);
+
+    void deleteByListingListingId(Long listingId);
+
+    void deleteByBidListingListingId(Long listingId);
+
+    void deleteByOrderListingListingId(Long listingId);
+
     @Modifying
     @Query("""
 UPDATE Notification n

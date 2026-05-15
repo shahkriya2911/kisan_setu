@@ -30,8 +30,9 @@ public class BuyerListingResponseDto {
     private String storageType;
     private LocalDate harvestDate;
     private BigDecimal minimumBidIncrement;
+    private BigDecimal maximumBidIncrement;
     private String grade;
-    private BigDecimal basePrice;
+    private BigDecimal totalBasePrice;
     private BigDecimal pricePerKg;
     private PurchaseType purchaseType;
     private String district;
@@ -40,6 +41,8 @@ public class BuyerListingResponseDto {
     private BigDecimal currentHighestBid;
     private List<ProductImageResponseDto> images;
     private BigDecimal minimumOrderQuantity;
-
+    private List<BidResponseDto> top5Bids;
+    private String sellerName;
+    private QualityCertificateResponseDto certificate;
 
 }

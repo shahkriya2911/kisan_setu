@@ -44,7 +44,7 @@ public class Bid extends Auditable{
     @JoinColumn(name = "buyer_id")
     private User buyer;
 
-    @OneToMany(mappedBy = "bid")
+    @OneToMany(mappedBy = "bid",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Notification> notifications = new ArrayList<>();
 
 

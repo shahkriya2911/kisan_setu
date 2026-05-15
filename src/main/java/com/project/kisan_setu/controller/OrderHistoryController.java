@@ -1,7 +1,10 @@
 package com.project.kisan_setu.controller;
 import com.project.kisan_setu.dto.RequestDto.ReportUserRequestDto;
 import com.project.kisan_setu.dto.RequestDto.ReviewRequestDto;
+import com.project.kisan_setu.dto.ResponseDto.ApiResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.OrderHistoryResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ReportResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ReviewResponseDto;
 import com.project.kisan_setu.service.OrderHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
@@ -34,8 +38,9 @@ public class OrderHistoryController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<List<OrderHistoryResponseDto>> getAllOrderHistory() {
-        return ResponseEntity.ok(orderHistoryService.getAllOrderHistory());
+    public ResponseEntity<List<OrderHistoryResponseDto>> getAllOrderHistory(
+            @RequestParam(required = false) String search) {
+        return ResponseEntity.ok(orderHistoryService.getAllOrderHistory(search));
     }
 
     @GetMapping("/purchased")
@@ -46,8 +51,9 @@ public class OrderHistoryController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<List<OrderHistoryResponseDto>> getPurchasedOrderHistory() {
-        return ResponseEntity.ok(orderHistoryService.getPurchasedOrderHistory());
+    public ResponseEntity<List<OrderHistoryResponseDto>> getPurchasedOrderHistory(
+            @RequestParam(required = false) String search) {
+        return ResponseEntity.ok(orderHistoryService.getPurchasedOrderHistory(search));
     }
 
     @GetMapping("/sold")
@@ -58,8 +64,9 @@ public class OrderHistoryController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<List<OrderHistoryResponseDto>> getSoldOrderHistory() {
-        return ResponseEntity.ok(orderHistoryService.getSoldOrderHistory());
+    public ResponseEntity<List<OrderHistoryResponseDto>> getSoldOrderHistory(
+            @RequestParam(required = false) String search) {
+        return ResponseEntity.ok(orderHistoryService.getSoldOrderHistory(search));
     }
 
     @PostMapping("/seller/{orderId}")
@@ -72,7 +79,7 @@ public class OrderHistoryController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<String> reviewSeller(
+    public ResponseEntity<ApiResponseDto<ReviewResponseDto>> reviewSeller(
             @Parameter(description = "Order ID request", required = true)
             @PathVariable Long orderId,
             @Parameter(description = "Seller review details", required = true)
@@ -93,7 +100,7 @@ public class OrderHistoryController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<String> reviewBuyer(
+    public ResponseEntity<ApiResponseDto<ReviewResponseDto>> reviewBuyer(
             @Parameter(description = "Order ID request", required = true)
             @PathVariable Long orderId,
             @Parameter(description = "Buyer review details", required = true)
@@ -114,7 +121,7 @@ public class OrderHistoryController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<String> reportSeller(
+    public ResponseEntity<ApiResponseDto<ReportResponseDto>> reportSeller(
             @Parameter(description = "Order ID request", required = true)
             @PathVariable Long orderId,
             @Parameter(description = "Seller report details", required = true)
@@ -133,7 +140,7 @@ public class OrderHistoryController {
             @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<String> reportBuyer(
+    public ResponseEntity<ApiResponseDto<ReportResponseDto>> reportBuyer(
             @Parameter(description = "Order ID request", required = true)
             @PathVariable Long orderId,
             @Parameter(description = "Buyer report details", required = true)

@@ -1,6 +1,7 @@
 package com.project.kisan_setu.security;
 
 import com.project.kisan_setu.util.JwtAuthenticationEntryPoint;
+import org.springframework.core.annotation.Order;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -33,6 +34,36 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Order(1)
+    public SecurityFilterChain fileSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/files/**")
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().authenticated()
+                )
+                .headers(headers -> headers
+                        .frameOptions(frameOptions -> frameOptions.disable())
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(
+                                "frame-ancestors 'self' " +
+                                        "http://localhost:3000 " +
+                                        "http://192.168.31.213:3000 " +
+                                        "http://10.208.59.235:3000 " +
+                                        "https://kissansetu.vercel.app " +
+                                        "http://192.168.31.213:3001" +
+                                        "https://www.kisansetu.online"
+                        ))
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .formLogin(form -> form.disable());
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
@@ -46,7 +77,8 @@ public class SecurityConfig {
                                 "/api/users/logout",
                                 "/api/schemes/**",
                                 "/swagger-ui/**",
-                                "v3/api-docs/**"
+                                "v3/api-docs/**",
+                                "/ws/**"
                         )
                         .permitAll()
                         .anyRequest().authenticated()
@@ -58,4 +90,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-

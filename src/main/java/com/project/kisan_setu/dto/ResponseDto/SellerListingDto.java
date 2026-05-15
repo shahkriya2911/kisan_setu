@@ -24,6 +24,7 @@ public class SellerListingDto {
 
     private BigDecimal totalBasePrice;
     private BigDecimal minimumBidIncrement;
+    private BigDecimal maximumBidIncrement;
 
     private Long totalBids;
     private Long activeBidders;

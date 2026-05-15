@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReportUserRequestDto {
-    private Long orderId;
     @NotNull
     private String reason;
     private String description;

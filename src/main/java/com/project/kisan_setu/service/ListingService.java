@@ -10,6 +10,7 @@ import com.project.kisan_setu.dto.ResponseDto.ListingSummaryResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.RecentBidResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.SellerListingDto;
 import com.project.kisan_setu.dto.ResponseDto.SellerListingFixedDto;
+import com.project.kisan_setu.dto.ResponseDto.SellerListingSummaryDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,15 +36,17 @@ public interface ListingService {
 
     DashboardDto getSellerOverview();
 
-    Page<ListingResponseDto> activeListings(Long sellerId, Pageable pageable);
+    SellerListingSummaryDto getMyListingSummary();
+
+    Page<ListingResponseDto> activeListings(Long sellerId, Pageable pageable, String search);
 
     Page<Object> activeSummaryListings(Long sellerId, Pageable pageable, String cropName);
 
-    Page<ListingResponseDto> pendingListings(Long sellerId, Pageable pageable);
+    Page<ListingResponseDto> pendingListings(Long sellerId, Pageable pageable, String search);
 
-    Page<ListingResponseDto> soldListings(Long sellerId, Pageable pageable);
+    Page<ListingResponseDto> soldListings(Long sellerId, Pageable pageable, String search);
 
-    Page<ListingResponseDto> closedListings(Long sellerId, Pageable pageable);
+    Page<ListingResponseDto> closedListings(Long sellerId, Pageable pageable, String search);
 
     String extendAuctionTime(ExtendAuctionDto dto);
 
@@ -62,5 +65,5 @@ public interface ListingService {
 
     Page<ListingSummaryResponseDto> closedSummaryListings(Long sellerId, Pageable pageable);
 
-    Page<ListingResponseDto> myListings(Long userId, Pageable pageable);
+    Page<ListingResponseDto> myListings(Long userId, Pageable pageable, String search);
 }

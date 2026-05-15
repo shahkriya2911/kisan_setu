@@ -16,6 +16,7 @@ public class AuctionInfoDto {
     private BigDecimal basePricePerKg;
 
     private BigDecimal minBidIncrement;
+    private BigDecimal maxBidIncrement;
 
     private BigDecimal totalLotValue;
 

@@ -1,7 +1,20 @@
 package com.project.kisan_setu.controller;
+import com.project.kisan_setu.dto.ResponseDto.OrderChangeEventResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.AuctionBidUpdateResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.BidResponseDto;
+import com.project.kisan_setu.dto.ResponseDto.ListingResponseDto;
 import com.project.kisan_setu.dto.ResponseDto.OrderResponseDto;
 import com.project.kisan_setu.dto.PartialLotRequestDto;
+import com.project.kisan_setu.entity.Bid;
+import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.entity.Order;
+import com.project.kisan_setu.enums.AuctionStatus;
+import com.project.kisan_setu.enums.BidStatus;
+import com.project.kisan_setu.enums.SaleType;
+import com.project.kisan_setu.mapper.ListingMapper;
+import com.project.kisan_setu.repository.BidRepository;
+import com.project.kisan_setu.repository.ListingRepository;
+import com.project.kisan_setu.service.ListingService;
 import com.project.kisan_setu.service.OrderService;
 import com.project.kisan_setu.util.ValidatorMethods;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,7 +27,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.math.BigDecimal;
+import java.util.Optional;
 
 
 @RestController
@@ -24,10 +46,18 @@ public class OrderController {
     private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
     private final OrderService orderService;
     private final ValidatorMethods validatorMethods;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final ListingService listingService;
+    private final ListingRepository listingRepository;
+    private final BidRepository bidRepository;
 
-    public OrderController(OrderService orderService, ValidatorMethods validatorMethods) {
+    public OrderController(OrderService orderService, ValidatorMethods validatorMethods, SimpMessagingTemplate messagingTemplate, ListingService listingService, ListingRepository listingRepository, BidRepository bidRepository) {
         this.orderService = orderService;
         this.validatorMethods = validatorMethods;
+        this.messagingTemplate = messagingTemplate;
+        this.listingService = listingService;
+        this.listingRepository = listingRepository;
+        this.bidRepository = bidRepository;
     }
 
     // accept bid
@@ -46,7 +76,18 @@ public class OrderController {
             @PathVariable Long bidId){
         logger.debug("Create order attempt for bid with id : {}",bidId);
         logger.info("Order created for bid with id : {}",bidId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrderFromAcceptedBid(bidId));
+        OrderResponseDto response = orderService.createOrderFromAcceptedBid(bidId);
+        messagingTemplate.convertAndSend("/topic/auctions"
+                ,new OrderChangeEventResponseDto(
+                        response.getListingId(),SaleType.AUCTION,
+                                AuctionStatus.PENDING,BidStatus.ACCEPTED,
+                                null,null,response, response.getSellerId()));
+        messagingTemplate.convertAndSend("/topic/auctions/"+response.getListingId()
+                ,new OrderChangeEventResponseDto(
+                        response.getListingId(),SaleType.AUCTION,
+                                AuctionStatus.PENDING,BidStatus.ACCEPTED,
+                                null,null,response, response.getSellerId()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // buyer will confirm seller accept
@@ -66,7 +107,6 @@ public class OrderController {
             @PathVariable Long orderId) {
 
         Long buyerId = validatorMethods.getCurrentUserId();
-
         OrderResponseDto response = orderService.confirmOrder(orderId, buyerId);
         return ResponseEntity.ok(response);
     }
@@ -82,15 +122,45 @@ public class OrderController {
             @ApiResponse(responseCode = "400",description = "Bad input data")
     })
     @SecurityRequirement(name = "cookieAuth")
-    public ResponseEntity<String> rejectOrder(
+    public ResponseEntity<OrderResponseDto> rejectOrder(
             @Parameter(description = "order ID request",required = true)
             @PathVariable Long orderId){
         logger.debug("Reject Order attempt for order with id : {}",orderId);
         logger.info("Order rejected for order with id : {}",orderId);
-        orderService.rejectOrder(orderId);
-        return ResponseEntity.ok("Buyer rejected accepted bid");
+        OrderResponseDto response = orderService.rejectOrder(orderId);
+        Listing listing = listingRepository.findById(response.getListingId())
+                .orElseThrow(()->new RuntimeException("Listing not found"));
+        Optional<Bid> highestBidOpt = bidRepository.findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
+                listing.getListingId(),BidStatus.PENDING
+        );
+        Bid highestBid = highestBidOpt.orElse(null);
+        ListingResponseDto dto = ListingMapper.toResponse(listing,highestBid);
+        messagingTemplate.convertAndSend("/topic/auctions",dto);
+        messagingTemplate.convertAndSend("/topic/auctions/"+listing.getListingId(),dto);
+        AuctionBidUpdateResponseDto bidUpdate = new AuctionBidUpdateResponseDto(
+                dto,
+                toBidResponse(highestBid)
+        );
+        messagingTemplate.convertAndSend("/topic/auction-bids", bidUpdate);
+        messagingTemplate.convertAndSend("/topic/auction-bids/"+listing.getListingId(), bidUpdate);
+        return ResponseEntity.ok(response);
     }
 
+    private BidResponseDto toBidResponse(Bid bid) {
+        if (bid == null) {
+            return null;
+        }
+        return new BidResponseDto(
+                bid.getBidId(),
+                bid.getBuyer().getUserId(),
+                bid.getBuyerAmount(),
+                bid.getBuyer().getFullName(),
+                bid.getBidTime(),
+                bid.getBidStatus(),
+                bid.getListing().getSeller().getUserId(),
+                bid.getListing().getListingId()
+        );
+    }
 
     @GetMapping("/{orderId}")
     @Operation(description = "User can fetch a particular order",summary = "Get order method")
@@ -125,6 +195,17 @@ public class OrderController {
             @RequestBody PartialLotRequestDto requestDto) {
 
         OrderResponseDto response = orderService.partialLot(listingId, requestDto);
+        ListingResponseDto listing = listingService.getListingById(listingId);
+        BigDecimal remainingQuantity = listing.getQuantity();
+        AuctionStatus auctionStatus = remainingQuantity.compareTo(BigDecimal.ZERO) == 0
+                ? AuctionStatus.SOLD
+                : AuctionStatus.ACTIVE;
+        messagingTemplate.convertAndSend("/topic/fixed",
+                new OrderChangeEventResponseDto(listingId, SaleType.FIXED, auctionStatus,
+                        null,response.getTotalBasePrice(),remainingQuantity,response,response.getSellerId()));
+        messagingTemplate.convertAndSend("/topic/fixed/"+listingId,
+                new OrderChangeEventResponseDto(listingId, SaleType.FIXED, auctionStatus,
+                        null,response.getTotalBasePrice(),remainingQuantity,null,response.getSellerId()));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -143,6 +224,14 @@ public class OrderController {
             @PathVariable Long listingId) {
 
         OrderResponseDto response = orderService.wholeLot(listingId);
+        ListingResponseDto listing = listingService.getListingById(listingId);
+        BigDecimal remainingQuantity = listing.getQuantity();
+        messagingTemplate.convertAndSend("/topic/fixed",
+                new OrderChangeEventResponseDto(listingId,SaleType.FIXED,
+                        AuctionStatus.SOLD,null,remainingQuantity,response.getTotalBasePrice(),response, response.getSellerId()));
+        messagingTemplate.convertAndSend("/topic/fixed/"+listingId,
+                new OrderChangeEventResponseDto(null,SaleType.FIXED,
+                        AuctionStatus.SOLD,null,remainingQuantity,response.getTotalBasePrice(),response, response.getSellerId()));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

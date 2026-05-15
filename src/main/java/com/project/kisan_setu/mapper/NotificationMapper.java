@@ -18,7 +18,6 @@ public class NotificationMapper {
         dto.setMessage(n.getMessage());
         dto.setIsRead(n.getIsRead());
         dto.setType(n.getType());
-        dto.setCreatedTime(n.getCreatedAt());
         dto.setActionCompleted(n.getActionCompleted());
 
         // Listing details
@@ -31,18 +30,15 @@ public class NotificationMapper {
                 dto.setCropName(listing.getCrop().getCropName());
             }
             if (n.getType() == NotificationStatus.BID_ACCEPTED){
-                dto.setState(listing.getState().getName());
-                dto.setDistrict(listing.getDistrict().getName());
                 dto.setPricePerKg(listing.getPricePerKg());
+                dto.setImages(mapImages(listing));
             }
 
             dto.setVariety(listing.getVariety());
             dto.setQuantity(listing.getQuantity());
             dto.setUnit(listing.getUnit().getUnitName());
-            // Only include images if NOT BID_PLACED
-            if (n.getType() != NotificationStatus.BID_PLACED) {
-                dto.setImages(mapImages(listing));
-            }
+            dto.setState(listing.getState().getName());
+            dto.setDistrict(listing.getDistrict().getName());
 
             if (listing.getSeller() != null) {
                 dto.setSellerName(listing.getSeller().getFullName());
@@ -61,6 +57,9 @@ public class NotificationMapper {
         if (n.getOrder() != null){
             Order order = n.getOrder();
             dto.setOrderId(order.getOrderId());
+            if (dto.getBidAmount() == null) {
+                dto.setBidAmount(order.getAmount());
+            }
         }
         return dto;
     }

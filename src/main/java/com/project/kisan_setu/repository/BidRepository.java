@@ -1,5 +1,6 @@
 package com.project.kisan_setu.repository;
 
+import aj.org.objectweb.asm.commons.Remapper;
 import com.project.kisan_setu.entity.Bid;
 import com.project.kisan_setu.entity.Listing;
 import com.project.kisan_setu.enums.AuctionStatus;
@@ -14,12 +15,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BidRepository extends JpaRepository<Bid, Long> {
-    List<Bid> findByBuyerUserIdAndBidStatusInOrderByCreatedAtAsc(Long buyerId, List<BidStatus> statuses);
+    List<Bid> findByBuyerUserIdAndBidStatusInOrderByCreatedAtDesc(Long buyerId, List<BidStatus> statuses);
 
     List<Bid> findByListingListingIdOrderByBuyerAmountDesc(Long listingId);
 
     Optional<Bid> findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
             Long listingId, BidStatus status);
+    List<Bid> findTop5ByListingListingIdAndBidStatusInOrderByBuyerAmountDesc(Long listingId,List<BidStatus> statuses);
 
     default List<Bid> findTop5ByListingListingIdAndBidStatusOrderByAmountDesc(Long listingId, BidStatus status) {
         return findTop5ByListingListingIdAndBidStatusOrderByBuyerAmountDesc(listingId, status);
@@ -53,6 +55,17 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
     @Query("SELECT COUNT(b) FROM Bid b WHERE b.listing.seller.userId = :sellerId")
     Long countTotalBidsBySellerId(@Param("sellerId") Long sellerId);
 
+    @Query("""
+            SELECT COUNT(DISTINCT b.listing.listingId)
+            FROM Bid b
+            WHERE b.listing.seller.userId = :sellerId
+            AND b.listing.status = 'ACTIVE'
+            AND b.bidStatus = 'PENDING'
+            """)
+    Long countActiveListingsWithPendingBidsBySellerId(@Param("sellerId") Long sellerId);
+
+    Long countByListingSellerUserIdAndBidStatus(Long sellerId, BidStatus bidStatus);
+
     @Query("SELECT COALESCE(SUM(b.buyerAmount), 0) FROM Bid b WHERE b.listing.seller.userId = :sellerId")
     BigDecimal sumAmountByListingSellerId(@Param("sellerId") Long sellerId);
 
@@ -77,5 +90,13 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
 
     List<Bid> findByListingListingIdAndBidIdNot(Long listingId, Long bidId);
 
+    List<Bid> findByListingListingIdAndBidStatus(Long listingId, BidStatus bidStatus);
+
+    void deleteByListingListingId(Long listingId);
+
     List<Bid> findByBuyerUserIdAndBidStatusOrderByCreatedAtAsc(Long buyerId, BidStatus bidStatus);
+
+    List<Bid> findByBuyerUserIdAndBidStatusOrderByCreatedAtDesc(Long buyerId, BidStatus bidStatus);
+
+    Optional<Bid> findTopByListingListingIdAndBidStatusInOrderByBuyerAmountDesc(Long listingId, List<BidStatus> statuses);
 }

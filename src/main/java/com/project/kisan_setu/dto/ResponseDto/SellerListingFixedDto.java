@@ -1,5 +1,6 @@
 package com.project.kisan_setu.dto.ResponseDto;
 
+import com.project.kisan_setu.enums.AuctionStatus;
 import com.project.kisan_setu.enums.PurchaseType;
 import com.project.kisan_setu.enums.SaleType;
 import lombok.*;
@@ -32,9 +33,9 @@ public class SellerListingFixedDto {
     private String pickupMethod;
 
     private BigDecimal fixedPrice;
-    private BigDecimal pricePerQuintal;
+    private BigDecimal pricePerUnit;
 
-    private BigDecimal moqPricePerQuintal;
+    private BigDecimal moqPricePerUnit;
 
     private LocalDateTime postedOn;
 
@@ -44,4 +45,7 @@ public class SellerListingFixedDto {
 
     private SaleType saleType;
     private PurchaseType purchaseType;
+    private BigDecimal quantity;
+    private BigDecimal moq;
+    private AuctionStatus auctionStatus;
 }

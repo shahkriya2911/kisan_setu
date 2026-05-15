@@ -11,14 +11,16 @@ import com.project.kisan_setu.dto.ResponseDto.QualityCertificateResponseDto;
 import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.entity.*;
+import com.project.kisan_setu.repository.BidRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ListingMapper {
 
-    public static ListingResponseDto toResponse(Listing listing) {
+    public static ListingResponseDto toResponse(Listing listing, Bid highesBid) {
 
         ListingResponseDto dto = new ListingResponseDto();
         dto.setListingId(listing.getListingId());
@@ -40,9 +42,10 @@ public class ListingMapper {
         dto.setPricePerKg(listing.getPricePerKg());
         dto.setTotalBasePrice(listing.getTotalBasePrice());
         dto.setMinimumBidIncrement(listing.getMinimumBidIncrement());
+        dto.setMaximumBidIncrement(listing.getMaximumBidIncrement());
         dto.setPurchaseType(listing.getPurchaseType());
         dto.setSaleType(listing.getSaleType() != null
-                ? listing.getSaleType().name()
+                ? listing.getSaleType()
                 : null);
         dto.setAuctionEndTime(listing.getAuctionEndTime());
 
@@ -103,6 +106,19 @@ public class ListingMapper {
 
         dto.setCreatedAt(listing.getCreatedAt());
         dto.setAuctionStatus(listing.getStatus());
+        dto.setHighestBid(listing.getTopBid());
+        dto.setSellerId(listing.getSeller().getUserId());
+
+        if (highesBid!=null){
+            dto.setHighestBid(highesBid.getBuyerAmount());
+            dto.setTopBidderName(highesBid.getBuyer().getFullName());
+            dto.setTopBid(highesBid.getBidId());
+            dto.setStatus(highesBid.getBidStatus());
+        }else {
+            dto.setHighestBid(null);
+            dto.setTopBidderName(null);
+            dto.setTopBid(null);
+        }
 
         return dto;
     }
@@ -169,6 +185,7 @@ public class ListingMapper {
         listing.setTotalBasePrice(pricingDto.getTotalBasePrice());
         listing.setPurchaseType(pricingDto.getPurchaseType());
         listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
+        listing.setMaximumBidIncrement(pricingDto.getMaximumBidIncrement());
         listing.setSaleType(pricingDto.getSaleType());
         listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
         // Partial Order
@@ -221,6 +238,7 @@ public class ListingMapper {
         listing.setPricePerKg(pricingDto.getPricePerKg());
         listing.setTotalBasePrice(pricingDto.getTotalBasePrice());
         listing.setMinimumBidIncrement(pricingDto.getMinimumBidIncrement());
+        listing.setMaximumBidIncrement(pricingDto.getMaximumBidIncrement());
         listing.setAuctionEndTime(pricingDto.getAuctionEndTime());
         listing.setSaleType(pricingDto.getSaleType());
         listing.setState(state);
@@ -299,6 +317,24 @@ public class ListingMapper {
         return listing.getMinimumOrderQuantity();
     }
 
+
+    public static List<ProductImageResponseDto> mapAllImages(Listing listing) {
+        if (listing.getImages() == null || listing.getImages().isEmpty()) {
+            return null;
+        }
+
+        return listing.getImages().stream()
+                .map(img -> {
+                    ProductImageResponseDto dto = new ProductImageResponseDto();
+                    dto.setFileName(img.getFileName());
+                    dto.setFilePath(img.getFilePath());
+                    dto.setFileType(img.getFileType());
+                    dto.setIsPrimary(img.getIsPrimary());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
     public static AuctionListingResponseDto toAuctionListingResponseDto(Listing listing, Long topBid) {
 
         if (listing == null) {
@@ -324,6 +360,8 @@ public class ListingMapper {
         dto.setMinimumOrderQuantity(resolveMinimumOrderQuantity(listing));
 
         // Auction fields
+        dto.setMinimumBidIncrement(listing.getMinimumBidIncrement());
+        dto.setMaximumBidIncrement(listing.getMaximumBidIncrement());
         dto.setAuctionEndTime(listing.getAuctionEndTime());
 
         // Location

@@ -61,6 +61,7 @@ class JacksonSerializationTest {
                 "kg",
                 BigDecimal.valueOf(2500),
                 BigDecimal.valueOf(50),
+                BigDecimal.valueOf(100),
                 5L,
                 3L,
                 AuctionStatus.ACTIVE,
@@ -79,7 +80,9 @@ class JacksonSerializationTest {
                         BigDecimal.valueOf(2600),
                         "Buyer One",
                         LocalDateTime.of(2026, 4, 13, 10, 15),
-                        BidStatus.PENDING
+                        BidStatus.PENDING,
+                        99L,
+                        5L
                 )),
                 0L,
                 List.of(),

@@ -1,15 +1,18 @@
 package com.project.kisan_setu.mapper;
 import com.project.kisan_setu.dto.RequestDto.BuyingRequirementRequestDto;
 import com.project.kisan_setu.dto.ResponseDto.BuyingRequirementResponseDto;
-import com.project.kisan_setu.entity.*;
+import com.project.kisan_setu.entity.BuyingRequirement;
+import com.project.kisan_setu.entity.CropMaster;
+import com.project.kisan_setu.entity.DistrictMaster;
+import com.project.kisan_setu.entity.StateMaster;
+import com.project.kisan_setu.entity.UnitMaster;
+import com.project.kisan_setu.entity.User;
 import com.project.kisan_setu.enums.RequirementStatus;
-
-import java.time.LocalDateTime;
 
 public class BuyingRequirementMapper {
 
     public static BuyingRequirement toEntity(
-            BuyingRequirementRequestDto dto, User buyer, CropMaster crop, UnitMaster unit, StateMaster state,DistrictMaster district) {
+            BuyingRequirementRequestDto dto, User buyer, CropMaster crop, UnitMaster unit, StateMaster state, DistrictMaster district) {
 
         BuyingRequirement br = new BuyingRequirement();
         br.setCrop(crop);

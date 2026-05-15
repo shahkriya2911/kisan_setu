@@ -7,6 +7,5 @@ import java.util.List;
 
 public interface FraudReportService {
     FraudReportResponseDto createReport(FraudReportRequestDto dto,Long currentUserId);
-
     List<FraudReportResponseDto> getAllReports();
 }

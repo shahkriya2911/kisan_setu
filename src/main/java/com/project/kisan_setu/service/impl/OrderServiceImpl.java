@@ -65,11 +65,11 @@ public class OrderServiceImpl implements OrderService {
         if (listing.getStatus() != AuctionStatus.ACTIVE) {
             throw new RuntimeException("Listing is not ready for order creation");
         }
-        if (orderRepository.existsByAcceptBid(bid)){
-            throw new RuntimeException("Order already created through this bid");
-        }
         if (bid.getBidStatus() == BidStatus.REJECTED || bid.getBidStatus() == BidStatus.EXPIRED) {
             throw new RuntimeException("Bid is already " + bid.getBidStatus());
+        }
+        if (orderRepository.existsByAcceptBid(bid)){
+            throw new RuntimeException("Order already created through this bid");
         }
         if (listing.getBidAccepted()) {
             throw new RuntimeException("Bid already accepted for this listing");
@@ -86,7 +86,7 @@ public class OrderServiceImpl implements OrderService {
                 );
 
         for (Bid otherBid : otherBids) {
-            if (otherBid.getBidStatus() != BidStatus.ACCEPTED) {
+            if (otherBid.getBidStatus() == BidStatus.PENDING || otherBid.getBidStatus() == BidStatus.OUTBID) {
                 otherBid.setBidStatus(BidStatus.OUTBID);
             }
         }
@@ -162,7 +162,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public void rejectOrder(Long orderId){
+    public OrderResponseDto rejectOrder(Long orderId){
         Order order = orderRepository.findById(orderId).
                 orElseThrow(()->new NoSuchElementException("Order not found"));
         Long buyerId = validatorMethods.getCurrentUserId();
@@ -176,10 +176,21 @@ public class OrderServiceImpl implements OrderService {
         Bid bid = order.getAcceptBid();
         if (bid != null) {
             bid.setBidStatus(BidStatus.REJECTED);
+            bid.setAcceptedTime(null);
             bidRepository.save(bid);
         }
 
         Listing listing = order.getListing();
+        List<Bid> outbidBids = bidRepository.findByListingListingIdAndBidStatus(
+                listing.getListingId(),
+                BidStatus.OUTBID
+        );
+        for (Bid outbidBid : outbidBids) {
+            outbidBid.setBidStatus(BidStatus.PENDING);
+            outbidBid.setAcceptedTime(null);
+        }
+        bidRepository.saveAll(outbidBids);
+
         Bid nextTopBid = bidRepository
                 .findTopByListingListingIdAndBidStatusOrderByBuyerAmountDesc(
                         listing.getListingId(),
@@ -199,6 +210,7 @@ public class OrderServiceImpl implements OrderService {
         notificationService.markOrderNotificationHandled(orderId);
         notificationService.createNotification(listing.getSeller(),"Buyer rejected the accepted bid",
                 NotificationStatus.ORDER_CANCELLED,listing,bid,order);
+        return OrderMapper.toDto(order);
     }
 
 //    @Override
@@ -284,13 +296,13 @@ public class OrderServiceImpl implements OrderService {
 
         BigDecimal totalPrice = listing.getPricePerKg().multiply(quantity);
 
-
         BigDecimal remaining = available.subtract(quantity);
         listing.setQuantity(remaining);
 
         if (remaining.compareTo(BigDecimal.ZERO) == 0) {
             listing.setStatus(AuctionStatus.SOLD);
         }
+        listing.setTotalBasePrice(remaining.multiply(listing.getPricePerKg()));
 
         Order order = new Order();
         order.setListing(listing);
@@ -308,6 +320,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOtpGeneratedAt(LocalDateTime.now());
         order.setOtpVerified(false);
         order.setOtpAttempts(0);
+        order.setTotalBasePrice(listing.getTotalBasePrice());
 
         listingRepository.save(listing);
         orderRepository.save(order);
@@ -446,6 +459,20 @@ public class OrderServiceImpl implements OrderService {
         order.setOtpVerified(true);
         order.setStatus(OrderStatus.COMPLETED);
         order.setEscrowStatus(EscrowStatus.RELEASED);
+        order.setCompletedAt(LocalDateTime.now());
+
+        Listing listing = order.getListing();
+        if (listing != null) {
+            boolean shouldMarkSold = listing.getSaleType() == SaleType.AUCTION
+                    || listing.getPurchaseType() == PurchaseType.WHOLE_LOT_ONLY
+                    || (listing.getQuantity() != null && listing.getQuantity().compareTo(BigDecimal.ZERO) <= 0);
+
+            if (shouldMarkSold) {
+                listing.setStatus(AuctionStatus.SOLD);
+                listing.setIsSold(true);
+                listingRepository.save(listing);
+            }
+        }
 
         orderRepository.save(order);
 
@@ -454,7 +481,7 @@ public class OrderServiceImpl implements OrderService {
                 order.getSeller(),
                 "Payment released for order #" + order.getOrderId(),
                 NotificationStatus.PAYMENT_RELEASED,
-                order.getListing(),
+                listing,
                 null,
                 order
         );

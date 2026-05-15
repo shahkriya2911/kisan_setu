@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 
@@ -32,11 +33,14 @@ class BuyerControllerTest {
     @Mock
     private ValidatorMethods validatorMethods;
 
+    @Mock
+    private SimpMessagingTemplate messagingTemplate;
+
     private BuyerController buyerController;
 
     @BeforeEach
     void setUp() {
-        buyerController = new BuyerController(buyerService, bidService, validatorMethods);
+        buyerController = new BuyerController(buyerService, bidService, validatorMethods, messagingTemplate);
     }
 
     @Test
