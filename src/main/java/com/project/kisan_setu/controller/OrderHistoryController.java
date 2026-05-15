@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -162,8 +164,9 @@ public class OrderHistoryController {
         byte[] pdf = orderHistoryService.downloadInvoice(orderId);
 
         return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=invoice_" + orderId + ".pdf")
-                .header("Content-Type", "application/pdf")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"invoice_" + orderId + ".pdf\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .contentLength(pdf.length)
                 .body(pdf);
     }
 

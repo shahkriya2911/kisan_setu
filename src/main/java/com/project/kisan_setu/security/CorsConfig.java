@@ -33,7 +33,13 @@ public class CorsConfig {
 
         config.setAllowCredentials(true);
 
-        config.setExposedHeaders(List.of("Set-Cookie", "Authorization"));
+        config.setExposedHeaders(List.of(
+                "Set-Cookie",
+                "Authorization",
+                "Content-Disposition",
+                "Content-Type",
+                "Content-Length"
+        ));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

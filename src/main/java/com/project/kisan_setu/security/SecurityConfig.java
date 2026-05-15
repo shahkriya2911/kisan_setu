@@ -50,10 +50,10 @@ public class SecurityConfig {
                                 "frame-ancestors 'self' " +
                                         "http://localhost:3000 " +
                                         "http://192.168.31.213:3000 " +
-                                        "http://10.208.59.235:3000 " +
+                                        "https://www.kisansetu.online" +
                                         "https://kissansetu.vercel.app " +
-                                        "http://192.168.31.213:3001" +
-                                        "https://www.kisansetu.online"
+                                        "http://192.168.31.213:3001"
+
                         ))
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
