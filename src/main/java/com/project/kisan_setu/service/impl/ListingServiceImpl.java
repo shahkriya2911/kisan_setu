@@ -288,6 +288,11 @@ public class ListingServiceImpl implements ListingService {
                 throw new UserException("MOQ PricePerKg must be greater than 0", HttpStatus.BAD_REQUEST);
             }
 
+            if (pricingDto.getQuantity() != null
+                    && pricingDto.getMinimumOrderQuantity().compareTo(pricingDto.getQuantity()) > 0) {
+                pricingDto.setMinimumOrderQuantity(pricingDto.getQuantity());
+            }
+
             logger.info("Partial Order Listing validated");
         }
     }

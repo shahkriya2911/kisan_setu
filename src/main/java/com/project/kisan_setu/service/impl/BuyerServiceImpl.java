@@ -21,6 +21,7 @@ import com.project.kisan_setu.enums.BidStatus;
 import com.project.kisan_setu.enums.NotificationStatus;
 import com.project.kisan_setu.enums.SaleType;
 import com.project.kisan_setu.mapper.BuyingRequirementMapper;
+import com.project.kisan_setu.mapper.ListingMapper;
 import com.project.kisan_setu.repository.BidRepository;
 import com.project.kisan_setu.repository.BuyingRequirementRepository;
 import com.project.kisan_setu.repository.ListingRepository;
@@ -331,7 +332,7 @@ public class BuyerServiceImpl implements BuyerService {
                 listing.getAuctionEndTime(),
                 currentHighest,
                 images,
-                listing.getMinimumOrderQuantity());
+                ListingMapper.resolveMinimumOrderQuantity(listing));
     }
 
     private ProductImageResponseDto toImageResponse(ListingImage image) {

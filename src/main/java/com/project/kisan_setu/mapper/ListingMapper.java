@@ -12,6 +12,7 @@ import com.project.kisan_setu.embedded.ListingCertificate;
 import com.project.kisan_setu.embedded.ListingImage;
 import com.project.kisan_setu.entity.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,7 +47,7 @@ public class ListingMapper {
         dto.setAuctionEndTime(listing.getAuctionEndTime());
 
         // Partial Order
-        dto.setMinimumOrderQuantity(listing.getMinimumOrderQuantity());
+        dto.setMinimumOrderQuantity(resolveMinimumOrderQuantity(listing));
         dto.setMoqPricePerKg(listing.getMoqPricePerKg());
         if (listing.getState() != null) {
             dto.setState(listing.getState().getName());
@@ -287,6 +288,17 @@ public class ListingMapper {
                 })
                 .orElse(null);
     }
+    public static BigDecimal resolveMinimumOrderQuantity(Listing listing) {
+        if (listing == null || listing.getMinimumOrderQuantity() == null) {
+            return null;
+        }
+        if (listing.getQuantity() != null
+                && listing.getMinimumOrderQuantity().compareTo(listing.getQuantity()) > 0) {
+            return listing.getQuantity();
+        }
+        return listing.getMinimumOrderQuantity();
+    }
+
     public static AuctionListingResponseDto toAuctionListingResponseDto(Listing listing, Long topBid) {
 
         if (listing == null) {
@@ -309,7 +321,7 @@ public class ListingMapper {
         dto.setSaleType(listing.getSaleType().name());
 
         // Partial Order fields
-        dto.setMinimumOrderQuantity(listing.getMinimumOrderQuantity());
+        dto.setMinimumOrderQuantity(resolveMinimumOrderQuantity(listing));
 
         // Auction fields
         dto.setAuctionEndTime(listing.getAuctionEndTime());

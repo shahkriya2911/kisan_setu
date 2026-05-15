@@ -264,15 +264,18 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("Quantity must be greater than 0");
         }
 
-        // MOQ validation
-        BigDecimal moq = listing.getMinimumOrderQuantity();
-        if (moq != null && quantity.compareTo(moq) < 0) {
-            throw new RuntimeException("Minimum order quantity is " + moq);
-        }
-
         BigDecimal available = listing.getQuantity();
         if (available == null) {
             throw new RuntimeException("Listing quantity not set");
+        }
+
+        // MOQ validation
+        BigDecimal moq = listing.getMinimumOrderQuantity();
+        if (moq != null && moq.compareTo(available) > 0) {
+            moq = available;
+        }
+        if (moq != null && quantity.compareTo(moq) < 0) {
+            throw new RuntimeException("Minimum order quantity is " + moq);
         }
 
         if (quantity.compareTo(available) > 0) {
