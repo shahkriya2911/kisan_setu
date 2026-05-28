@@ -65,48 +65,105 @@ public class UserController {
         private final UserRepository userRepository;
         private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-        @PostMapping("/signup")
-        @Operation(description = "This method is for user registration", summary = "Sign up method")
-        @ApiResponses(value = {
-                        @ApiResponse(responseCode = "201", description = "User created"),
-                        @ApiResponse(responseCode = "400", description = "Incorrect credentials"),
-                        @ApiResponse(responseCode = "500", description = "Something went wrong")
-        })
-        public ResponseEntity<SignupResponseDto> signup(
-                        @Parameter(description = "user registration details are required", required = true) @Valid @RequestBody CreateUserRequestDto dto,
-                        HttpServletResponse response) {
+    @PostMapping("/signup")
+    @Operation(
+            description = "This method is for user registration",
+            summary = "Sign up method"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "User created"),
+            @ApiResponse(responseCode = "400", description = "Incorrect credentials"),
+            @ApiResponse(responseCode = "500", description = "Something went wrong")
+    })
+    public ResponseEntity<SignupResponseDto> signup(
 
-                logger.debug("Signup request for email: {}", dto.getEmail());
+            @Parameter(
+                    description = "user registration details are required",
+                    required = true
+            )
+            @Valid
+            @RequestBody
+            CreateUserRequestDto dto,
 
-                SignupResponseDto responseDto = userService.signup(dto);
-                User user = userService.findByEmail(responseDto.getData().getEmail());
-                issueLoginCookies(response, user);
+            HttpServletResponse response
+    ) {
 
-                logger.info("Signup successful for email: {}", user.getEmail());
-                return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
-        }
+        long startTime = System.currentTimeMillis();
 
-        @PostMapping("/login")
-        @Operation(summary = "Login method", description = "This method is used for user login")
-        @ApiResponses(value = {
-                        @ApiResponse(responseCode = "200", description = "User logged in successfully"),
-                        @ApiResponse(responseCode = "400", description = "Bad user credentials"),
-                        @ApiResponse(responseCode = "500", description = "Something went wrong")
-        })
-        public ResponseEntity<LoginResponseDto> login(
-                        @Parameter(description = "user login credentials", required = true) @Valid @RequestBody LoginRequestDto dto,
-                        HttpServletResponse response) {
+        logger.debug("Signup request for email: {}", dto.getEmail());
 
-                logger.debug("Login request for email: {}", dto.getEmail());
+        User user = userService.signup(dto);
 
-                LoginResponseDto responseDto = userService.login(dto);
-                User user = userService.findByEmail(responseDto.getData().getEmail());
-                issueLoginCookies(response, user);
+        issueLoginCookies(response, user);
 
-                logger.info("Login successful for email: {}", user.getEmail());
-                return ResponseEntity.ok(responseDto);
-        }
+        SignupResponseDto responseDto =
+                new SignupResponseDto(
+                        201,
+                        "Registration successful",
+                        UserMapper.toResponse(user)
+                );
 
+        long endTime = System.currentTimeMillis();
+
+        logger.info(
+                "Signup successful for email: {} | Time Taken: {} ms",
+                user.getEmail(),
+                (endTime - startTime)
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(responseDto);
+    }
+
+    @PostMapping("/login")
+    @Operation(
+            summary = "Login method",
+            description = "This method is used for user login"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User logged in successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad user credentials"),
+            @ApiResponse(responseCode = "500", description = "Something went wrong")
+    })
+    public ResponseEntity<LoginResponseDto> login(
+
+            @Parameter(
+                    description = "user login credentials",
+                    required = true
+            )
+            @Valid
+            @RequestBody
+            LoginRequestDto dto,
+
+            HttpServletResponse response
+    ) {
+
+        long startTime = System.currentTimeMillis();
+
+        logger.debug("Login request for email: {}", dto.getEmail());
+
+        User user = userService.login(dto);
+
+        issueLoginCookies(response, user);
+
+        LoginResponseDto responseDto =
+                new LoginResponseDto(
+                        200,
+                        "Login successful",
+                        UserMapper.toResponse(user)
+                );
+
+        long endTime = System.currentTimeMillis();
+
+        logger.info(
+                "Login successful for email: {} | Time Taken: {} ms",
+                user.getEmail(),
+                (endTime - startTime)
+        );
+
+        return ResponseEntity.ok(responseDto);
+    }
         @GetMapping("/me")
         @Operation(summary = "user details method", description = "This method is used for user details")
         @ApiResponses(value = {

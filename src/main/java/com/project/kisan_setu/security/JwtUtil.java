@@ -26,10 +26,8 @@ public class JwtUtil {
     private long refreshExpiration;
 
     private Key getSigningKey() {
-        byte[] keyBytes = Base64.getDecoder().decode(secret);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(secret.getBytes());
     }
-
 
     public String generateAccessToken(Long userId) {
         return Jwts.builder()

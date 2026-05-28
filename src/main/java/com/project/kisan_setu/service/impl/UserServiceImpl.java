@@ -24,7 +24,6 @@ import com.project.kisan_setu.mapper.UserMapper;
 import com.project.kisan_setu.repository.AadhaarVerificationRepository;
 import com.project.kisan_setu.repository.BankAccountVerificationRepository;
 import com.project.kisan_setu.repository.PanCardVerificationRepository;
-import com.project.kisan_setu.repository.RefreshTokenRepository;
 import com.project.kisan_setu.repository.UserRepository;
 import com.project.kisan_setu.service.FileStorageService;
 import com.project.kisan_setu.service.NotificationService;
@@ -38,7 +37,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -58,7 +56,6 @@ public class UserServiceImpl implements UserService {
     private final ValidatorMethods validatorMethods;
     private final BankAccountVerificationRepository bankAccountVerificationRepository;
     private final RefreshTokenService refreshTokenService;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final PanCardVerificationRepository panCardVerificationRepository;
     private final AadhaarVerificationRepository aadhaarVerificationRepository;
     private final FileStorageService fileStorageService;
@@ -79,52 +76,70 @@ public class UserServiceImpl implements UserService {
     private String adminSecret;
 
     @Override
-    public SignupResponseDto signup(CreateUserRequestDto dto) {
+    public User signup(CreateUserRequestDto dto) {
 
         if (!dto.getPassword().equals(dto.getConfirmPassword())) {
-            throw new UserException("Passwords do not match", HttpStatus.BAD_REQUEST);
+            throw new UserException(
+                    "Passwords do not match",
+                    HttpStatus.BAD_REQUEST
+            );
         }
 
         if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new UserException("Email already registered", HttpStatus.CONFLICT);
+            throw new UserException(
+                    "Email already registered",
+                    HttpStatus.CONFLICT
+            );
         }
 
         if (userRepository.existsByMobileNumber(dto.getMobileNumber())) {
-            throw new UserException("Mobile number already registered", HttpStatus.CONFLICT);
+            throw new UserException(
+                    "Mobile number already registered",
+                    HttpStatus.CONFLICT
+            );
         }
 
         User user = UserMapper.toEntity(dto);
+
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-        if (dto.getAdminSecret() != null && dto.getAdminSecret().equals(adminSecret)) {
+        if (dto.getAdminSecret() != null
+                && dto.getAdminSecret().equals(adminSecret)) {
+
             user.setRole(Role.ADMIN);
+
         } else {
+
             user.setRole(Role.USER);
         }
 
         user.setStatus(UserStatus.ACTIVE);
-        userRepository.save(user);
 
-        return new SignupResponseDto(
-                201,
-                "Registration successful",
-                UserMapper.toResponse(user));
+        return userRepository.save(user);
     }
 
     @Override
-    public LoginResponseDto login(LoginRequestDto dto) {
+    public User login(LoginRequestDto dto) {
 
         User user = userRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new UserException("Email not registered", HttpStatus.BAD_REQUEST));
+                .orElseThrow(() ->
+                        new UserException(
+                                "Invalid email or password",
+                                HttpStatus.BAD_REQUEST
+                        ));
 
-        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new UserException("Invalid email or password", HttpStatus.BAD_REQUEST);
+        if (!passwordEncoder.matches(
+                dto.getPassword(),
+                user.getPassword()
+        )) {
+
+            throw new UserException(
+                    "Invalid email or password",
+                    HttpStatus.BAD_REQUEST
+            );
         }
 
-        return new LoginResponseDto(
-                200,
-                "Login successful",
-                UserMapper.toResponse(user));
+        return user;
     }
 
     @Override
@@ -167,14 +182,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
     public void deleteUserById(Long userId) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
+        if (!userRepository.existsById(userId)) {
+            throw new UserException("User not found", HttpStatus.NOT_FOUND);
+        }
 
-        refreshTokenRepository.deleteByUser(user);
-        userRepository.delete(user);
+        userRepository.deleteById(userId);
     }
 
     @Override

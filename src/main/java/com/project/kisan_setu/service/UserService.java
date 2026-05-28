@@ -10,8 +10,8 @@ import java.util.List;
 
 public interface UserService {
 
-    SignupResponseDto signup(CreateUserRequestDto dto);
-    LoginResponseDto login(LoginRequestDto dto);
+    User signup(CreateUserRequestDto dto);
+    User login(LoginRequestDto dto);
     UserProfileResponseDto getUserById(Long userId);
     List<UserProfileResponseDto> getAllUsers();
 
