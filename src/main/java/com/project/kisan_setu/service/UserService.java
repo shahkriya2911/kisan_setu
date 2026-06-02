@@ -5,6 +5,8 @@ import com.project.kisan_setu.dto.ResponseDto.*;
 import com.project.kisan_setu.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.project.kisan_setu.dto.RequestDto.ForgotPasswordRequestDto;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -31,6 +33,10 @@ public interface UserService {
 
     ChangePasswordResponseDto changePassword(ChangePasswordRequestDto dto);
     KycStatusResponseDto getKycStatus();
+
+    void forgotPassword(ForgotPasswordRequestDto dto);
+
+
 
 
 

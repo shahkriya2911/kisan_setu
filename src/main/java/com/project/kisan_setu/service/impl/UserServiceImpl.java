@@ -47,6 +47,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.project.kisan_setu.dto.RequestDto.ForgotPasswordRequestDto;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -418,5 +420,38 @@ public class UserServiceImpl implements UserService {
                 .fullyVerified(fullyVerified)
                 .overallMessage(fullyVerified ? "Verified" : "Pending verification")
                 .build();
+    }
+
+    @Override
+    public void forgotPassword(ForgotPasswordRequestDto dto) {
+
+        if (!dto.getPassword().equals(dto.getConfirmPassword())) {
+            throw new UserException(
+                    "Password and confirm password do not match",
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
+        String email = dto.getEmail().trim().toLowerCase();
+        String mobileNumber = dto.getMobileNumber().trim();
+
+        User user = userRepository.findByEmailAndMobileNumber(email, mobileNumber)
+                .orElseThrow(() -> new UserException(
+                        "Email is invalid or phone number is invalid",
+                        HttpStatus.BAD_REQUEST
+                ));
+
+        if (passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+            throw new UserException(
+                    "New password cannot be same as old password",
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+
+        userRepository.save(user);
+
+        refreshTokenService.revokeAllUserTokens(user);
     }
 }

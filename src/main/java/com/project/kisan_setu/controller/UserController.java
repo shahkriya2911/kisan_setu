@@ -47,6 +47,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import com.project.kisan_setu.dto.RequestDto.ForgotPasswordRequestDto;
 import java.util.List;
 import java.util.Optional;
 
@@ -561,5 +562,20 @@ public class UserController {
 
         response.addHeader("Set-Cookie", clearAccessCookie.toString());
         response.addHeader("Set-Cookie", clearRefreshCookie.toString());
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponseDto<Void>> forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequestDto dto
+    ) {
+        userService.forgotPassword(dto);
+
+        return ResponseEntity.ok(
+                new ApiResponseDto<>(
+                        200,
+                        "Password updated successfully",
+                        null
+                )
+        );
     }
 }
